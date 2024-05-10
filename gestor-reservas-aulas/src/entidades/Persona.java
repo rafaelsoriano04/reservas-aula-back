@@ -6,12 +6,14 @@ public class Persona {
     private int cedula;
     private String nombre;
     private String apellido;
+    private String telefono;
 
-    public Persona(int id, int cedula, String nombre, String apellido) {
+    public Persona(int id, int cedula, String nombre, String apellido, String telefono) {
         this.id = id;
         this.cedula = cedula;
         this.nombre = nombre;
         this.apellido = apellido;
+        this.telefono = telefono;
     }
 
     public int getId() {
@@ -44,6 +46,14 @@ public class Persona {
 
     public void setApellido(String apellido) {
         this.apellido = apellido;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
 }
