@@ -38,5 +38,5 @@ public class Horario {
     private Aula aula;
     @ManyToOne
     @JoinColumn(name = "id_laboratorio")
-    private Laboratorio laboratorio;
+    private Laboratorio laboratorio;  
 }
