@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "bloques")
 @NoArgsConstructor
@@ -18,10 +20,15 @@ public class Bloque {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(unique = true)
     String nombre;
     String descripcion;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloques")
+    List<Aula> listaAulas;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloques")
     List<Labotorio> listaLaboratorios;
+
 
 }
