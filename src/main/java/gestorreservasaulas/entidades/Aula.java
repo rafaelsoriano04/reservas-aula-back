@@ -22,8 +22,15 @@ public class Aula {
     private int piso;
     private int capacidad;
 
+    @OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> listaReservas;
+
+    @OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Horario> listaHorario;
+    
     @ManyToOne
     @JoinColumn(name="id_bloque")
     private Bloque bloque;
+
 
 }
