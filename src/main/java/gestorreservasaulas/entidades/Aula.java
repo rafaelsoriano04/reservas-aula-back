@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 
 @Entity
@@ -22,8 +23,8 @@ public class Aula {
     private int piso;
     private int capacidad;
 
-    @OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reserva> listaReservas;
+   //@OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private List<Reserva> listaReservas;
 
     @OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
