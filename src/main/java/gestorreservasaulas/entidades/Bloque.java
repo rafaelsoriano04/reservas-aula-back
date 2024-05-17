@@ -28,7 +28,7 @@ public class Bloque {
     List<Aula> listaAulas;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloques")
-    List<Labotorio> listaLaboratorios;
+    List<Laboratorio> listaLaboratorios;
 
 
 }
