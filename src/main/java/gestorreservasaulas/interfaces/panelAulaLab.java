@@ -8,15 +8,28 @@ package gestorreservasaulas.interfaces;
  *
  * @author usuario
  */
+import gestorreservasaulas.entidades.Aula;
+import gestorreservasaulas.entidades.Laboratorio;
+import gestorreservasaulas.servicios.impl.ServicioAulaImpl;
+import gestorreservasaulas.servicios.impl.ServicioLaboratorioImpl;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 @Component
 public class panelAulaLab extends javax.swing.JPanel {
 
-    /**
-     * Creates new form panelAulaLAb
-     */
+    private String[] columnas={"id","Nombre","Piso","Capacidad"};
+    List<Aula> aulas;
+    List<Laboratorio> laboratorio;
+    @Autowired
+    ServicioAulaImpl aula;
+    @Autowired
+    ServicioLaboratorioImpl labs;
+
     public panelAulaLab() {
         initComponents();
     }
@@ -24,7 +37,43 @@ public class panelAulaLab extends javax.swing.JPanel {
     @PostConstruct
     private void iniciar() {
         setVisible(true);
+        cargarAulasLabPorBloque();
         
+    }
+
+    public void cargarAulasLabPorBloque(){
+        String bloqueSeleccionado = jcbxBloque.getSelectedItem().toString();
+        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        DefaultTableModel model= new DefaultTableModel(columnas,0);
+
+
+        if("Aulas".equals(tipoSeleccionado)){
+           aulas= aula.obtenerAulasPorBloque(bloqueSeleccionado);
+            for (Aula aula : aulas) {
+                Object[] datos = {
+                        aula.getId(),
+                        aula.getNombre(),
+                        aula.getPiso(),
+                        aula.getCapacidad()
+                };
+                model.addRow(datos);
+            }
+        }else{
+            laboratorio= labs.obtenerAulasPorBloque(bloqueSeleccionado);
+            for (Laboratorio lab : laboratorio){
+                Object [] datos={
+                        lab.getId(),
+                        lab.getNombre(),
+                        lab.getPiso(),
+                        lab.getCapacidad()
+                };
+                model.addRow(datos);
+            }
+        }
+        jTable1.setModel(model);
+
+
+
     }
 
 
