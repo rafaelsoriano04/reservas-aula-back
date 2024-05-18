@@ -20,4 +20,14 @@ public class ServicioHorarioImpl implements ServicioHorario{
     public Horario obtenerHorario(Long id) {
         return repositorioHorario.findById(id).orElse(null);
     }
+
+    @Override
+    public Boolean crearHorario(Horario horario) {
+        if(repositorioHorario.save(horario) != null ){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
 }

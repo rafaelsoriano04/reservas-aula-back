@@ -9,4 +9,5 @@ import gestorreservasaulas.entidades.Horario;
 
 public interface ServicioHorario {
     Horario obtenerHorario(Long id);
+    Boolean crearHorario(Horario horario);
 }
