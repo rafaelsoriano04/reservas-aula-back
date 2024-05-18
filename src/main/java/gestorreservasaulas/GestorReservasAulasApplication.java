@@ -17,6 +17,8 @@ public class GestorReservasAulasApplication {
 
 		FrmLogin appFrame = context.getBean(FrmLogin.class);
 		appFrame.setVisible(true);
+                
+                
 	}
 
 }

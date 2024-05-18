@@ -31,5 +31,16 @@ public class Bloque {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloque")
     List<Laboratorio> listaLaboratorios;
 
+    public Bloque(Long id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+    @Override
+    public String toString() {
+        return  nombre ;
+    }
+    
+    
 
 }

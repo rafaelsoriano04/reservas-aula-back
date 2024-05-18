@@ -1,10 +1,14 @@
 package gestorreservasaulas.interfaces;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FrmLogin extends javax.swing.JFrame {
+
+    @Autowired
+    private FrmPrincipal frmPrincipal;
 
     public FrmLogin() {
         initComponents();
@@ -39,6 +43,11 @@ public class FrmLogin extends javax.swing.JFrame {
         getContentPane().add(txtContra, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 160, -1));
 
         btnLogin.setText("Login");
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 240, -1, -1));
 
         jLabel3.setText("Usuario");
@@ -46,6 +55,11 @@ public class FrmLogin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        frmPrincipal.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

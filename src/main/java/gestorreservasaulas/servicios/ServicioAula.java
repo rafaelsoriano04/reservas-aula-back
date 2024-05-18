@@ -7,5 +7,5 @@ import java.util.List;
 public interface ServicioAula {
     Aula obtenerAula(String nombre);
     boolean editarAula(Aula aula);
-    List<Aula> obtenerAulasPorBloque(String bloqueNombre);
+    List<Aula> findByBloque(Long id_bloque);
 }
