@@ -14,5 +14,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RepositorioHorario extends JpaRepository<Horario, Long> {
-    Optional<Horario> getByID(Long id);
+    
 }
