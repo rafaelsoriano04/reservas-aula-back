@@ -22,6 +22,7 @@ public class Bloque {
 
     @Column(unique = true)
     String nombre;
+
     String descripcion;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloque")
