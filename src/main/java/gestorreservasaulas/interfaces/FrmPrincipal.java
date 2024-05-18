@@ -23,7 +23,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     
     @PostConstruct
     private void iniciar() {
-        setVisible(true);
         setLocationRelativeTo(null);
     }
 
