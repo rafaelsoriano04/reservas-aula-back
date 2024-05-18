@@ -6,7 +6,6 @@ package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioHorario;
-import gestorreservasaulas.respositorios.RepositorioUsuario;
 import gestorreservasaulas.servicios.ServicioHorario;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,6 +18,6 @@ public class ServicioHorarioImpl implements ServicioHorario{
     RepositorioHorario repositorioHorario;
      @Override
     public Horario obtenerHorario(Long id) {
-        return repositorioHorario.getByID(id).orElse(null);
+        return repositorioHorario.findById(id).orElse(null);
     }
 }
