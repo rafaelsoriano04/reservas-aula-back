@@ -22,8 +22,8 @@ public class Laboratorio {
     private int piso;
     private int capacidad;
 
-//    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Reserva> listaReserva;
+   @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> listaReserva;
 
     @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
