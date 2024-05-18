@@ -21,6 +21,7 @@ public class ServicioAulaImpl implements ServicioAula {
 
     @Autowired
     RepositorioAula repositorioAula;
+
     @Override
 
     public Aula obtenerAula(String nombre) {
@@ -31,9 +32,9 @@ public class ServicioAulaImpl implements ServicioAula {
     @Transactional
     public boolean editarAula(Aula aula) {
 
-       Aula aula1= repositorioAula.findById(aula.getId()).orElse(null);
-        if(aula1== null){
-          return false;
+        Aula aula1 = repositorioAula.findById(aula.getId()).orElse(null);
+        if (aula1 == null) {
+            return false;
         }
         aula1.setCapacidad(aula.getCapacidad());
         aula1.setPiso(aula.getPiso());
@@ -42,11 +43,10 @@ public class ServicioAulaImpl implements ServicioAula {
         return true;
     }
 
-   @Override
+    @Override
     public List<Aula> findByBloque(Long id_bloque) {
         return repositorioAula.findByBloque(id_bloque);
     }
 
-    
 
 }

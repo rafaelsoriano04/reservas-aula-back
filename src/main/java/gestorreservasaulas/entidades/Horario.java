@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gestorreservasaulas.entidades;
 
 import jakarta.persistence.Entity;
@@ -16,10 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- *
- * @author fredd
- */
 @Entity
 @Table(name = "horarios")
 @AllArgsConstructor
@@ -27,16 +19,21 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Horario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String dia;
     private String hora;
     private String materia;
+
     @ManyToOne
     @JoinColumn(name = "id_aula")
     private Aula aula;
+
     @ManyToOne
     @JoinColumn(name = "id_laboratorio")
-    private Laboratorio laboratorio;  
+    private Laboratorio laboratorio;
+
 }
