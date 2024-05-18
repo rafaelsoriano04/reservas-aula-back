@@ -22,10 +22,10 @@ public class Laboratorio {
     private int piso;
     private int capacidad;
 
-//    @OneToMany(mappedBy = "laboratorios", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Reserva> listaReserva;
 
-    @OneToMany(mappedBy = "laboratorios", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
 
     @ManyToOne

@@ -24,10 +24,10 @@ public class Bloque {
     String nombre;
     String descripcion;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloques")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloque")
     List<Aula> listaAulas;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloques")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloque")
     List<Laboratorio> listaLaboratorios;
 
 

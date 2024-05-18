@@ -23,10 +23,10 @@ public class Aula {
     private int piso;
     private int capacidad;
 
-   //@OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<Reserva> listaReservas;
+   @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> listaReservas;
 
-    @OneToMany(mappedBy = "aulas", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "Aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
     
     @ManyToOne
