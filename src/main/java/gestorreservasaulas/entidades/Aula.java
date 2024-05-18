@@ -26,7 +26,7 @@ public class Aula {
    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> listaReservas;
 
-    @OneToMany(mappedBy = "Aula", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
     
     @ManyToOne

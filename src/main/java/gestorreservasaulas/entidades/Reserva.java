@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="reservas")
+@Table(name = "reservas")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -33,8 +33,5 @@ public class Reserva {
     @ManyToOne
     @JoinColumn(name = "id_laboratorio")
     private Laboratorio laboratorio;
-
-
-
 
 }
