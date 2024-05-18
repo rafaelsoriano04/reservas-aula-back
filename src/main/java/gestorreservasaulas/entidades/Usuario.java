@@ -20,6 +20,7 @@ public class Usuario {
 
     @Column(unique = true)
     String username;
+
     String contrasenia;
 
 }
