@@ -1,5 +1,7 @@
 package gestorreservasaulas.entidades;
 
+import gestorreservasaulas.enums.Estado;
+import gestorreservasaulas.enums.Prenda;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +23,9 @@ public class Reserva {
     private String dia;
     private String hora;
     private String fecha;
+
+    @Enumerated(value = EnumType.STRING)
+    private Prenda prenda;
 
     @ManyToOne
     @JoinColumn(name = "id_aula")

@@ -17,7 +17,10 @@ public class Persona {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @Column(unique = true)
     String cedula;
+
     String nombre;
     String apellido;
     String telefono;
