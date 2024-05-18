@@ -1,6 +1,7 @@
 package gestorreservasaulas.entidades;
 
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,13 +18,13 @@ import java.util.List;
 public class Laboratorio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     private Long id;
+    private Long id;
     private String nombre;
     private int piso;
     private int capacidad;
 
-    @OneToMany(mappedBy = "laboratorios", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reserva> listaReserva;
+//    @OneToMany(mappedBy = "laboratorios", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Reserva> listaReserva;
 
     @OneToMany(mappedBy = "laboratorios", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
@@ -31,5 +32,4 @@ public class Laboratorio {
     @ManyToOne
     @JoinColumn(name = "id_bloque")
     private Bloque bloque;
-
 }
