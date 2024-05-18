@@ -58,10 +58,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
+
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cerrar-sesion.png"))); // NOI18N
         jButton2.setText("Cerrar Sesión");
         jButton2.setBorderPainted(false);
+        
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -108,11 +110,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         jPanel3.add(panelAulaLab);
         jPanel3.revalidate(); // Hace que el layout manager vuelva a colocar los componentes
         jPanel3.repaint();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+ 
 
     /**
      * @param args the command line arguments
