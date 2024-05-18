@@ -50,9 +50,11 @@ public class PanelAulaLab extends javax.swing.JPanel {
     }
 
     public void combo() {
-        // bloques= servicioBloque;
+        bloques = servicioBloque.obtenerTodosBloques();
+        for (Bloque block : bloques) {
+            jcbxBloque.addItem(block);
+        }
 
-        //  jcbxBloque.addItem(bloque1);
     }
 
     public void cargarAulasLabPorBloque() {
@@ -63,37 +65,29 @@ public class PanelAulaLab extends javax.swing.JPanel {
 
         Long idBloque = bloqueSeleccionado.getId(); // Obtener el ID del bloque seleccionado
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // Limpia la tabla antes de añadir nuevos datos
 
-        if ("Aula".equals(tipoSeleccionado)) {
+        if ("Aulas".equals(tipoSeleccionado)) {
             aulas = servicioAula.findByBloque(idBloque);
-            if (aulas != null) {
+            if (aulas != null && !aulas.isEmpty()) {
                 for (Aula aula : aulas) {
-                    Object[] datos = {
-                        aula.getId(),
-                        aula.getNombre(),
-                        aula.getPiso(),
-                        aula.getCapacidad()
-                    };
+                    Object[] datos = {aula.getId(), aula.getNombre(), aula.getPiso(), aula.getCapacidad()};
                     model.addRow(datos);
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "No hay aulas para este bloque");
             }
-            JOptionPane.showMessageDialog(null, "No hay aulas para este bloque");
         } else {
-
             laboratorios = servicioLaboratorio.findByBloque(idBloque);
-            if (aulas != null) {
+            if (laboratorios != null && !laboratorios.isEmpty()) {
                 for (Laboratorio lab : laboratorios) {
-                    Object[] datos = {
-                        lab.getId(),
-                        lab.getNombre(),
-                        lab.getPiso(),
-                        lab.getCapacidad()
-                    };
+                    Object[] datos = {lab.getId(), lab.getNombre(), lab.getPiso(), lab.getCapacidad()};
                     model.addRow(datos);
                 }
-
+            } else {
+                JOptionPane.showMessageDialog(null, "No hay Laboratorios para este bloque");
             }
-            JOptionPane.showMessageDialog(null, "No hay Laboratorios para este bloque");
         }
     }
 
@@ -127,6 +121,16 @@ public class PanelAulaLab extends javax.swing.JPanel {
         jLabel1.setText("Capacidad:");
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 170, -1, -1));
 
+        jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jcbxBloqueItemStateChanged(evt);
+            }
+        });
+        jcbxBloque.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jcbxBloqueMouseClicked(evt);
+            }
+        });
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxBloqueActionPerformed(evt);
@@ -134,7 +138,12 @@ public class PanelAulaLab extends javax.swing.JPanel {
         });
         add(jcbxBloque, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 50, 250, -1));
 
-        jcbxAula.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Aula", " "}));
+        jcbxAula.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Aulas", "Laboratorios", " " }));
+        jcbxAula.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcbxAulaActionPerformed(evt);
+            }
+        });
         add(jcbxAula, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 100, 250, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -148,15 +157,15 @@ public class PanelAulaLab extends javax.swing.JPanel {
         add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 170, 170, -1));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][]{
-                        {null, null, null, null},
-                        {null, null, null, null},
-                        {null, null, null, null},
-                        {null, null, null, null}
-                },
-                new String[]{
-                        "Title 1", "Title 2", "Title 3", "Title 4"
-                }
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
         ));
         jScrollPane1.setViewportView(jTable1);
 
@@ -185,7 +194,22 @@ public class PanelAulaLab extends javax.swing.JPanel {
 
     private void jcbxBloqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxBloqueActionPerformed
         // TODO add your handling code here:
+        cargarAulasLabPorBloque();
     }//GEN-LAST:event_jcbxBloqueActionPerformed
+
+    private void jcbxBloqueMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jcbxBloqueMouseClicked
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_jcbxBloqueMouseClicked
+
+    private void jcbxBloqueItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jcbxBloqueItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jcbxBloqueItemStateChanged
+
+    private void jcbxAulaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxAulaActionPerformed
+        // TODO add your handling code here:
+        cargarAulasLabPorBloque();
+    }//GEN-LAST:event_jcbxAulaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
