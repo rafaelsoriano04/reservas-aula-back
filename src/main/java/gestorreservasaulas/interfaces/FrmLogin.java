@@ -1,13 +1,33 @@
 package gestorreservasaulas.interfaces;
 
+import gestorreservasaulas.servicios.ServicioUsuario;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.swing.*;
 
 @Component
 public class FrmLogin extends javax.swing.JFrame {
+    
+    @Autowired
+    private ServicioUsuario servicioUsuario;
+
+    @Autowired
+    private FrmPrincipal frmPrincipal;
 
     public FrmLogin() {
         initComponents();
+    }
+    
+    private void validarLogin() {
+
+        if (servicioUsuario.validarUsuario(txtUsername.getText(), txtContra.getText())) {
+            frmPrincipal.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(null, "Usuario o contreaseña incorrectos");
+        }
+
     }
 
     @PostConstruct
@@ -25,27 +45,41 @@ public class FrmLogin extends javax.swing.JFrame {
         txtUsername = new javax.swing.JTextField();
         txtContra = new javax.swing.JTextField();
         btnLogin = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(296, 332));
+        setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel1.setText("Usuario");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
 
+        jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("Contraseña");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, -1, -1));
+
+        txtUsername.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 160, -1));
+
+        txtContra.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         getContentPane().add(txtContra, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 160, -1));
 
+        btnLogin.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         btnLogin.setText("Login");
-        getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 240, -1, -1));
-
-        jLabel3.setText("Usuario");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 250, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        validarLogin();
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -84,7 +118,6 @@ public class FrmLogin extends javax.swing.JFrame {
     private javax.swing.JButton btnLogin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField txtContra;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
