@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ServicioAulaImpl implements ServicioAula {
     @Autowired
@@ -30,6 +32,11 @@ public class ServicioAulaImpl implements ServicioAula {
         aula.setNombre(aula.getNombre());
         repositorioAula.save(aula);
         return true;
+    }
+
+    @Override
+    public List<Aula> obtenerAulasPorBloque(String bloqueNombre) {
+        return repositorioAula.getByBloqueNombre(bloqueNombre);
     }
 
 }
