@@ -25,6 +25,7 @@ public class FrmLogin extends javax.swing.JFrame {
         txtUsername = new javax.swing.JTextField();
         txtContra = new javax.swing.JTextField();
         btnLogin = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -39,6 +40,9 @@ public class FrmLogin extends javax.swing.JFrame {
 
         btnLogin.setText("Login");
         getContentPane().add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 240, -1, -1));
+
+        jLabel3.setText("Usuario");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -80,6 +84,7 @@ public class FrmLogin extends javax.swing.JFrame {
     private javax.swing.JButton btnLogin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField txtContra;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
