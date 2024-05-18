@@ -2,6 +2,7 @@ package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.servicios.ServicioUsuario;
 import jakarta.annotation.PostConstruct;
+import java.awt.event.ActionEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ public class FrmLogin extends javax.swing.JFrame {
 
     @Autowired
     private FrmPrincipal frmPrincipal;
+
 
     public FrmLogin() {
         initComponents();
@@ -60,6 +62,7 @@ public class FrmLogin extends javax.swing.JFrame {
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, -1, -1));
 
         txtUsername.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        
         getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 160, -1));
 
         txtContra.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -78,7 +81,12 @@ public class FrmLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+
+        frmPrincipal.setVisible(true);
+        this.dispose();
+
         validarLogin();
+
     }//GEN-LAST:event_btnLoginActionPerformed
 
     public static void main(String args[]) {
