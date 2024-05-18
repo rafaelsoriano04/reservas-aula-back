@@ -18,8 +18,9 @@ public class ServicioLaboratorioImpl implements ServicioLaboratorio {
         
     }
 
+
     @Override
-    public List<Laboratorio> obtenerAulasPorBloque(String bloqueNombre) {
-        return repositorioLaboratorio.getByBloqueNombre(bloqueNombre);
+    public List<Laboratorio> findByBloque(Long id_bloque) {
+      return repositorioLaboratorio.findByBloque(id_bloque);
     }
 }

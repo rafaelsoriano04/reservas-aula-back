@@ -7,11 +7,12 @@ package gestorreservasaulas.interfaces;
 /**
  * @author usuario
  */
-
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.ServicioAula;
+import gestorreservasaulas.servicios.ServicioBloque;
+import gestorreservasaulas.servicios.ServicioLaboratorio;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,13 +27,18 @@ public class PanelAulaLab extends javax.swing.JPanel {
     private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
 
     List<Aula> aulas;
-    List<Laboratorio> laboratorio;
+    List<Laboratorio> laboratorios;
+    List<Bloque> bloques;
     @Autowired
     private ServicioAula servicioAula;
+    @Autowired
+    private ServicioLaboratorio servicioLaboratorio;
+    @Autowired
+    private ServicioBloque servicioBloque;
 
     public PanelAulaLab() {
         initComponents();
-        
+
     }
 
     @PostConstruct
@@ -44,14 +50,9 @@ public class PanelAulaLab extends javax.swing.JPanel {
     }
 
     public void combo() {
-        Bloque bloque1 = new Bloque();
-        int intValue = 1; // Valor int
-        long longValue = intValue; // Conversión implícita de int a long
+        // bloques= servicioBloque;
 
-        bloque1.setId(longValue);
-        bloque1.setNombre("Bloque 1");
-
-        jcbxBloque.addItem(bloque1);
+        //  jcbxBloque.addItem(bloque1);
     }
 
     public void cargarAulasLabPorBloque() {
@@ -68,27 +69,31 @@ public class PanelAulaLab extends javax.swing.JPanel {
             if (aulas != null) {
                 for (Aula aula : aulas) {
                     Object[] datos = {
-                            aula.getId(),
-                            aula.getNombre(),
-                            aula.getPiso(),
-                            aula.getCapacidad()
+                        aula.getId(),
+                        aula.getNombre(),
+                        aula.getPiso(),
+                        aula.getCapacidad()
                     };
                     model.addRow(datos);
                 }
             }
             JOptionPane.showMessageDialog(null, "No hay aulas para este bloque");
         } else {
-            // Suponiendo que tienes un método similar para laboratorios en tu servicio
-//            laboratorio = labs.obtenerAulasPorBloque(idBloque);
-//            for (Laboratorio lab : laboratorio) {
-//                Object[] datos = {
-//                    lab.getId(),
-//                    lab.getNombre(),
-//                    lab.getPiso(),
-//                    lab.getCapacidad()
-//                };
-//                model.addRow(datos);
-//            }
+
+            laboratorios = servicioLaboratorio.findByBloque(idBloque);
+            if (aulas != null) {
+                for (Laboratorio lab : laboratorios) {
+                    Object[] datos = {
+                        lab.getId(),
+                        lab.getNombre(),
+                        lab.getPiso(),
+                        lab.getCapacidad()
+                    };
+                    model.addRow(datos);
+                }
+
+            }
+            JOptionPane.showMessageDialog(null, "No hay Laboratorios para este bloque");
         }
     }
 
