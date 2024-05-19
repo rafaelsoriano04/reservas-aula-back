@@ -28,6 +28,9 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private FrmCrearAulas frmcrearAula;
     
     @Autowired
+    private  FrmCrearLaboratorio FrmCrearLaboratorio;
+    
+    @Autowired
     private FrmEditarAulas frmeditarAulas;
      
     
@@ -285,7 +288,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             frmcrearAula.setVisible(true);
             
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
-           // crearLaboratorio.setVisible(true);
+           FrmCrearLaboratorio.setVisible(true);
         }
        
     

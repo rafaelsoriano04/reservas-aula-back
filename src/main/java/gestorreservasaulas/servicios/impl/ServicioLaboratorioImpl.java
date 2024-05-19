@@ -23,4 +23,9 @@ public class ServicioLaboratorioImpl implements ServicioLaboratorio {
     public List<Laboratorio> findByBloque(Long id_bloque) {
       return repositorioLaboratorio.findByBloque(id_bloque);
     }
+
+    @Override
+    public Laboratorio crearLaboratorio(Laboratorio lab) {
+        return repositorioLaboratorio.save(lab);
+    }
 }

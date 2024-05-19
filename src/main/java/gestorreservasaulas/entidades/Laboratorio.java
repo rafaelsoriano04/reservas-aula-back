@@ -24,7 +24,6 @@ public class Laboratorio {
 
     @Column(unique = true)
     private String nombre;
-
     private int piso;
     private int capacidad;
 
