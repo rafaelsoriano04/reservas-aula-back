@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PanelHorarios extends javax.swing.JPanel {
+public class PnlHorarios extends javax.swing.JPanel {
 
     @Autowired
     private ServicioHorario servicioHorario;
@@ -18,7 +18,7 @@ public class PanelHorarios extends javax.swing.JPanel {
     private Aula aula = null;
     private Laboratorio laboratorio = null;
 
-    public PanelHorarios() {
+    public PnlHorarios() {
         //Recibir un aula
         //llenar la tabla con los horario correspondiente a ese id de aula, agarrar de la lista
         initComponents();
@@ -36,7 +36,7 @@ public class PanelHorarios extends javax.swing.JPanel {
         jTable1.setModel(model);
     }
 
-    public PanelHorarios(Aula aula) {
+    public PnlHorarios(Aula aula) {
         initComponents();
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
@@ -73,7 +73,7 @@ public class PanelHorarios extends javax.swing.JPanel {
         }
     }
 
-    public PanelHorarios(Laboratorio laboratorio) {
+    public PnlHorarios(Laboratorio laboratorio) {
         initComponents();
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
@@ -262,7 +262,7 @@ public class PanelHorarios extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addComponent(jButton2)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(23, 23, 23))
         );

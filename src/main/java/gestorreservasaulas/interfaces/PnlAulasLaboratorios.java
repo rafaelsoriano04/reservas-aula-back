@@ -15,7 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
 @Component
-public class PanelAulaLab extends javax.swing.JPanel {
+public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     @Autowired
     private ServicioAula servicioAula;
@@ -33,7 +33,7 @@ public class PanelAulaLab extends javax.swing.JPanel {
     private List<Laboratorio> laboratorios;
     private List<Bloque> bloques;
 
-    public PanelAulaLab() {
+    public PnlAulasLaboratorios() {
         initComponents();
     }
 
@@ -151,6 +151,16 @@ public class PanelAulaLab extends javax.swing.JPanel {
         jLabel1.setText("Capacidad:");
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 170, -1, -1));
 
+        jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jcbxBloqueItemStateChanged(evt);
+            }
+        });
+        jcbxBloque.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jcbxBloqueMouseClicked(evt);
+            }
+        });
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxBloqueActionPerformed(evt);
