@@ -27,6 +27,8 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     @Autowired
     private FrmCrearAulas frmcrearAula;
     
+    @Autowired
+    private FrmEditarAulas frmeditarAulas;
      
     
     @Autowired
@@ -148,7 +150,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         btnCrear = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
@@ -219,9 +221,14 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         });
         add(btnCrear, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 90, -1, -1));
 
-        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton2.setText("Editar");
-        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, -1, -1));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+        add(btnEditar, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, -1, -1));
 
         jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton3.setText("Reservar");
@@ -275,7 +282,47 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         }
     
     }//GEN-LAST:event_btnCrearActionPerformed
-public static void main(String args[]) {
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        int fila = jTable1.getSelectedRow();
+    if (fila != -1) {
+        Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+        String nombre = jTable1.getValueAt(fila, 1).toString();
+        int piso = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
+        int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 3).toString());
+        Bloque bloqueSeleccionado = (Bloque) jcbxBloque.getSelectedItem();
+
+        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        if ("Aulas".equals(tipoSeleccionado)) {
+            Aula aula = new Aula();
+            aula.setId(id);
+            aula.setNombre(nombre);
+            aula.setPiso(piso);
+            aula.setCapacidad(capacidad);
+            aula.setBloque(bloqueSeleccionado);
+
+            frmeditarAulas.LlevaraAula(aula);
+            frmeditarAulas.setVisible(true);
+        } else if ("Laboratorios".equals(tipoSeleccionado)) {
+            // Laboratorio laboratorio = new Laboratorio();
+            // laboratorio.setId(id);
+            // laboratorio.setNombre(nombre);
+            // laboratorio.setPiso(piso);
+            // laboratorio.setCapacidad(capacidad);
+            // laboratorio.setBloque(bloqueSeleccionado);
+
+            // frmlaboratorio.setLaboratorio(laboratorio);  // Este método debe configurarse en FrmCrearLaboratorio
+            // frmlaboratorio.setVisible(true);
+        }
+    }else{
+        JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
+    }
+    }//GEN-LAST:event_btnEditarActionPerformed
+ 
+    
+    
+    
+    public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -310,7 +357,7 @@ public static void main(String args[]) {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCrear;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
