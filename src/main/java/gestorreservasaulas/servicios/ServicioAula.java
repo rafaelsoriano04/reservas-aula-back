@@ -10,4 +10,5 @@ public interface ServicioAula {
     List<Aula> findByBloque(Long id_bloque);
 
     Aula crearAula(Aula aula);
+    void eliminarAula(Long id);
 }

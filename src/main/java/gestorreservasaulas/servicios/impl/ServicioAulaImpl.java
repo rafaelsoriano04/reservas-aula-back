@@ -59,5 +59,10 @@ public class ServicioAulaImpl implements ServicioAula {
         return repositorioAula.save(aula);
     }
 
+    @Override
+    public void eliminarAula(Long id) {
+        repositorioAula.deleteById(id);
+    }
+
 
 }

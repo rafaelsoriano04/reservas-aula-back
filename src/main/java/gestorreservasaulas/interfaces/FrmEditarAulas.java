@@ -16,7 +16,7 @@ public class FrmEditarAulas extends javax.swing.JFrame {
 
     
    private Aula aulas;
-    
+   
        @Autowired
     private ServicioBloque servicioBloque;
 
@@ -24,6 +24,9 @@ public class FrmEditarAulas extends javax.swing.JFrame {
     
     @Autowired
      private ServicioAula servicioaula;
+    
+    
+    
     
     public FrmEditarAulas() {
         initComponents();
@@ -33,6 +36,7 @@ public class FrmEditarAulas extends javax.swing.JFrame {
     public void iniciar(){
         setLocationRelativeTo(null);
        combo();
+       txtid.setEditable(false);
     }
     public void combo() {
         bloques = servicioBloque.obtenerTodosBloques();
@@ -54,6 +58,7 @@ public class FrmEditarAulas extends javax.swing.JFrame {
     txtnombre.setText(aula.getNombre());
     txtpiso.setText(String.valueOf(aula.getPiso()));
     txtcapacidad.setText(String.valueOf(aula.getCapacidad()));
+    
     jcbxBloque.setSelectedItem(aula.getBloque());
       }
      
@@ -214,7 +219,8 @@ public class FrmEditarAulas extends javax.swing.JFrame {
 
         servicioaula.editarAula(aulas);
         
-        JOptionPane.showMessageDialog(null, "Se modifico correctamente el aula");
+       
+        JOptionPane.showMessageDialog(null, "Se modificó correctamente el aula");
     }
 
     limpiar();

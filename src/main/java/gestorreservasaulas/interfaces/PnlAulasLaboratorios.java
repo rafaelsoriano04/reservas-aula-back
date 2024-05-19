@@ -46,6 +46,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     public PnlAulasLaboratorios() {
         initComponents();
+        cargarAulasLabPorBloque();
     }
 
     @PostConstruct
@@ -152,7 +153,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         btnCrear = new javax.swing.JButton();
         btnEditar = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btneliminar = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -234,9 +235,14 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jButton3.setText("Reservar");
         add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 430, -1, -1));
 
-        jButton4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton4.setText("Eliminar");
-        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 90, -1, -1));
+        btneliminar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btneliminar.setText("Eliminar");
+        btneliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btneliminarActionPerformed(evt);
+            }
+        });
+        add(btneliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 90, -1, -1));
 
         jButton5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton5.setText("Horarios");
@@ -274,12 +280,14 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearActionPerformed
            String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+           
         if ("Aulas".equals(tipoSeleccionado)) {
             frmcrearAula.setVisible(true);
             
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
            // crearLaboratorio.setVisible(true);
         }
+       
     
     }//GEN-LAST:event_btnCrearActionPerformed
 
@@ -293,6 +301,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         Bloque bloqueSeleccionado = (Bloque) jcbxBloque.getSelectedItem();
 
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        
         if ("Aulas".equals(tipoSeleccionado)) {
             Aula aula = new Aula();
             aula.setId(id);
@@ -311,13 +320,36 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             // laboratorio.setCapacidad(capacidad);
             // laboratorio.setBloque(bloqueSeleccionado);
 
-            // frmlaboratorio.setLaboratorio(laboratorio);  // Este método debe configurarse en FrmCrearLaboratorio
+            // frmlaboratorio.setLaboratorio(laboratorio);  
             // frmlaboratorio.setVisible(true);
         }
+        
     }else{
         JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
     }
     }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
+           int fila = jTable1.getSelectedRow();
+    if (fila != -1) {
+        int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quiere eliminar esta fila?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+            String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+
+            if ("Aulas".equals(tipoSeleccionado)) {
+                servicioAula.eliminarAula(id);
+            } else if ("Laboratorios".equals(tipoSeleccionado)) {
+               // servicioLaboratorio.eliminarLaboratorio(id);
+            }
+
+            cargarAulasLabPorBloque(); 
+            JOptionPane.showMessageDialog(null, "Fila eliminada correctamente");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Selecciona una fila para eliminar");
+    }
+    }//GEN-LAST:event_btneliminarActionPerformed
  
     
     
@@ -358,8 +390,8 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCrear;
     private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btneliminar;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
