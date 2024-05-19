@@ -108,6 +108,7 @@ public class PanelAulaLab extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setText("Capacidad:");
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 170, -1, -1));
+
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxBloqueActionPerformed(evt);
@@ -115,7 +116,7 @@ public class PanelAulaLab extends javax.swing.JPanel {
         });
         add(jcbxBloque, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 50, 250, -1));
 
-        jcbxAula.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Aulas", "Laboratorios", " "}));
+        jcbxAula.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Aulas", "Laboratorios", " " }));
         jcbxAula.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxAulaActionPerformed(evt);
@@ -133,7 +134,17 @@ public class PanelAulaLab extends javax.swing.JPanel {
         jTextField2.setText("jTextField1");
         add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 170, 170, -1));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(new Object[][]{{null, null, null, null}, {null, null, null, null}, {null, null, null, null}, {null, null, null, null}}, new String[]{"Title 1", "Title 2", "Title 3", "Title 4"}));
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
         jScrollPane1.setViewportView(jTable1);
 
         add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 210, 810, 250));
