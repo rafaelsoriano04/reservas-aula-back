@@ -47,5 +47,10 @@ public class ServicioAulaImpl implements ServicioAula {
         return repositorioAula.findByBloque(id_bloque);
     }
 
+    @Override
+    public Aula crearAula(Aula aula) {
+        return repositorioAula.save(aula);
+    }
+
 
 }
