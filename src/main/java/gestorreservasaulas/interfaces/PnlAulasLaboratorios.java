@@ -1,12 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package gestorreservasaulas.interfaces;
 
-/**
- * @author usuario
- */
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
 import gestorreservasaulas.entidades.Laboratorio;
@@ -22,25 +15,26 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
 @Component
-public class PanelAulaLab extends javax.swing.JPanel {
+public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
-    private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
-
-    List<Aula> aulas;
-    List<Laboratorio> laboratorios;
-    List<Bloque> bloques;
     @Autowired
     private ServicioAula servicioAula;
+
     @Autowired
     private ServicioLaboratorio servicioLaboratorio;
+
     @Autowired
     private ServicioBloque servicioBloque;
     private Aula aulaSeleccionada;
     private Laboratorio labSeleccionada;
 
-    public PanelAulaLab() {
-        initComponents();
+    private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
+    private List<Aula> aulas;
+    private List<Laboratorio> laboratorios;
+    private List<Bloque> bloques;
 
+    public PnlAulasLaboratorios() {
+        initComponents();
     }
 
     @PostConstruct
@@ -234,21 +228,10 @@ public class PanelAulaLab extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jcbxBloqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxBloqueActionPerformed
-        // TODO add your handling code here:
         cargarAulasLabPorBloque();
     }//GEN-LAST:event_jcbxBloqueActionPerformed
 
-    private void jcbxBloqueMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jcbxBloqueMouseClicked
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jcbxBloqueMouseClicked
-
-    private void jcbxBloqueItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jcbxBloqueItemStateChanged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jcbxBloqueItemStateChanged
-
     private void jcbxAulaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxAulaActionPerformed
-        // TODO add your handling code here:
         cargarAulasLabPorBloque();
     }//GEN-LAST:event_jcbxAulaActionPerformed
 

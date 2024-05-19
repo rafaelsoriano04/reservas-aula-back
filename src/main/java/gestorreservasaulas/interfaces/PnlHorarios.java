@@ -1,35 +1,30 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.ServicioHorario;
+
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- *
- * @author fredd
- */
+public class PnlHorarios extends javax.swing.JPanel {
 
-
-public class panelHorarios extends javax.swing.JPanel {
     @Autowired
     private ServicioHorario servicioHorario;
+
     private Aula aula = null;
     private Laboratorio laboratorio = null;
-    public panelHorarios() {
+
+    public PnlHorarios() {
         //Recibir un aula
         //llenar la tabla con los horario correspondiente a ese id de aula, agarrar de la lista
         initComponents();
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
-  
+
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         for (int hour = 7; hour < 20; hour++) {
             // Formato de hora para mostrar como "7-8", "8-9", etc., sin AM/PM
@@ -38,88 +33,82 @@ public class panelHorarios extends javax.swing.JPanel {
             // Añadir la fila con el intervalo de tiempo
             model.addRow(new Object[]{time, "LIBRE", "LIBRE", "LIBRE", "LIBRE", "LIBRE"});
         }
-         jTable1.setModel(model);
-        
+        jTable1.setModel(model);
     }
-    
-    public panelHorarios(Aula aula){
+
+    public PnlHorarios(Aula aula) {
         initComponents();
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
-  
+
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         for (int hour = 7; hour < 20; hour++) {
-          
+
             String time = String.format("%d-%d", hour, hour + 1);
 
-           
+
             model.addRow(new Object[]{time, "LIBRE", "LIBRE", "LIBRE", "LIBRE", "LIBRE"});
         }
-         jTable1.setModel(model);
+        jTable1.setModel(model);
         this.aula = aula;
         for (Horario horario : aula.getListaHorario()) {
             switch (horario.getDia()) {
                 case "Lunes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 1);
-                 break;
-                 case "Martes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 2);
-                 break;
-                 case "Miercoles":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 3);
-                 break;
-                 case "Jueves":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 4);
-                 break;
-                 case "Viernes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 5);
-                 break;
-                
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 1);
+                    break;
+                case "Martes":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 2);
+                    break;
+                case "Miercoles":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 3);
+                    break;
+                case "Jueves":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 4);
+                    break;
+                case "Viernes":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 5);
+                    break;
+
             }
         }
     }
-    public panelHorarios(Laboratorio aula){
+
+    public PnlHorarios(Laboratorio laboratorio) {
         initComponents();
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         for (int hour = 7; hour < 20; hour++) {
-          
+
             String time = String.format("%d-%d", hour, hour + 1);
 
-           
+
             model.addRow(new Object[]{time, "LIBRE", "LIBRE", "LIBRE", "LIBRE", "LIBRE"});
         }
-         jTable1.setModel(model);
-        this.laboratorio = aula;
-        for (Horario horario : aula.getListaHorario()) {
+        jTable1.setModel(model);
+        this.laboratorio = laboratorio;
+        for (Horario horario : laboratorio.getListaHorario()) {
             switch (horario.getDia()) {
                 case "Lunes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 1);
-                 break;
-                 case "Martes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 2);
-                 break;
-                 case "Miercoles":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 3);
-                 break;
-                 case "Jueves":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 4);
-                 break;
-                 case "Viernes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 5);
-                 break;
-                
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 1);
+                    break;
+                case "Martes":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 2);
+                    break;
+                case "Miercoles":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 3);
+                    break;
+                case "Jueves":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 4);
+                    break;
+                case "Viernes":
+                    model.setValueAt(horario.getMateria(), Integer.valueOf(horario.getHora()), 5);
+                    break;
+
             }
         }
     }
 
-
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -273,7 +262,7 @@ public class panelHorarios extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addComponent(jButton2)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(23, 23, 23))
         );
@@ -284,12 +273,12 @@ public class panelHorarios extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), jcbxhora.getSelectedItem().toString(), 
+        Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), jcbxhora.getSelectedItem().toString(),
                 jtxtMateria.getText(), aula, laboratorio);
-       //Verificar que no se agreguen horarios para la misma hora y para el mismo dia
+        //Verificar que no se agreguen horarios para la misma hora y para el mismo dia
         if (this.servicioHorario.crearHorario(nHorario)) {
             JOptionPane.showMessageDialog(null, "Se agrego el horario");
-        }else{
+        } else {
             JOptionPane.showMessageDialog(null, "No se puede agregar horarios existentes");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -316,5 +305,4 @@ public class panelHorarios extends javax.swing.JPanel {
     private javax.swing.JTextField jtxtMateria;
     // End of variables declaration//GEN-END:variables
 
-    
 }
