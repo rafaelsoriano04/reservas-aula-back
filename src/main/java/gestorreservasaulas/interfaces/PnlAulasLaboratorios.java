@@ -7,6 +7,7 @@ import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioBloque;
 import gestorreservasaulas.servicios.ServicioLaboratorio;
 import jakarta.annotation.PostConstruct;
+import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,17 +25,28 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private ServicioLaboratorio servicioLaboratorio;
 
     @Autowired
+    private FrmCrearAulas frmcrearAula;
+    
+    @Autowired
+    private FrmEditarAulas frmeditarAulas;
+     
+    
+    @Autowired
     private ServicioBloque servicioBloque;
     private Aula aulaSeleccionada;
     private Laboratorio labSeleccionada;
+    
 
     private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
     private List<Aula> aulas;
     private List<Laboratorio> laboratorios;
     private List<Bloque> bloques;
+    
+   
 
     public PnlAulasLaboratorios() {
         initComponents();
+        cargarAulasLabPorBloque();
     }
 
     @PostConstruct
@@ -138,10 +150,10 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jTextField2 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnCrear = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btneliminar = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -153,12 +165,12 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
         jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jcbxBloqueItemStateChanged(evt);
+
             }
         });
         jcbxBloque.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jcbxBloqueMouseClicked(evt);
+
             }
         });
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
@@ -201,21 +213,36 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
         add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 210, 810, 250));
 
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton1.setText("Crear");
-        add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 90, -1, -1));
+        btnCrear.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnCrear.setText("Crear");
+        btnCrear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCrearActionPerformed(evt);
+            }
+        });
+        add(btnCrear, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 90, -1, -1));
 
-        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton2.setText("Editar");
-        add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, -1, -1));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+        add(btnEditar, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, -1, -1));
 
         jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton3.setText("Reservar");
         add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 430, -1, -1));
 
-        jButton4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton4.setText("Eliminar");
-        add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 90, -1, -1));
+        btneliminar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btneliminar.setText("Eliminar");
+        btneliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btneliminarActionPerformed(evt);
+            }
+        });
+        add(btneliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 90, -1, -1));
 
         jButton5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton5.setText("Horarios");
@@ -251,12 +278,120 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearActionPerformed
+           String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+           
+        if ("Aulas".equals(tipoSeleccionado)) {
+            frmcrearAula.setVisible(true);
+            
+        } else if ("Laboratorios".equals(tipoSeleccionado)) {
+           // crearLaboratorio.setVisible(true);
+        }
+       
+    
+    }//GEN-LAST:event_btnCrearActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        int fila = jTable1.getSelectedRow();
+    if (fila != -1) {
+        Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+        String nombre = jTable1.getValueAt(fila, 1).toString();
+        int piso = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
+        int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 3).toString());
+        Bloque bloqueSeleccionado = (Bloque) jcbxBloque.getSelectedItem();
+
+        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        
+        if ("Aulas".equals(tipoSeleccionado)) {
+            Aula aula = new Aula();
+            aula.setId(id);
+            aula.setNombre(nombre);
+            aula.setPiso(piso);
+            aula.setCapacidad(capacidad);
+            aula.setBloque(bloqueSeleccionado);
+
+            frmeditarAulas.LlevaraAula(aula);
+            frmeditarAulas.setVisible(true);
+        } else if ("Laboratorios".equals(tipoSeleccionado)) {
+            // Laboratorio laboratorio = new Laboratorio();
+            // laboratorio.setId(id);
+            // laboratorio.setNombre(nombre);
+            // laboratorio.setPiso(piso);
+            // laboratorio.setCapacidad(capacidad);
+            // laboratorio.setBloque(bloqueSeleccionado);
+
+            // frmlaboratorio.setLaboratorio(laboratorio);  
+            // frmlaboratorio.setVisible(true);
+        }
+        
+    }else{
+        JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
+    }
+    }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
+           int fila = jTable1.getSelectedRow();
+    if (fila != -1) {
+        int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quiere eliminar esta fila?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+            String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+
+            if ("Aulas".equals(tipoSeleccionado)) {
+                servicioAula.eliminarAula(id);
+            } else if ("Laboratorios".equals(tipoSeleccionado)) {
+               // servicioLaboratorio.eliminarLaboratorio(id);
+            }
+
+            cargarAulasLabPorBloque(); 
+            JOptionPane.showMessageDialog(null, "Fila eliminada correctamente");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Selecciona una fila para eliminar");
+    }
+    }//GEN-LAST:event_btneliminarActionPerformed
+ 
+    
+    
+    
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new PnlAulasLaboratorios().setVisible(true);
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnCrear;
+    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btneliminar;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
