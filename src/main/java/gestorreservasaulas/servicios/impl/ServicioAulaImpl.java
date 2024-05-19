@@ -23,7 +23,6 @@ public class ServicioAulaImpl implements ServicioAula {
     RepositorioAula repositorioAula;
 
     @Override
-
     public Aula obtenerAula(String nombre) {
         return repositorioAula.getByNombre(nombre).orElse(null);
     }
