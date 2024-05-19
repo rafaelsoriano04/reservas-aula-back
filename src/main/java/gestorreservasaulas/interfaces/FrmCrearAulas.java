@@ -94,7 +94,7 @@ public class FrmCrearAulas extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("Trebuchet MS", 1, 48)); // NOI18N
-        jLabel2.setText("Crear Aulas");
+        jLabel2.setText("Crear Aula");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 70, 260, 50));
 
         jLabel3.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
