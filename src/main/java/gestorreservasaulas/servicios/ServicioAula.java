@@ -8,4 +8,5 @@ public interface ServicioAula {
     Aula obtenerAula(String nombre);
     boolean editarAula(Aula aula);
     List<Aula> findByBloque(Long id_bloque);
+    
 }

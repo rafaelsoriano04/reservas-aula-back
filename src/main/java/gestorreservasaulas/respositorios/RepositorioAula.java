@@ -1,6 +1,7 @@
 package gestorreservasaulas.respositorios;
 
 import gestorreservasaulas.entidades.Aula;
+import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +16,8 @@ public interface RepositorioAula extends JpaRepository<Aula, Long> {
 
     @Query("SELECT a FROM Aula a WHERE a.bloque.id = :id_bloque")
     List<Aula> findByBloque(@Param("id_bloque") Long id_bloque);
+
+    @Query("SELECT a FROM Aula a LEFT JOIN FETCH a.listaHorario WHERE a.nombre = :nombre")
+    Optional<Aula> findByNombreWithHorarios(String nombre);
 
 }
