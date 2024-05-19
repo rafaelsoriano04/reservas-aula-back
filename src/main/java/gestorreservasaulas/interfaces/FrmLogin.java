@@ -24,11 +24,11 @@ public class FrmLogin extends javax.swing.JFrame {
     
     private void validarLogin() {
 
-        if (servicioUsuario.validarUsuario(txtUsername.getText(), txtContra.getText())) {
+        /*if (servicioUsuario.validarUsuario(txtUsername.getText(), txtContra.getText())) {
             frmPrincipal.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(null, "Usuario o contreaseña incorrectos");
-        }
+        }*/
 
     }
 
@@ -44,7 +44,6 @@ public class FrmLogin extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txtUsername = new javax.swing.JTextField();
         txtContra = new javax.swing.JTextField();
         btnLogin = new javax.swing.JButton();
 
@@ -60,10 +59,6 @@ public class FrmLogin extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         jLabel2.setText("Contraseña");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, -1, -1));
-
-        txtUsername.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        
-        getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 160, -1));
 
         txtContra.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         getContentPane().add(txtContra, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 160, -1));
@@ -127,6 +122,5 @@ public class FrmLogin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField txtContra;
-    private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }

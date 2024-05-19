@@ -8,11 +8,13 @@ import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioHorario;
 import gestorreservasaulas.servicios.ServicioHorario;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author fredd
  */
+@Service
 public class ServicioHorarioImpl implements ServicioHorario{
     @Autowired
     RepositorioHorario repositorioHorario;

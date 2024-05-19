@@ -7,9 +7,9 @@ package gestorreservasaulas.interfaces;
 /**
  * @author usuario
  */
+import gestorreservasaulas.GestorReservasAulasApplication;
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
-import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioBloque;
@@ -39,7 +39,8 @@ public class PanelAulaLab extends javax.swing.JPanel {
     private Aula aulaSeleccionada;
     private Laboratorio labSeleccionada;
     private int indextabla;
-    
+    @Autowired
+    private FrmHorarios frmHorarios;
 
     public PanelAulaLab() {
         initComponents();
@@ -265,16 +266,20 @@ public class PanelAulaLab extends javax.swing.JPanel {
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
-                
-                new FrmHorarios(aulas.get(indextabla)).setVisible(true);
-                
-                 
-                
+           
+                FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
+                frmHorarios.setAula(aulas.get(indextabla));  
+                frmHorarios.initializeTable();
+                frmHorarios.setVisible(true);
+          
             }
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
             actualizarLaboratorioSeleccionado();
             if (labSeleccionada != null) {
-                 
+                 FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
+                frmHorarios.setLaboratorio(laboratorios.get(indextabla));  
+                frmHorarios.initializeTable();
+                frmHorarios.setVisible(true);
             }
         }
         

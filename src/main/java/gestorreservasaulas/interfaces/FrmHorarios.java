@@ -9,110 +9,77 @@ import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioHorario;
+import jakarta.annotation.PostConstruct;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author fredd
  */
+@Component
 public class FrmHorarios extends javax.swing.JFrame {
 
+    
     @Autowired
     private ServicioHorario servicioHorario;
-    @Autowired
-    private ServicioAula servicioAula;
-    private Aula aula = null;
-    private Laboratorio laboratorio = null;
+
+    private Aula aula;
+    private Laboratorio laboratorio;
+
     public FrmHorarios() {
-        //Recibir un aula
-        //llenar la tabla con los horario correspondiente a ese id de aula, agarrar de la lista
         initComponents();
-        
-        String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
-
-  
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        for (int hour = 7; hour < 20; hour++) {
-            // Formato de hora para mostrar como "7-8", "8-9", etc., sin AM/PM
-            String time = String.format("%d-%d", hour, hour + 1);
-
-            // Añadir la fila con el intervalo de tiempo
-            model.addRow(new Object[]{time, "LIBRE", "LIBRE", "LIBRE", "LIBRE", "LIBRE"});
-        }
-         jTable1.setModel(model);
-        
     }
-    
-    public FrmHorarios(Aula aula){
-        initComponents();
-        String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
+   public void initializeTable() {
+        String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        jTable1.setModel(model);
+
         for (int hour = 7; hour < 20; hour++) {
-          
             String time = String.format("%d-%d", hour, hour + 1);
             model.addRow(new Object[]{time, "", "", "", "", ""});
         }
-         jTable1.setModel(model);
-        this.aula = aula;
-        for (Horario horario : aula.getListaHorario()) {
-            switch (horario.getDia()) {
-                case "Lunes":
-                    
-                    System.out.println(horario.getHora());
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora())-7, 1);
-                 break;
-                 case "Martes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 2);
-                 break;
-                 case "Miercoles":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 3);
-                 break;
-                 case "Jueves":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 4);
-                 break;
-                 case "Viernes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 5);
-                 break;
-                
-            }
+
+        if (aula != null) {
+            updateTableWithAula(aula, model);
+        } else if (laboratorio != null) {
+            updateTableWithLaboratorio(laboratorio, model);
         }
     }
-    public FrmHorarios(Laboratorio aula){
-        initComponents();
-        String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        for (int hour = 7; hour < 20; hour++) {
-          
-            String time = String.format("%d-%d", hour, hour + 1);
+    public void setAula(Aula aula) {
+        this.aula = aula;
+    }
 
-           
-            model.addRow(new Object[]{time, "LIBRE", "LIBRE", "LIBRE", "LIBRE", "LIBRE"});
-        }
-         jTable1.setModel(model);
-        this.laboratorio = aula;
+    public void setLaboratorio(Laboratorio laboratorio) {
+        this.laboratorio = laboratorio;
+    }
+
+    private void updateTableWithAula(Aula aula, DefaultTableModel model) {
         for (Horario horario : aula.getListaHorario()) {
-            switch (horario.getDia()) {
-                case "Lunes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 1);
-                 break;
-                 case "Martes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 2);
-                 break;
-                 case "Miercoles":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 3);
-                 break;
-                 case "Jueves":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 4);
-                 break;
-                 case "Viernes":
-                    model.setValueAt(horario.getMateria(),Integer.valueOf(horario.getHora()), 5);
-                 break;
-                
-            }
+            int hourIndex = Integer.parseInt(horario.getHora()) - 7;
+            model.setValueAt(horario.getMateria(), hourIndex, getDayIndex(horario.getDia()));
+        }
+    }
+
+    private void updateTableWithLaboratorio(Laboratorio laboratorio, DefaultTableModel model) {
+        for (Horario horario : laboratorio.getListaHorario()) {
+            int hourIndex = Integer.parseInt(horario.getHora()) - 7;
+            model.setValueAt(horario.getMateria(), hourIndex, getDayIndex(horario.getDia()));
+        }
+    }
+
+    private int getDayIndex(String day) {
+        switch (day) {
+            case "Lunes": return 1;
+            case "Martes": return 2;
+            case "Miércoles": return 3;
+            case "Jueves": return 4;
+            case "Viernes": return 5;
+            default: return -1;
         }
     }
 
@@ -141,7 +108,7 @@ public class FrmHorarios extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jcbxdia = new javax.swing.JComboBox<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -283,11 +250,24 @@ public class FrmHorarios extends javax.swing.JFrame {
     }//GEN-LAST:event_jtxtMateriaActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), jcbxhora.getSelectedItem().toString(),
+        String hora = jcbxhora.getSelectedItem().toString();
+        int in = hora.indexOf("-");
+        hora = hora.substring(0, in);
+        
+       
+        Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), hora,
             jtxtMateria.getText(), aula, laboratorio);
         //Verificar que no se agreguen horarios para la misma hora y para el mismo dia
         if (this.servicioHorario.crearHorario(nHorario)) {
             JOptionPane.showMessageDialog(null, "Se agrego el horario");
+            //AGREGAR EL Horario a la tabla o volver a traer el horario por medio del ID
+           
+            
+            
+            
+            
+            
+            
         }else{
             JOptionPane.showMessageDialog(null, "No se puede agregar horarios existentes");
         }
@@ -327,9 +307,8 @@ public class FrmHorarios extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Aula aula = new Aula();
-                aula.setNombre("A1");
-                new FrmHorarios(aula).setVisible(true);
+               
+                new FrmHorarios().setVisible(true);
             }
         });
     }
@@ -350,4 +329,6 @@ public class FrmHorarios extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jcbxhora;
     private javax.swing.JTextField jtxtMateria;
     // End of variables declaration//GEN-END:variables
+
+    
 }

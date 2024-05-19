@@ -2,6 +2,7 @@ package gestorreservasaulas.entidades;
 
 import gestorreservasaulas.enums.Estado;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class Laboratorio {
     @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> listaReserva;
 
-    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Horario> listaHorario;
+    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Horario> listaHorario= new ArrayList<>();
 
     @Enumerated(value = EnumType.STRING)
     private Estado estado;
