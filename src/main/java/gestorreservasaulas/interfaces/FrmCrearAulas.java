@@ -22,7 +22,8 @@ public class FrmCrearAulas extends javax.swing.JFrame {
     @Autowired
      private ServicioAula servicioaula;
     
-   
+   @Autowired
+   private Aula aulas;
     
     public FrmCrearAulas() {
         initComponents();
@@ -42,6 +43,19 @@ public class FrmCrearAulas extends javax.swing.JFrame {
         }
 
     }
+      public void limpiar(){
+          txtnombre.setText("");
+          txtpiso.setText("");
+          txtcapacidad.setText("");
+      }
+      
+      public void LlevaraAula(Aula aula){
+          this.aulas = aula;
+    txtnombre.setText(aula.getNombre());
+    txtpiso.setText(String.valueOf(aula.getPiso()));
+    txtcapacidad.setText(String.valueOf(aula.getCapacidad()));
+    jcbxBloque.setSelectedItem(aula.getBloque());
+      }
     public void crearAula() {
         String nombre= txtnombre.getText();
         int piso= Integer.parseInt(txtpiso.getText());
@@ -55,6 +69,7 @@ public class FrmCrearAulas extends javax.swing.JFrame {
         aula.setBloque(bloques);
         
         servicioaula.crearAula(aula);
+        limpiar();
        
         JOptionPane.showMessageDialog(null, "Se creo el Aula correctamente");
         this.dispose();
