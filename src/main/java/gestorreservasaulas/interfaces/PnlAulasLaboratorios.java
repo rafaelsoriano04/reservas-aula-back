@@ -32,6 +32,9 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private List<Aula> aulas;
     private List<Laboratorio> laboratorios;
     private List<Bloque> bloques;
+    
+    @Autowired
+    private PnlCrearAulas PnlCrearAula;
 
     public PnlAulasLaboratorios() {
         initComponents();
@@ -203,6 +206,11 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton1.setText("Crear");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
         add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 90, -1, -1));
 
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -250,6 +258,10 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

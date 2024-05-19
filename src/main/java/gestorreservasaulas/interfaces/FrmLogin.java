@@ -62,10 +62,13 @@ public class FrmLogin extends javax.swing.JFrame {
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        txtUsername.setBackground(new java.awt.Color(255, 255, 255));
         txtUsername.setFont(new java.awt.Font("Arial", 0, 15)); // NOI18N
         txtUsername.setBorder(null);
+        txtUsername.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
 
+            }
+        });
         getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 310, 310, 30));
 
         btnLogin.setBackground(new java.awt.Color(155, 43, 43));
@@ -104,9 +107,12 @@ public class FrmLogin extends javax.swing.JFrame {
         getContentPane().add(imgOculto, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 430, 30, 30));
 
         txtContrasenia.setFont(new java.awt.Font("Arial", 0, 15)); // NOI18N
-        txtContrasenia.setForeground(new java.awt.Color(0, 0, 0));
         txtContrasenia.setBorder(null);
+        txtContrasenia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
 
+            }
+        });
         getContentPane().add(txtContrasenia, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 430, 260, 30));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/login.png"))); // NOI18N
