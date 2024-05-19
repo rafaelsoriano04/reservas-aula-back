@@ -35,6 +35,8 @@ public class PanelAulaLab extends javax.swing.JPanel {
     private ServicioLaboratorio servicioLaboratorio;
     @Autowired
     private ServicioBloque servicioBloque;
+    private Aula aulaSeleccionada;
+    private Laboratorio labSeleccionada;
 
     public PanelAulaLab() {
         initComponents();
@@ -89,6 +91,40 @@ public class PanelAulaLab extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(null, "No hay Laboratorios para este bloque");
             }
         }
+    }
+
+    private Aula actualizarAulaSeleccionada() {
+        int fila = jTable1.getSelectedRow();
+        if (fila != -1) {
+            Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+            String nombre = jTable1.getValueAt(fila, 1).toString();
+            int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
+
+            if (aulaSeleccionada == null) {
+                aulaSeleccionada = new Aula(); // Solo se crea una vez si es necesario
+            }
+            aulaSeleccionada.setId(id);
+            aulaSeleccionada.setNombre(nombre);
+            aulaSeleccionada.setCapacidad(capacidad);
+        }
+        return aulaSeleccionada;
+    }
+
+    private Laboratorio actualizarLaboratorioSeleccionado() {
+        int fila = jTable1.getSelectedRow();
+        if (fila != -1) {
+            Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+            String nombre = jTable1.getValueAt(fila, 1).toString();
+            int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
+
+            if (labSeleccionada == null) {
+                labSeleccionada = new Laboratorio(); // Solo se crea una vez si es necesario
+            }
+            labSeleccionada.setId(id);
+            labSeleccionada.setNombre(nombre);
+            labSeleccionada.setCapacidad(capacidad);
+        }
+        return labSeleccionada;
     }
 
     /**
@@ -189,6 +225,11 @@ public class PanelAulaLab extends javax.swing.JPanel {
 
         jButton5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton5.setText("Horarios");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
         add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 140, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
@@ -210,6 +251,22 @@ public class PanelAulaLab extends javax.swing.JPanel {
         // TODO add your handling code here:
         cargarAulasLabPorBloque();
     }//GEN-LAST:event_jcbxAulaActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        if ("Aulas".equals(tipoSeleccionado)) {
+            actualizarAulaSeleccionada();
+            if (aulaSeleccionada != null) {
+                System.out.println(aulaSeleccionada.getNombre()); // Aquí podrías mostrar los detalles o hacer algo con el objeto aula
+            }
+        } else if ("Laboratorios".equals(tipoSeleccionado)) {
+            actualizarLaboratorioSeleccionado();
+            if (labSeleccionada != null) {
+                System.out.println(labSeleccionada); // Aquí podrías mostrar los detalles o hacer algo con el objeto laboratorio
+            }
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
