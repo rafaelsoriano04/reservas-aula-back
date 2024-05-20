@@ -1,4 +1,3 @@
-
 package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
@@ -14,64 +13,76 @@ import javax.swing.*;
 @Component
 public class FrmCrearAulas extends javax.swing.JFrame {
 
-         @Autowired
+    @Autowired
     private ServicioBloque servicioBloque;
 
     private List<Bloque> bloques;
-     
+
     @Autowired
-     private ServicioAula servicioaula;
-    
-   
-    
+    private ServicioAula servicioaula;
+
     public FrmCrearAulas() {
         initComponents();
-        
+
     }
-    
+
     @PostConstruct
-    public void iniciar(){
+    public void iniciar() {
         setLocationRelativeTo(null);
         combo();
     }
-    
-      public void combo() {
+
+    public void combo() {
         bloques = servicioBloque.obtenerTodosBloques();
         for (Bloque block : bloques) {
             jcbxBloque.addItem(block);
         }
 
     }
-      public void limpiar(){
-          txtnombre.setText("");
-          txtpiso.setText("");
-          txtcapacidad.setText("");
-      }
-      
-     
+
+    public void limpiar() {
+        txtnombre.setText("");
+        txtpiso.setText("");
+        txtcapacidad.setText("");
+    }
+
     public void crearAula() {
-        String nombre= txtnombre.getText();
-        int piso= Integer.parseInt(txtpiso.getText());
-        int capacidad= Integer.parseInt(txtcapacidad.getText());
-        Bloque bloques= (Bloque) jcbxBloque.getSelectedItem();
-        
-        Aula aula= new Aula();
+        String nombre = txtnombre.getText();
+        String pisoStr = txtpiso.getText();
+        String capacidadStr = txtcapacidad.getText();
+
+        if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+            JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+            return;
+        }
+
+        if (!pisoStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+            return;
+        }
+
+        if (!capacidadStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+            return;
+        }
+
+        int piso = Integer.parseInt(pisoStr);
+        int capacidad = Integer.parseInt(capacidadStr);
+        Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
+
+        Aula aula = new Aula();
         aula.setNombre(nombre);
         aula.setCapacidad(capacidad);
         aula.setPiso(piso);
         aula.setBloque(bloques);
-        
+
         servicioaula.crearAula(aula);
         limpiar();
-       
-        JOptionPane.showMessageDialog(null, "Se creo el Aula correctamente");
-        this.dispose();
-        
 
+        JOptionPane.showMessageDialog(null, "Se creó el Aula correctamente");
+        this.dispose();
     }
 
-
-      
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -208,11 +219,11 @@ public class FrmCrearAulas extends javax.swing.JFrame {
     }//GEN-LAST:event_jcbxBloqueMouseClicked
 
     private void jcbxBloqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxBloqueActionPerformed
-       
+
     }//GEN-LAST:event_jcbxBloqueActionPerformed
 
     private void btnregresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnregresarActionPerformed
-        
+
         this.dispose();
     }//GEN-LAST:event_btnregresarActionPerformed
 
