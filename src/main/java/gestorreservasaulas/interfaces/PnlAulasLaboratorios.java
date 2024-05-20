@@ -28,8 +28,13 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private FrmCrearAulas frmcrearAula;
     
     @Autowired
+    private  FrmCrearLaboratorio FrmCrearLaboratorio;
+    
+    @Autowired
     private FrmEditarAulas frmeditarAulas;
-     
+    
+    @Autowired
+    private FrmEditarLaboratorio frmeditarLab;
     
     @Autowired
     private ServicioBloque servicioBloque;
@@ -285,7 +290,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             frmcrearAula.setVisible(true);
             
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
-           // crearLaboratorio.setVisible(true);
+           FrmCrearLaboratorio.setVisible(true);
         }
        
     
@@ -313,15 +318,15 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             frmeditarAulas.LlevaraAula(aula);
             frmeditarAulas.setVisible(true);
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
-            // Laboratorio laboratorio = new Laboratorio();
-            // laboratorio.setId(id);
-            // laboratorio.setNombre(nombre);
-            // laboratorio.setPiso(piso);
-            // laboratorio.setCapacidad(capacidad);
-            // laboratorio.setBloque(bloqueSeleccionado);
+             Laboratorio laboratorio = new Laboratorio();
+             laboratorio.setId(id);
+             laboratorio.setNombre(nombre);
+             laboratorio.setPiso(piso);
+             laboratorio.setCapacidad(capacidad);
+             laboratorio.setBloque(bloqueSeleccionado);
 
-            // frmlaboratorio.setLaboratorio(laboratorio);  
-            // frmlaboratorio.setVisible(true);
+             frmeditarLab.LlevaraLab(laboratorio);
+             frmeditarLab.setVisible(true);
         }
         
     }else{
@@ -340,7 +345,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             if ("Aulas".equals(tipoSeleccionado)) {
                 servicioAula.eliminarAula(id);
             } else if ("Laboratorios".equals(tipoSeleccionado)) {
-               // servicioLaboratorio.eliminarLaboratorio(id);
+               servicioLaboratorio.eliminarLaboratorio(id);
             }
 
             cargarAulasLabPorBloque(); 

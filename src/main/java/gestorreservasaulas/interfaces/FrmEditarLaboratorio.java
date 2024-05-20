@@ -2,16 +2,20 @@ package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
+import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.*;
+import gestorreservasaulas.servicios.ServicioBloque;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import jakarta.annotation.PostConstruct;
-
-import javax.swing.*;
 
 @Component
-public class FrmCrearAulas extends javax.swing.JFrame {
+
+public class FrmEditarLaboratorio extends javax.swing.JFrame {
+
+    private Laboratorio lab;
 
     @Autowired
     private ServicioBloque servicioBloque;
@@ -19,17 +23,17 @@ public class FrmCrearAulas extends javax.swing.JFrame {
     private List<Bloque> bloques;
 
     @Autowired
-    private ServicioAula servicioaula;
+    private ServicioLaboratorio servicioLab;
 
-    public FrmCrearAulas() {
+    public FrmEditarLaboratorio() {
         initComponents();
-
     }
 
     @PostConstruct
     public void iniciar() {
         setLocationRelativeTo(null);
         combo();
+        txtid.setEditable(false);
     }
 
     public void combo() {
@@ -37,50 +41,23 @@ public class FrmCrearAulas extends javax.swing.JFrame {
         for (Bloque block : bloques) {
             jcbxBloque.addItem(block);
         }
-
     }
 
     public void limpiar() {
+        txtid.setText("");
         txtnombre.setText("");
         txtpiso.setText("");
         txtcapacidad.setText("");
     }
 
-    public void crearAula() {
-        String nombre = txtnombre.getText();
-        String pisoStr = txtpiso.getText();
-        String capacidadStr = txtcapacidad.getText();
+    public void LlevaraLab(Laboratorio labo) {
+        this.lab = labo;
+        txtid.setText(String.valueOf(labo.getId()));
+        txtnombre.setText(labo.getNombre());
+        txtpiso.setText(String.valueOf(labo.getPiso()));
+        txtcapacidad.setText(String.valueOf(labo.getCapacidad()));
 
-        if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
-            JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
-            return;
-        }
-
-        if (!pisoStr.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
-            return;
-        }
-
-        if (!capacidadStr.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
-            return;
-        }
-
-        int piso = Integer.parseInt(pisoStr);
-        int capacidad = Integer.parseInt(capacidadStr);
-        Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
-
-        Aula aula = new Aula();
-        aula.setNombre(nombre);
-        aula.setCapacidad(capacidad);
-        aula.setPiso(piso);
-        aula.setBloque(bloques);
-
-        servicioaula.crearAula(aula);
-        limpiar();
-
-        JOptionPane.showMessageDialog(null, "Se creó el Aula correctamente");
-        this.dispose();
+        jcbxBloque.setSelectedItem(labo.getBloque());
     }
 
     @SuppressWarnings("unchecked")
@@ -92,25 +69,27 @@ public class FrmCrearAulas extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        btnCrearAula = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
         txtnombre = new javax.swing.JTextField();
         txtcapacidad = new javax.swing.JTextField();
         txtpiso = new javax.swing.JTextField();
         jcbxBloque = new javax.swing.JComboBox<>();
         btnregresar = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        txtid = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("Trebuchet MS", 1, 48)); // NOI18N
-        jLabel2.setText("Crear Aula");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 70, 260, 50));
+        jLabel2.setText("Modificar Laboratorio");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 70, 520, 50));
 
         jLabel3.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
         jLabel3.setText("Capacidad");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 380, 130, 30));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 410, 130, 30));
 
         jLabel4.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
         jLabel4.setText("Bloque");
@@ -118,22 +97,22 @@ public class FrmCrearAulas extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
         jLabel5.setText("Piso");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 330, 90, 30));
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 370, 90, 30));
 
         jLabel7.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
-        jLabel7.setText("Nombre");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, 90, 30));
+        jLabel7.setText("ID");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 270, 90, 30));
 
-        btnCrearAula.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
-        btnCrearAula.setText("Crear");
-        btnCrearAula.setBorderPainted(false);
-        btnCrearAula.setContentAreaFilled(false);
-        btnCrearAula.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardar.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
+        btnGuardar.setText("Guardar");
+        btnGuardar.setBorderPainted(false);
+        btnGuardar.setContentAreaFilled(false);
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCrearAulaActionPerformed(evt);
+                btnGuardarActionPerformed(evt);
             }
         });
-        getContentPane().add(btnCrearAula, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 450, 210, 40));
+        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 450, 210, 40));
 
         txtnombre.setBorder(null);
         txtnombre.addActionListener(new java.awt.event.ActionListener() {
@@ -141,7 +120,7 @@ public class FrmCrearAulas extends javax.swing.JFrame {
                 txtnombreActionPerformed(evt);
             }
         });
-        getContentPane().add(txtnombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 280, 210, 20));
+        getContentPane().add(txtnombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 320, 210, -1));
 
         txtcapacidad.setBorder(null);
         txtcapacidad.addActionListener(new java.awt.event.ActionListener() {
@@ -149,7 +128,7 @@ public class FrmCrearAulas extends javax.swing.JFrame {
                 txtcapacidadActionPerformed(evt);
             }
         });
-        getContentPane().add(txtcapacidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 390, 100, 20));
+        getContentPane().add(txtcapacidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 420, 100, -1));
 
         txtpiso.setBorder(null);
         txtpiso.addActionListener(new java.awt.event.ActionListener() {
@@ -157,7 +136,7 @@ public class FrmCrearAulas extends javax.swing.JFrame {
                 txtpisoActionPerformed(evt);
             }
         });
-        getContentPane().add(txtpiso, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 340, 100, 20));
+        getContentPane().add(txtpiso, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 370, 100, 20));
 
         jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -174,7 +153,7 @@ public class FrmCrearAulas extends javax.swing.JFrame {
                 jcbxBloqueActionPerformed(evt);
             }
         });
-        getContentPane().add(jcbxBloque, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 320, 130, -1));
+        getContentPane().add(jcbxBloque, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 310, 130, -1));
 
         btnregresar.setBorderPainted(false);
         btnregresar.setContentAreaFilled(false);
@@ -183,16 +162,65 @@ public class FrmCrearAulas extends javax.swing.JFrame {
                 btnregresarActionPerformed(evt);
             }
         });
-        getContentPane().add(btnregresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 460, 30, 30));
+        getContentPane().add(btnregresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, 30, 30));
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/regresa.png"))); // NOI18N
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 460, -1, -1));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, -1, -1));
 
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/crearaula.png"))); // NOI18N
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        jLabel9.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
+        jLabel9.setText("Nombre");
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 310, 90, 30));
+
+        txtid.setBorder(null);
+        getContentPane().add(txtid, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 280, 100, -1));
+
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/editaraulas.jpg"))); // NOI18N
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 510));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+
+        String nombre = txtnombre.getText();
+        String pisoStr = txtpiso.getText();
+        String capacidadStr = txtcapacidad.getText();
+
+      
+        if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+            JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras, números y espacios.");
+            return;
+        }
+
+        
+        if (!pisoStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+            return;
+        }
+
+        
+        if (!capacidadStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+            return;
+        }
+
+        int piso = Integer.parseInt(pisoStr);
+        int capacidad = Integer.parseInt(capacidadStr);
+
+        if (lab != null) {
+            lab.setNombre(txtnombre.getText());
+            lab.setCapacidad(Integer.parseInt(txtcapacidad.getText()));
+            lab.setPiso(Integer.parseInt(txtpiso.getText()));
+            lab.setBloque((Bloque) jcbxBloque.getSelectedItem());
+
+            servicioLab.editarLaboratorio(lab);
+
+            JOptionPane.showMessageDialog(null, "Se modificó correctamente el laboratorio");
+        }
+
+        limpiar();
+        this.dispose();
+    }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void txtnombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtnombreActionPerformed
         // TODO add your handling code here:
@@ -205,10 +233,6 @@ public class FrmCrearAulas extends javax.swing.JFrame {
     private void txtpisoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtpisoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtpisoActionPerformed
-
-    private void btnCrearAulaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearAulaActionPerformed
-        crearAula();
-    }//GEN-LAST:event_btnCrearAulaActionPerformed
 
     private void jcbxBloqueItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jcbxBloqueItemStateChanged
         // TODO add your handling code here:
@@ -244,26 +268,26 @@ public class FrmCrearAulas extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmCrearAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmCrearAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmCrearAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmCrearAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FrmCrearAulas().setVisible(true);
+                new FrmEditarLaboratorio().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCrearAula;
+    private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnregresar;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -272,8 +296,10 @@ public class FrmCrearAulas extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JComboBox<Bloque> jcbxBloque;
     private javax.swing.JTextField txtcapacidad;
+    private javax.swing.JTextField txtid;
     private javax.swing.JTextField txtnombre;
     private javax.swing.JTextField txtpiso;
     // End of variables declaration//GEN-END:variables

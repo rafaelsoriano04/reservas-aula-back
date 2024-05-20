@@ -24,7 +24,6 @@ public class Laboratorio {
 
     @Column(unique = true)
     private String nombre;
-
     private int piso;
     private int capacidad;
 
@@ -32,7 +31,7 @@ public class Laboratorio {
     private Estado estado;
 
     @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reserva> listaReserva;
+    private List<Reserva> listaReservas;
 
     @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario;
