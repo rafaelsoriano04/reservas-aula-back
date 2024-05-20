@@ -40,10 +40,20 @@ public class ServicioHorarioImpl implements ServicioHorario{
        return repositorioHorario.horariosAulas( id); 
     }
 
+    public List<Horario> obtenerHorariosPorLabs(Long id) {
+       return repositorioHorario.horariosLabos( id); 
+    }
+    
+    
     @Override
     @Transactional
-    public void eliminarHorario(Horario id) {
-         repositorioHorario.delete(id);
+    public void eliminarHorario(Horario horario) {
+         try {
+        repositorioHorario.delete(horario);
+    } catch (Exception e) {
+        System.err.println("Error al eliminar el horario: " + e.getMessage());
+        
+    }
     }
     
     

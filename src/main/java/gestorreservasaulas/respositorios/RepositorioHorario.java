@@ -13,14 +13,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-
-
 @Repository
 public interface RepositorioHorario extends JpaRepository<Horario, Long> {
-   
 
     @Query("SELECT h FROM Horario h WHERE h.aula.id = :id_aula")
     List<Horario> horariosAulas(@Param("id_aula") Long idAula);
 
+    @Query("SELECT h FROM Horario h WHERE h.laboratorio.id = :id_laboratorio")
+    List<Horario> horariosLabos(@Param("id_laboratorio") Long idLaboratorio);
 
 }

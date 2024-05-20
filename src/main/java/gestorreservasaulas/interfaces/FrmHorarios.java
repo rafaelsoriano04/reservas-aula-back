@@ -47,6 +47,7 @@ public class FrmHorarios extends javax.swing.JFrame {
             aula.setListaHorario(servicioHorario.obtenerHorariosPorAula(aula.getId()));
             updateTableWithAula(aula, model);
         } else if (laboratorio != null) {
+            laboratorio.setListaHorario(servicioHorario.obtenerHorariosPorLabs(laboratorio.getId()));
             updateTableWithLaboratorio(laboratorio, model);
         }
     }
@@ -290,8 +291,8 @@ public class FrmHorarios extends javax.swing.JFrame {
                 
                 this.initializeTable();
             }else{
-                //OBTENER HORARIO POR LABORATORIO ****
-               //laboratorio.setListaHorario(servicioHorario.obtenerHorariosPorAula(laboratorio.getId()));
+           
+               
                 this.initializeTable();
             }
             
