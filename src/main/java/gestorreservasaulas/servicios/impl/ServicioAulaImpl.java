@@ -16,8 +16,8 @@ public class ServicioAulaImpl implements ServicioAula {
 
     @Autowired
     RepositorioAula repositorioAula;
-    @Override
 
+    @Override
     public Aula obtenerAula(String nombre) {
         return repositorioAula.findByNombreWithHorarios(nombre).orElse(null);
     }
@@ -26,23 +26,39 @@ public class ServicioAulaImpl implements ServicioAula {
     @Transactional
     public boolean editarAula(Aula aula) {
 
-       Aula aula1= repositorioAula.findById(aula.getId()).orElse(null);
-        if(aula1== null){
-          return false;
+        Aula aulaExistente = repositorioAula.findById(aula.getId()).orElse(null);
+        if (aulaExistente == null) {
+            return false;
         }
-        aula1.setCapacidad(aula.getCapacidad());
-        aula1.setPiso(aula.getPiso());
-        aula.setNombre(aula.getNombre());
-        repositorioAula.save(aula);
+
+        aulaExistente.setNombre(aula.getNombre());
+        aulaExistente.setCapacidad(aula.getCapacidad());
+        aulaExistente.setPiso(aula.getPiso());
+        aulaExistente.setBloque(aula.getBloque());
+
+
+        aulaExistente.setListaReservas(aulaExistente.getListaReservas());
+        aulaExistente.setListaHorario(aulaExistente.getListaHorario());
+
+        repositorioAula.save(aulaExistente);
         return true;
     }
 
-   @Override
+    @Override
     public List<Aula> findByBloque(Long id_bloque) {
         return repositorioAula.findByBloque(id_bloque);
     }
 
-    
-    
+
+    @Override
+    public Aula crearAula(Aula aula) {
+        return repositorioAula.save(aula);
+    }
+
+    @Override
+    public void eliminarAula(Long id) {
+        repositorioAula.deleteById(id);
+    }
+
 
 }

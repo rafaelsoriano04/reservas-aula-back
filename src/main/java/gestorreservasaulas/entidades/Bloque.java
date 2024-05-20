@@ -1,10 +1,7 @@
 package gestorreservasaulas.entidades;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -18,7 +15,7 @@ public class Bloque {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(unique = true)
     String nombre;
@@ -38,9 +35,7 @@ public class Bloque {
 
     @Override
     public String toString() {
-        return  nombre ;
+        return nombre;
     }
-    
-    
 
 }

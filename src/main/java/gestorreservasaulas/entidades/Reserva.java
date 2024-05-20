@@ -1,6 +1,5 @@
 package gestorreservasaulas.entidades;
 
-import gestorreservasaulas.enums.Estado;
 import gestorreservasaulas.enums.Prenda;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
