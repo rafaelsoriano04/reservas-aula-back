@@ -1,4 +1,3 @@
-
 package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
@@ -14,55 +13,51 @@ import javax.swing.*;
 @Component
 public class FrmEditarAulas extends javax.swing.JFrame {
 
-    
-   private Aula aulas;
-   
-       @Autowired
+    private Aula aulas;
+
+    @Autowired
     private ServicioBloque servicioBloque;
 
     private List<Bloque> bloques;
-    
+
     @Autowired
-     private ServicioAula servicioaula;
-    
-    
-    
-    
+    private ServicioAula servicioaula;
+
     public FrmEditarAulas() {
         initComponents();
     }
 
-     @PostConstruct
-    public void iniciar(){
+    @PostConstruct
+    public void iniciar() {
         setLocationRelativeTo(null);
-       combo();
-       txtid.setEditable(false);
+        combo();
+        txtid.setEditable(false);
     }
+
     public void combo() {
         bloques = servicioBloque.obtenerTodosBloques();
         for (Bloque block : bloques) {
             jcbxBloque.addItem(block);
         }
     }
-     public void limpiar(){
-         txtid.setText("");
-          txtnombre.setText("");
-          txtpiso.setText("");
-          txtcapacidad.setText("");
-      }
-   
-        
-     public void LlevaraAula(Aula aula){
-          this.aulas = aula;
-    txtid.setText(String.valueOf(aula.getId()));
-    txtnombre.setText(aula.getNombre());
-    txtpiso.setText(String.valueOf(aula.getPiso()));
-    txtcapacidad.setText(String.valueOf(aula.getCapacidad()));
-    
-    jcbxBloque.setSelectedItem(aula.getBloque());
-      }
-     
-     
+
+    public void limpiar() {
+        txtid.setText("");
+        txtnombre.setText("");
+        txtpiso.setText("");
+        txtcapacidad.setText("");
+    }
+
+    public void LlevaraAula(Aula aula) {
+        this.aulas = aula;
+        txtid.setText(String.valueOf(aula.getId()));
+        txtnombre.setText(aula.getNombre());
+        txtpiso.setText(String.valueOf(aula.getPiso()));
+        txtcapacidad.setText(String.valueOf(aula.getCapacidad()));
+
+        jcbxBloque.setSelectedItem(aula.getBloque());
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -213,20 +208,40 @@ public class FrmEditarAulas extends javax.swing.JFrame {
     }//GEN-LAST:event_txtnombreActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-          if (aulas != null) {
-        aulas.setNombre(txtnombre.getText());
-        aulas.setCapacidad(Integer.parseInt(txtcapacidad.getText()));
-        aulas.setPiso(Integer.parseInt(txtpiso.getText()));
-        aulas.setBloque((Bloque) jcbxBloque.getSelectedItem());
+        String nombre = txtnombre.getText();
+        String pisoStr = txtpiso.getText();
+        String capacidadStr = txtcapacidad.getText();
 
-        servicioaula.editarAula(aulas);
-        
-       
-        JOptionPane.showMessageDialog(null, "Se modificó correctamente el aula");
-    }
+        if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+            JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+            return;
+        }
 
-    limpiar();
-    this.dispose();
+        if (!pisoStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+            return;
+        }
+
+        if (!capacidadStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+            return;
+        }
+
+        int piso = Integer.parseInt(pisoStr);
+        int capacidad = Integer.parseInt(capacidadStr);
+        if (aulas != null) {
+            aulas.setNombre(txtnombre.getText());
+            aulas.setCapacidad(Integer.parseInt(txtcapacidad.getText()));
+            aulas.setPiso(Integer.parseInt(txtpiso.getText()));
+            aulas.setBloque((Bloque) jcbxBloque.getSelectedItem());
+
+            servicioaula.editarAula(aulas);
+
+            JOptionPane.showMessageDialog(null, "Se modificó correctamente el aula");
+        }
+
+        limpiar();
+        this.dispose();
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     /**
