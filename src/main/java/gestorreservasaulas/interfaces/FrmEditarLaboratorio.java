@@ -1,4 +1,3 @@
-
 package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
@@ -12,55 +11,55 @@ import javax.swing.JOptionPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 @Component
 
 public class FrmEditarLaboratorio extends javax.swing.JFrame {
 
-    
     private Laboratorio lab;
-   
-       @Autowired
+
+    @Autowired
     private ServicioBloque servicioBloque;
 
     private List<Bloque> bloques;
-    
+
     @Autowired
-     private ServicioLaboratorio servicioLab;
-    
+    private ServicioLaboratorio servicioLab;
+
     public FrmEditarLaboratorio() {
         initComponents();
     }
 
-    
     @PostConstruct
-    public void iniciar(){
+    public void iniciar() {
         setLocationRelativeTo(null);
-       combo();
-       txtid.setEditable(false);
+        combo();
+        txtid.setEditable(false);
     }
+
     public void combo() {
         bloques = servicioBloque.obtenerTodosBloques();
         for (Bloque block : bloques) {
             jcbxBloque.addItem(block);
         }
     }
-     public void limpiar(){
-         txtid.setText("");
-          txtnombre.setText("");
-          txtpiso.setText("");
-          txtcapacidad.setText("");
-      }
-     
-      public void LlevaraLab(Laboratorio labo){
-          this.lab = labo;
-    txtid.setText(String.valueOf(labo.getId()));
-    txtnombre.setText(labo.getNombre());
-    txtpiso.setText(String.valueOf(labo.getPiso()));
-    txtcapacidad.setText(String.valueOf(labo.getCapacidad()));
-    
-    jcbxBloque.setSelectedItem(labo.getBloque());
-      }
+
+    public void limpiar() {
+        txtid.setText("");
+        txtnombre.setText("");
+        txtpiso.setText("");
+        txtcapacidad.setText("");
+    }
+
+    public void LlevaraLab(Laboratorio labo) {
+        this.lab = labo;
+        txtid.setText(String.valueOf(labo.getId()));
+        txtnombre.setText(labo.getNombre());
+        txtpiso.setText(String.valueOf(labo.getPiso()));
+        txtcapacidad.setText(String.valueOf(labo.getCapacidad()));
+
+        jcbxBloque.setSelectedItem(labo.getBloque());
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -182,6 +181,32 @@ public class FrmEditarLaboratorio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+
+        String nombre = txtnombre.getText();
+        String pisoStr = txtpiso.getText();
+        String capacidadStr = txtcapacidad.getText();
+
+      
+        if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+            JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras, números y espacios.");
+            return;
+        }
+
+        
+        if (!pisoStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+            return;
+        }
+
+        
+        if (!capacidadStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+            return;
+        }
+
+        int piso = Integer.parseInt(pisoStr);
+        int capacidad = Integer.parseInt(capacidadStr);
+
         if (lab != null) {
             lab.setNombre(txtnombre.getText());
             lab.setCapacidad(Integer.parseInt(txtcapacidad.getText()));
