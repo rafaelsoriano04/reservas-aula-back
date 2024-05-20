@@ -50,8 +50,26 @@ public class FrmCrearLaboratorio extends javax.swing.JFrame {
 
     public void crearLaboratorio() {
         String nombre = txtnombre.getText();
-        int piso = Integer.parseInt(txtpiso.getText());
-        int capacidad = Integer.parseInt(txtcapacidad.getText());
+        String pisoStr = txtpiso.getText();
+        String capacidadStr = txtcapacidad.getText();
+
+        if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+            JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+            return;
+        }
+
+        if (!pisoStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+            return;
+        }
+
+        if (!capacidadStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+            return;
+        }
+
+        int piso = Integer.parseInt(pisoStr);
+        int capacidad = Integer.parseInt(capacidadStr);
         Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
 
         Laboratorio lab = new Laboratorio();
