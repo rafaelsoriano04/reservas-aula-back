@@ -1,5 +1,6 @@
 package gestorreservasaulas.servicios.impl;
 
+import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.respositorios.RepositorioLaboratorio;
 import gestorreservasaulas.servicios.ServicioLaboratorio;
@@ -28,4 +29,27 @@ public class ServicioLaboratorioImpl implements ServicioLaboratorio {
     public Laboratorio crearLaboratorio(Laboratorio lab) {
         return repositorioLaboratorio.save(lab);
     }
+
+    @Override
+    public boolean editarLaboratorio(Laboratorio lab) {
+        Laboratorio labExistente = repositorioLaboratorio.findById(lab.getId()).orElse(null);
+        if (labExistente == null) {
+            return false;
+        }
+
+        labExistente.setNombre(lab.getNombre());
+        labExistente.setCapacidad(lab.getCapacidad());
+        labExistente.setPiso(lab.getPiso());
+        labExistente.setBloque(lab.getBloque());
+
+
+        labExistente.setListaReservas(labExistente.getListaReservas());
+        labExistente.setListaHorario(labExistente.getListaHorario());
+
+
+        repositorioLaboratorio.save(labExistente);
+        return true;
+    }
+
+
 }

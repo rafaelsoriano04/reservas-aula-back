@@ -3,19 +3,22 @@ package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
+import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.*;
+import gestorreservasaulas.servicios.ServicioBloque;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import jakarta.annotation.PostConstruct;
 
-import javax.swing.*;
 
 @Component
-public class FrmEditarAulas extends javax.swing.JFrame {
+
+public class FrmEditarLaboratorio extends javax.swing.JFrame {
 
     
-   private Aula aulas;
+    private Laboratorio lab;
    
        @Autowired
     private ServicioBloque servicioBloque;
@@ -23,16 +26,14 @@ public class FrmEditarAulas extends javax.swing.JFrame {
     private List<Bloque> bloques;
     
     @Autowired
-     private ServicioAula servicioaula;
+     private ServicioLaboratorio servicioLab;
     
-    
-    
-    
-    public FrmEditarAulas() {
+    public FrmEditarLaboratorio() {
         initComponents();
     }
 
-     @PostConstruct
+    
+    @PostConstruct
     public void iniciar(){
         setLocationRelativeTo(null);
        combo();
@@ -50,19 +51,16 @@ public class FrmEditarAulas extends javax.swing.JFrame {
           txtpiso.setText("");
           txtcapacidad.setText("");
       }
-   
-        
-     public void LlevaraAula(Aula aula){
-          this.aulas = aula;
-    txtid.setText(String.valueOf(aula.getId()));
-    txtnombre.setText(aula.getNombre());
-    txtpiso.setText(String.valueOf(aula.getPiso()));
-    txtcapacidad.setText(String.valueOf(aula.getCapacidad()));
+     
+      public void LlevaraLab(Laboratorio labo){
+          this.lab = labo;
+    txtid.setText(String.valueOf(labo.getId()));
+    txtnombre.setText(labo.getNombre());
+    txtpiso.setText(String.valueOf(labo.getPiso()));
+    txtcapacidad.setText(String.valueOf(labo.getCapacidad()));
     
-    jcbxBloque.setSelectedItem(aula.getBloque());
+    jcbxBloque.setSelectedItem(labo.getBloque());
       }
-     
-     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -87,8 +85,8 @@ public class FrmEditarAulas extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("Trebuchet MS", 1, 48)); // NOI18N
-        jLabel2.setText("Modificar Aula");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 70, 343, 50));
+        jLabel2.setText("Modificar Laboratorio");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 70, 520, 50));
 
         jLabel3.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
         jLabel3.setText("Capacidad");
@@ -183,6 +181,34 @@ public class FrmEditarAulas extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        if (lab != null) {
+            lab.setNombre(txtnombre.getText());
+            lab.setCapacidad(Integer.parseInt(txtcapacidad.getText()));
+            lab.setPiso(Integer.parseInt(txtpiso.getText()));
+            lab.setBloque((Bloque) jcbxBloque.getSelectedItem());
+
+            servicioLab.editarLaboratorio(lab);
+
+            JOptionPane.showMessageDialog(null, "Se modificó correctamente el laboratorio");
+        }
+
+        limpiar();
+        this.dispose();
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void txtnombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtnombreActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtnombreActionPerformed
+
+    private void txtcapacidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtcapacidadActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtcapacidadActionPerformed
+
+    private void txtpisoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtpisoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtpisoActionPerformed
+
     private void jcbxBloqueItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jcbxBloqueItemStateChanged
         // TODO add your handling code here:
     }//GEN-LAST:event_jcbxBloqueItemStateChanged
@@ -199,35 +225,6 @@ public class FrmEditarAulas extends javax.swing.JFrame {
 
         this.dispose();
     }//GEN-LAST:event_btnregresarActionPerformed
-
-    private void txtpisoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtpisoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtpisoActionPerformed
-
-    private void txtcapacidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtcapacidadActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtcapacidadActionPerformed
-
-    private void txtnombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtnombreActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtnombreActionPerformed
-
-    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-          if (aulas != null) {
-        aulas.setNombre(txtnombre.getText());
-        aulas.setCapacidad(Integer.parseInt(txtcapacidad.getText()));
-        aulas.setPiso(Integer.parseInt(txtpiso.getText()));
-        aulas.setBloque((Bloque) jcbxBloque.getSelectedItem());
-
-        servicioaula.editarAula(aulas);
-        
-       
-        JOptionPane.showMessageDialog(null, "Se modificó correctamente el aula");
-    }
-
-    limpiar();
-    this.dispose();
-    }//GEN-LAST:event_btnGuardarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -246,20 +243,20 @@ public class FrmEditarAulas extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmEditarAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmEditarAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmEditarAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmEditarAulas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmEditarLaboratorio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FrmEditarAulas().setVisible(true);
+                new FrmEditarLaboratorio().setVisible(true);
             }
         });
     }

@@ -32,7 +32,9 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     
     @Autowired
     private FrmEditarAulas frmeditarAulas;
-     
+    
+    @Autowired
+    private FrmEditarLaboratorio frmeditarLab;
     
     @Autowired
     private ServicioBloque servicioBloque;
@@ -316,15 +318,15 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             frmeditarAulas.LlevaraAula(aula);
             frmeditarAulas.setVisible(true);
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
-            // Laboratorio laboratorio = new Laboratorio();
-            // laboratorio.setId(id);
-            // laboratorio.setNombre(nombre);
-            // laboratorio.setPiso(piso);
-            // laboratorio.setCapacidad(capacidad);
-            // laboratorio.setBloque(bloqueSeleccionado);
+             Laboratorio laboratorio = new Laboratorio();
+             laboratorio.setId(id);
+             laboratorio.setNombre(nombre);
+             laboratorio.setPiso(piso);
+             laboratorio.setCapacidad(capacidad);
+             laboratorio.setBloque(bloqueSeleccionado);
 
-            // frmlaboratorio.setLaboratorio(laboratorio);  
-            // frmlaboratorio.setVisible(true);
+             frmeditarLab.LlevaraLab(laboratorio);
+             frmeditarLab.setVisible(true);
         }
         
     }else{
