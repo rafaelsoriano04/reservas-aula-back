@@ -345,7 +345,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             if ("Aulas".equals(tipoSeleccionado)) {
                 servicioAula.eliminarAula(id);
             } else if ("Laboratorios".equals(tipoSeleccionado)) {
-               // servicioLaboratorio.eliminarLaboratorio(id);
+               servicioLaboratorio.eliminarLaboratorio(id);
             }
 
             cargarAulasLabPorBloque(); 

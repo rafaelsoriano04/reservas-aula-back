@@ -51,5 +51,10 @@ public class ServicioLaboratorioImpl implements ServicioLaboratorio {
         return true;
     }
 
+    @Override
+    public void eliminarLaboratorio(Long id) {
+        repositorioLaboratorio.deleteById(id);
+    }
+
 
 }

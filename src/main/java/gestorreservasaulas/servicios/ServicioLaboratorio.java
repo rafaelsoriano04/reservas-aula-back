@@ -13,4 +13,5 @@ public interface ServicioLaboratorio
     List<Laboratorio> findByBloque(Long id_bloque);
     Laboratorio crearLaboratorio (Laboratorio lab);
     boolean editarLaboratorio(Laboratorio lab);
+    void eliminarLaboratorio(Long id);
 }
