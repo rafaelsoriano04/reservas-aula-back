@@ -9,7 +9,7 @@ import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioHorario;
-import jakarta.annotation.PostConstruct;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,28 +22,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class FrmHorarios extends javax.swing.JFrame {
 
-    
     @Autowired
     private ServicioHorario servicioHorario;
 
     private Aula aula;
     private Laboratorio laboratorio;
-
+    private DefaultComboBoxModel<Horario> modelocombo;
     public FrmHorarios() {
         initComponents();
     }
 
-   public void initializeTable() {
+    public void initializeTable() {
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         jTable1.setModel(model);
-
+        modelocombo = new DefaultComboBoxModel<>();    
+        jComboBox3.setModel(modelocombo);
         for (int hour = 7; hour < 20; hour++) {
             String time = String.format("%d-%d", hour, hour + 1);
             model.addRow(new Object[]{time, "", "", "", "", ""});
         }
 
         if (aula != null) {
+            aula.setListaHorario(servicioHorario.obtenerHorariosPorAula(aula.getId()));
             updateTableWithAula(aula, model);
         } else if (laboratorio != null) {
             updateTableWithLaboratorio(laboratorio, model);
@@ -61,6 +62,7 @@ public class FrmHorarios extends javax.swing.JFrame {
     private void updateTableWithAula(Aula aula, DefaultTableModel model) {
         for (Horario horario : aula.getListaHorario()) {
             int hourIndex = Integer.parseInt(horario.getHora()) - 7;
+            modelocombo.addElement(horario);
             model.setValueAt(horario.getMateria(), hourIndex, getDayIndex(horario.getDia()));
         }
     }
@@ -68,21 +70,27 @@ public class FrmHorarios extends javax.swing.JFrame {
     private void updateTableWithLaboratorio(Laboratorio laboratorio, DefaultTableModel model) {
         for (Horario horario : laboratorio.getListaHorario()) {
             int hourIndex = Integer.parseInt(horario.getHora()) - 7;
+            modelocombo.addElement(horario);
             model.setValueAt(horario.getMateria(), hourIndex, getDayIndex(horario.getDia()));
         }
     }
 
     private int getDayIndex(String day) {
         switch (day) {
-            case "Lunes": return 1;
-            case "Martes": return 2;
-            case "Miércoles": return 3;
-            case "Jueves": return 4;
-            case "Viernes": return 5;
-            default: return -1;
+            case "Lunes":
+                return 1;
+            case "Martes":
+                return 2;
+            case "Miercoles":
+                return 3;
+            case "Jueves":
+                return 4;
+            case "Viernes":
+                return 5;
+            default:
+                return -1;
         }
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -150,8 +158,6 @@ public class FrmHorarios extends javax.swing.JFrame {
         });
 
         jLabel4.setText("Horario:");
-
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel1.setText("AGREGAR NUEVO HORARIO");
 
@@ -253,28 +259,57 @@ public class FrmHorarios extends javax.swing.JFrame {
         String hora = jcbxhora.getSelectedItem().toString();
         int in = hora.indexOf("-");
         hora = hora.substring(0, in);
-        
-       
+        int controlado = 0;
         Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), hora,
-            jtxtMateria.getText(), aula, laboratorio);
+                jtxtMateria.getText(), aula, laboratorio);
         //Verificar que no se agreguen horarios para la misma hora y para el mismo dia
-        if (this.servicioHorario.crearHorario(nHorario)) {
+        if (aula != null) {
+            for (Horario horario : aula.getListaHorario()) {
+                if (horario.getDia().equals(jcbxdia.getSelectedItem().toString()) && horario.getHora().equals(hora)) {
+
+                    controlado = 1;
+                }
+            }
+        }
+
+        if (laboratorio != null) {
+            for (Horario horario : laboratorio.getListaHorario()) {
+                if (horario.getDia().equals(jcbxdia.getSelectedItem().toString()) && horario.getHora().equals(hora)) {
+
+                    controlado = 1;
+                }
+            }
+        }
+
+        
+        if (controlado == 0) {
             JOptionPane.showMessageDialog(null, "Se agrego el horario");
+            servicioHorario.crearHorario(nHorario);
             //AGREGAR EL Horario a la tabla o volver a traer el horario por medio del ID
-           
+            if (aula != null) {
+                
+                this.initializeTable();
+            }else{
+                //OBTENER HORARIO POR LABORATORIO ****
+               //laboratorio.setListaHorario(servicioHorario.obtenerHorariosPorAula(laboratorio.getId()));
+                this.initializeTable();
+            }
             
-            
-            
-            
-            
-            
-        }else{
+        } else {
             JOptionPane.showMessageDialog(null, "No se puede agregar horarios existentes");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        int in = jComboBox3.getSelectedIndex();
+        if (in != -1) {
+           //Se borrar el horario
+           Horario horario = (Horario) jComboBox3.getSelectedItem();
+            System.out.println(horario.getId());
+           servicioHorario.eliminarHorario(horario);
+           JOptionPane.showMessageDialog(this, "Se elimino el horario");
+           
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -307,7 +342,7 @@ public class FrmHorarios extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-               
+
                 new FrmHorarios().setVisible(true);
             }
         });
@@ -316,7 +351,7 @@ public class FrmHorarios extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox3;
+    private javax.swing.JComboBox<Horario> jComboBox3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -330,5 +365,4 @@ public class FrmHorarios extends javax.swing.JFrame {
     private javax.swing.JTextField jtxtMateria;
     // End of variables declaration//GEN-END:variables
 
-    
 }

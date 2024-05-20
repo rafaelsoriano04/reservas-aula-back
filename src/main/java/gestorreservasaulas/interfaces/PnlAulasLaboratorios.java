@@ -277,14 +277,16 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         // TODO add your handling code here:
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
         
+        
+        
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
-           
                 FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
                 frmHorarios.setAula(aulas.get(indextabla));  
                 frmHorarios.initializeTable();
                 frmHorarios.setVisible(true);
+                frmHorarios.setLocationRelativeTo(this);
           
             }
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
@@ -294,6 +296,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
                 frmHorarios.setLaboratorio(laboratorios.get(indextabla));  
                 frmHorarios.initializeTable();
                 frmHorarios.setVisible(true);
+                frmHorarios.setLocationRelativeTo(this);
             }
         }
         

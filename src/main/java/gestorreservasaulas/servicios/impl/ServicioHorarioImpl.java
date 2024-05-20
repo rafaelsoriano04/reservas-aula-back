@@ -7,6 +7,8 @@ package gestorreservasaulas.servicios.impl;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioHorario;
 import gestorreservasaulas.servicios.ServicioHorario;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,4 +34,17 @@ public class ServicioHorarioImpl implements ServicioHorario{
         }
         
     }
+
+    @Override
+    public List<Horario> obtenerHorariosPorAula(Long id) {
+       return repositorioHorario.horariosAulas( id); 
+    }
+
+    @Override
+    @Transactional
+    public void eliminarHorario(Horario id) {
+         repositorioHorario.delete(id);
+    }
+    
+    
 }
