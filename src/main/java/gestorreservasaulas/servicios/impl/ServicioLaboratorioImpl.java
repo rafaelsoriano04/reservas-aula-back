@@ -43,7 +43,7 @@ public class ServicioLaboratorioImpl implements ServicioLaboratorio {
         labExistente.setBloque(lab.getBloque());
 
 
-        labExistente.setListaReservas(labExistente.getListaReservas());
+        labExistente.setListaReserva(labExistente.getListaReserva());
         labExistente.setListaHorario(labExistente.getListaHorario());
 
 

@@ -1,5 +1,6 @@
 package gestorreservasaulas.interfaces;
 
+import gestorreservasaulas.GestorReservasAulasApplication;
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
 import gestorreservasaulas.entidades.Laboratorio;
@@ -40,7 +41,9 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private ServicioBloque servicioBloque;
     private Aula aulaSeleccionada;
     private Laboratorio labSeleccionada;
-    
+    private int indextabla;
+    @Autowired
+    private FrmHorarios frmHorarios;
 
     private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
     private List<Aula> aulas;
@@ -106,7 +109,9 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     private Aula actualizarAulaSeleccionada() {
         int fila = jTable1.getSelectedRow();
+      
         if (fila != -1) {
+            indextabla = jTable1.getSelectedRow();
             Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
             String nombre = jTable1.getValueAt(fila, 1).toString();
             int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
@@ -124,6 +129,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private Laboratorio actualizarLaboratorioSeleccionado() {
         int fila = jTable1.getSelectedRow();
         if (fila != -1) {
+            indextabla = jTable1.getSelectedRow();
             Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
             String nombre = jTable1.getValueAt(fila, 1).toString();
             int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
@@ -270,17 +276,30 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        
+        
+        
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
-                System.out.println(aulaSeleccionada.getNombre()); // Aquí podrías mostrar los detalles o hacer algo con el objeto aula
+                FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
+                frmHorarios.setAula(aulas.get(indextabla));  
+                frmHorarios.initializeTable();
+                frmHorarios.setVisible(true);
+                frmHorarios.setLocationRelativeTo(this);
+          
             }
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
             actualizarLaboratorioSeleccionado();
             if (labSeleccionada != null) {
-                System.out.println(labSeleccionada); // Aquí podrías mostrar los detalles o hacer algo con el objeto laboratorio
+                 FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
+                frmHorarios.setLaboratorio(laboratorios.get(indextabla));  
+                frmHorarios.initializeTable();
+                frmHorarios.setVisible(true);
+                frmHorarios.setLocationRelativeTo(this);
             }
         }
+        
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearActionPerformed

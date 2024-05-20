@@ -22,6 +22,7 @@ public class PnlHorarios extends javax.swing.JPanel {
         //Recibir un aula
         //llenar la tabla con los horario correspondiente a ese id de aula, agarrar de la lista
         initComponents();
+        
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
 
 

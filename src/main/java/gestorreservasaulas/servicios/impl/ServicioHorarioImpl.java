@@ -7,12 +7,16 @@ package gestorreservasaulas.servicios.impl;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioHorario;
 import gestorreservasaulas.servicios.ServicioHorario;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author fredd
  */
+@Service
 public class ServicioHorarioImpl implements ServicioHorario{
     @Autowired
     RepositorioHorario repositorioHorario;
@@ -30,4 +34,27 @@ public class ServicioHorarioImpl implements ServicioHorario{
         }
         
     }
+
+    @Override
+    public List<Horario> obtenerHorariosPorAula(Long id) {
+       return repositorioHorario.horariosAulas( id); 
+    }
+
+    public List<Horario> obtenerHorariosPorLabs(Long id) {
+       return repositorioHorario.horariosLabos( id); 
+    }
+    
+    
+    @Override
+    @Transactional
+    public void eliminarHorario(Horario horario) {
+         try {
+        repositorioHorario.delete(horario);
+    } catch (Exception e) {
+        System.err.println("Error al eliminar el horario: " + e.getMessage());
+        
+    }
+    }
+    
+    
 }

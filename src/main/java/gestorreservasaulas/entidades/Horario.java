@@ -36,4 +36,12 @@ public class Horario {
     @JoinColumn(name = "id_laboratorio")
     private Laboratorio laboratorio;
 
+    @Override
+    public String toString() {
+        int ss = Integer.valueOf(getHora()) +1;
+        return getDia() +" " + getHora() + "-"+ss;
+    }
+    
+    
+    
 }
