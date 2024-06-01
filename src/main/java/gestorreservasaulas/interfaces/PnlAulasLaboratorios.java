@@ -300,7 +300,6 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
         
         
-        
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
@@ -309,7 +308,9 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
                 frmHorarios.initializeTable();
                 frmHorarios.setVisible(true);
                 frmHorarios.setLocationRelativeTo(this);
-          
+                
+            }else{
+                JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
             }
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
             actualizarLaboratorioSeleccionado();
@@ -319,6 +320,8 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
                 frmHorarios.initializeTable();
                 frmHorarios.setVisible(true);
                 frmHorarios.setLocationRelativeTo(this);
+            }else{
+                JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
             }
         }
         
