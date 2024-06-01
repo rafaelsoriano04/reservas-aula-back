@@ -13,5 +13,5 @@ public interface ServicioHorario {
     Boolean crearHorario(Horario horario);
     List<Horario> obtenerHorariosPorAula (Long id);
     List<Horario> obtenerHorariosPorLabs (Long id);
-    void eliminarHorario(Horario id);
+    Boolean eliminarHorario(Long id);
 }

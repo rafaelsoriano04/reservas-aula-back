@@ -36,8 +36,8 @@ public class FrmHorarios extends javax.swing.JFrame {
         String[] columnNames = {"Hora", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         jTable1.setModel(model);
-        modelocombo = new DefaultComboBoxModel<>();    
-        jComboBox3.setModel(modelocombo);
+        modelocombo = new DefaultComboBoxModel<Horario>();    
+        jcbxlistahorarios.setModel(modelocombo);
         for (int hour = 7; hour < 20; hour++) {
             String time = String.format("%d-%d", hour, hour + 1);
             model.addRow(new Object[]{time, "", "", "", "", ""});
@@ -115,10 +115,10 @@ public class FrmHorarios extends javax.swing.JFrame {
         jLabel11 = new javax.swing.JLabel();
         jtxtMateria = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
-        jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
+        jcbxlistahorarios = new javax.swing.JComboBox<>();
         jButton4 = new javax.swing.JButton();
+        jLabel14 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -191,16 +191,11 @@ public class FrmHorarios extends javax.swing.JFrame {
         });
         jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 50, 101, -1));
 
-        jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel12.setText("Eliminar Horario:");
-        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 164, -1));
-
         jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel13.setText("Horario:");
         jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, -1, -1));
 
-        
-        jPanel2.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, 410, -1));
+        jPanel2.add(jcbxlistahorarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, 410, -1));
 
         jButton4.setBackground(new java.awt.Color(153, 0, 0));
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -212,6 +207,10 @@ public class FrmHorarios extends javax.swing.JFrame {
             }
         });
         jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 120, 101, -1));
+
+        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel14.setText("Eliminar Horario:");
+        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 164, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -259,7 +258,16 @@ public class FrmHorarios extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        
+        Horario horarioSeleccionado = (Horario)jcbxlistahorarios.getSelectedItem();
+            if (horarioSeleccionado != null) {
+                if (this.servicioHorario.eliminarHorario(horarioSeleccionado.getId())) {
+                    JOptionPane.showMessageDialog(null, "Se elimino el horario");
+                    initializeTable();
+                }else{
+                    JOptionPane.showMessageDialog(null, "No se pudo eliminar");
+                }
+            }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jcbxdiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxdiaActionPerformed
@@ -305,11 +313,10 @@ public class FrmHorarios extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JComboBox<Horario> jComboBox3;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -319,6 +326,7 @@ public class FrmHorarios extends javax.swing.JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JComboBox<String> jcbxdia;
     private javax.swing.JComboBox<String> jcbxhora;
+    private javax.swing.JComboBox<Horario> jcbxlistahorarios;
     private javax.swing.JTextField jtxtMateria;
     // End of variables declaration//GEN-END:variables
 

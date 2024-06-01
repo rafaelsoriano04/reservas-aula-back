@@ -9,6 +9,7 @@ import gestorreservasaulas.entidades.Usuario;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,7 @@ public interface RepositorioHorario extends JpaRepository<Horario, Long> {
     @Query("SELECT h FROM Horario h WHERE h.laboratorio.id = :id_laboratorio")
     List<Horario> horariosLabos(@Param("id_laboratorio") Long idLaboratorio);
 
+    @Modifying
+    @Query("DELETE FROM Horario h WHERE h.id = :id_horario")
+    int deleteHorario(@Param("id_horario") Long idHorario);
 }
