@@ -17,44 +17,45 @@ import org.springframework.stereotype.Service;
  * @author fredd
  */
 @Service
-public class ServicioHorarioImpl implements ServicioHorario{
+public class ServicioHorarioImpl implements ServicioHorario {
+
     @Autowired
     RepositorioHorario repositorioHorario;
-     @Override
+
+    @Override
     public Horario obtenerHorario(Long id) {
         return repositorioHorario.findById(id).orElse(null);
     }
 
     @Override
     public Boolean crearHorario(Horario horario) {
-        if(repositorioHorario.save(horario) != null ){
+        if (repositorioHorario.save(horario) != null) {
             return true;
-        }else{
+        } else {
             return false;
         }
-        
+
     }
 
     @Override
     public List<Horario> obtenerHorariosPorAula(Long id) {
-       return repositorioHorario.horariosAulas( id); 
+        return repositorioHorario.horariosAulas(id);
     }
 
     public List<Horario> obtenerHorariosPorLabs(Long id) {
-       return repositorioHorario.horariosLabos( id); 
+        return repositorioHorario.horariosLabos(id);
     }
-    
-    
+
     @Override
     @Transactional
-    public void eliminarHorario(Horario horario) {
-         try {
-        repositorioHorario.delete(horario);
-    } catch (Exception e) {
-        System.err.println("Error al eliminar el horario: " + e.getMessage());
-        
+    public Boolean eliminarHorario(Long idHorario) {
+        int count = repositorioHorario.deleteHorario(idHorario);
+        if (count > 0) {
+            return true;
+        } else {
+            System.err.println("No se encontró el horario con ID: " + idHorario + " o no pudo ser eliminado.");
+            return false;
+        }
     }
-    }
-    
-    
+
 }
