@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class FrmPrincipal extends javax.swing.JFrame {
 
     @Autowired
-    PnlAulasLaboratorios panelAulaLab;
+    private PnlAulasLaboratorios panelAulaLab;
 
     public FrmPrincipal() {
         initComponents();
