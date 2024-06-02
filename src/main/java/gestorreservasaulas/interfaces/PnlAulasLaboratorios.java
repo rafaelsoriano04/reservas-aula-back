@@ -44,6 +44,8 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private int indextabla;
     @Autowired
     private FrmHorarios frmHorarios;
+    @Autowired
+    private FrmReservas frmReservas;
 
     private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
     private List<Aula> aulas;
@@ -241,7 +243,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 160, -1, -1));
+        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 160, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setText("Capacidad:");
@@ -250,7 +252,16 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jTextField2.setText("jTextField1");
         jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 120, 350, -1));
 
-        
+        jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+
+            }
+        });
+        jcbxBloque.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+
+            }
+        });
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxBloqueActionPerformed(evt);
@@ -282,6 +293,11 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("Reservar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 140, -1, -1));
 
         add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, 970, 270));
@@ -399,6 +415,36 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(null, "Selecciona una fila para eliminar");
     }
     }//GEN-LAST:event_btneliminarActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+           String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        
+        
+        if ("Aulas".equals(tipoSeleccionado)) {
+            actualizarAulaSeleccionada();
+            if (aulaSeleccionada != null) {
+                FrmReservas frmReservas = GestorReservasAulasApplication.getApplicationContext().getBean(FrmReservas.class);
+                frmReservas.setAula(aulas.get(indextabla));  
+                frmReservas.initializeTable();
+                frmReservas.setVisible(true);
+                frmReservas.setLocationRelativeTo(this);
+                
+            }else{
+                JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
+            }
+        } else if ("Laboratorios".equals(tipoSeleccionado)) {
+            actualizarLaboratorioSeleccionado();
+            if (labSeleccionada != null) {
+                FrmReservas frmReservas = GestorReservasAulasApplication.getApplicationContext().getBean(FrmReservas.class);
+                frmReservas.setLaboratorio(laboratorios.get(indextabla));  
+                frmReservas.initializeTable();
+                frmReservas.setVisible(true);
+                frmReservas.setLocationRelativeTo(this);
+            }else{
+                JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
+            }
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
  
     
     

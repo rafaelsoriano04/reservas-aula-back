@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package gestorreservasaulas.interfaces;
 
 import gestorreservasaulas.entidades.Aula;
@@ -247,11 +244,45 @@ public class FrmHorarios extends javax.swing.JFrame {
     }//GEN-LAST:event_jtxtMateriaActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), jcbxhora.getSelectedItem().toString(),
-            jtxtMateria.getText(), aula, laboratorio);
+       String hora = jcbxhora.getSelectedItem().toString();
+        int in = hora.indexOf("-");
+        hora = hora.substring(0, in);
+        int controlado = 0;
+        Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), hora,
+                jtxtMateria.getText(), aula, laboratorio);
         //Verificar que no se agreguen horarios para la misma hora y para el mismo dia
-        if (this.servicioHorario.crearHorario(nHorario)) {
+        if (aula != null) {
+            for (Horario horario : aula.getListaHorario()) {
+                if (horario.getDia().equals(jcbxdia.getSelectedItem().toString()) && horario.getHora().equals(hora)) {
+
+                    controlado = 1;
+                }
+            }
+        }
+
+        if (laboratorio != null) {
+            for (Horario horario : laboratorio.getListaHorario()) {
+                if (horario.getDia().equals(jcbxdia.getSelectedItem().toString()) && horario.getHora().equals(hora)) {
+
+                    controlado = 1;
+                }
+            }
+        }
+
+        
+        if (controlado == 0) {
             JOptionPane.showMessageDialog(null, "Se agrego el horario");
+            servicioHorario.crearHorario(nHorario);
+            //AGREGAR EL Horario a la tabla o volver a traer el horario por medio del ID
+            if (aula != null) {
+                
+                this.initializeTable();
+            }else{
+           
+               
+                this.initializeTable();
+            }
+            
         } else {
             JOptionPane.showMessageDialog(null, "No se puede agregar horarios existentes");
         }
