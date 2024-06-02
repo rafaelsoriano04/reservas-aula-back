@@ -140,18 +140,18 @@ public class FrmReservas extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setText("GESTI�N DE RESERVAS");
+        jLabel7.setText("GESTIÓN DE RESERVAS");
         jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(347, 17, -1, -1));
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel8.setText("Garantia:");
-        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 90, 100, -1));
+        jLabel8.setText("Prenda");
+        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 100, 100, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setText("D�a:");
+        jLabel9.setText("Día:");
         jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 31, -1));
 
         jcbxdia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Lunes", "Martes", "Miercoles", "Jueves", "Viernes" }));
@@ -215,10 +215,12 @@ public class FrmReservas extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Agregar Reserva:");
         jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 164, -1));
+
+        txtresponsable.setEditable(false);
         jPanel2.add(txtresponsable, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 40, 130, -1));
 
-        cmbGarantia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione---", "C�dula", "Licencia" }));
-        jPanel2.add(cmbGarantia, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 110, 130, -1));
+        cmbGarantia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione---", "Cédula", "Licencia" }));
+        jPanel2.add(cmbGarantia, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 120, 130, -1));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("Responsable:");

@@ -66,7 +66,7 @@ public class FrmPersonas extends javax.swing.JFrame {
             dispose();
             frmReservas.setVisible(true);
         } else {
-            if (!persona.getNombre().equals(nombre) || !persona.getApellido().equals(nombre) ||
+            if (!persona.getNombre().equals(nombre) || !persona.getApellido().equals(apellido) ||
                     !persona.getTelefono().equals(telefono)) {
                 persona.setNombre(nombre);
                 persona.setApellido(apellido);
