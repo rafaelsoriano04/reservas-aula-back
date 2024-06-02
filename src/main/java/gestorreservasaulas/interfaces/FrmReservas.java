@@ -5,9 +5,12 @@ import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Laboratorio;
 import gestorreservasaulas.enums.Prenda;
 import gestorreservasaulas.servicios.ServicioHorario;
+
 import javax.swing.JOptionPane;
 
 import javax.swing.table.DefaultTableModel;
+
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,20 +21,24 @@ public class FrmReservas extends javax.swing.JFrame {
     @Autowired
     private ServicioHorario servicioHorario;
 
+    @Autowired
+    FrmPersonas frmPersonas;
+
+    @Setter
     private Aula aula;
+    @Setter
     private Laboratorio laboratorio;
     private Prenda prenda;
-    private Persona persona;
+
+    @Setter
+    private Persona responsable;
 
     public FrmReservas() {
         initComponents();
-
     }
 
     public void initializeTable() {
-
         jTable1.setModel(model);
-
         for (int hour = 7; hour < 20; hour++) {
             // Formato de hora para mostrar como "7-8", "8-9", etc., sin AM/PM
             String time = String.format("%d-%d", hour, hour + 1);
@@ -49,12 +56,8 @@ public class FrmReservas extends javax.swing.JFrame {
         }
     }
 
-    public void setAula(Aula aula) {
-        this.aula = aula;
-    }
-
-    public void setLaboratorio(Laboratorio laboratorio) {
-        this.laboratorio = laboratorio;
+    public void setResponsable() {
+        txtresponsable.setText(responsable.getCedula());
     }
 
     private void updateTableWithAula(Aula aula, DefaultTableModel model) {
@@ -74,20 +77,20 @@ public class FrmReservas extends javax.swing.JFrame {
     }
 
     private int getDayIndex(String day) {
-        switch (day) {
-            case "Lunes":
-                return 1;
-            case "Martes":
-                return 2;
-            case "Miercoles":
-                return 3;
-            case "Jueves":
-                return 4;
-            case "Viernes":
-                return 5;
-            default:
-                return -1;
-        }
+        return switch (day) {
+            case "Lunes" ->
+                1;
+            case "Martes" ->
+                2;
+            case "Miercoles" ->
+                3;
+            case "Jueves" ->
+                4;
+            case "Viernes" ->
+                5;
+            default ->
+                -1;
+        };
     }
 
     @SuppressWarnings("unchecked")
@@ -98,7 +101,6 @@ public class FrmReservas extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -107,7 +109,7 @@ public class FrmReservas extends javax.swing.JFrame {
         jcbxhora = new javax.swing.JComboBox<>();
         jLabel11 = new javax.swing.JLabel();
         jtxtMateria = new javax.swing.JTextField();
-        jButton3 = new javax.swing.JButton();
+        btnAsignarResponsable = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
         jcbxlistahorarios = new javax.swing.JComboBox<>();
         jButton4 = new javax.swing.JButton();
@@ -116,6 +118,7 @@ public class FrmReservas extends javax.swing.JFrame {
         txtresponsable = new javax.swing.JTextField();
         cmbGarantia = new javax.swing.JComboBox<>();
         jLabel15 = new javax.swing.JLabel();
+        btnAgregar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -137,20 +140,18 @@ public class FrmReservas extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setText("GESTIÓN DE RESERVAS");
+        jLabel7.setText("GESTI�N DE RESERVAS");
         jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(347, 17, -1, -1));
-
-        jLabel1.setText("jLabel1");
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setText("Garantia:");
-        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 80, 100, -1));
+        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 90, 100, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setText("Día:");
+        jLabel9.setText("D�a:");
         jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 31, -1));
 
         jcbxdia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Lunes", "Martes", "Miercoles", "Jueves", "Viernes" }));
@@ -179,16 +180,16 @@ public class FrmReservas extends javax.swing.JFrame {
         });
         jPanel2.add(jtxtMateria, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 50, 146, -1));
 
-        jButton3.setBackground(new java.awt.Color(153, 0, 0));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Agregar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btnAsignarResponsable.setBackground(new java.awt.Color(153, 0, 0));
+        btnAsignarResponsable.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAsignarResponsable.setForeground(new java.awt.Color(255, 255, 255));
+        btnAsignarResponsable.setText("Agregar");
+        btnAsignarResponsable.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btnAsignarResponsableActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 50, 101, -1));
+        jPanel2.add(btnAsignarResponsable, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 40, 101, -1));
 
         jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel13.setText("Horario:");
@@ -209,50 +210,52 @@ public class FrmReservas extends javax.swing.JFrame {
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel14.setText("Eliminar Reserva:");
-        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 164, -1));
+        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 164, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Agregar Reserva:");
         jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 164, -1));
-        jPanel2.add(txtresponsable, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 40, 130, -1));
+        jPanel2.add(txtresponsable, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 40, 130, -1));
 
-        cmbGarantia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione---", "Cédula", "Licencia" }));
-        jPanel2.add(cmbGarantia, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 110, 130, -1));
+        cmbGarantia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione---", "C�dula", "Licencia" }));
+        jPanel2.add(cmbGarantia, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 110, 130, -1));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("Responsable:");
-        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 20, 100, -1));
+        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 20, 100, -1));
+
+        btnAgregar.setBackground(new java.awt.Color(153, 0, 0));
+        btnAgregar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAgregar.setForeground(new java.awt.Color(255, 255, 255));
+        btnAgregar.setText("Agregar");
+        btnAgregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnAgregar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 50, 101, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 976, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(403, 403, 403)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 950, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(14, 14, 14)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 863, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
-                .addGap(15, 15, 15))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -266,14 +269,33 @@ public class FrmReservas extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jtxtMateriaActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void btnAsignarResponsableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsignarResponsableActionPerformed
+        frmPersonas.setVisible(true);
+        frmPersonas.setLocationRelativeTo(null);
+        setVisible(false);
+    }//GEN-LAST:event_btnAsignarResponsableActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+
+        Horario horarioSeleccionado = (Horario) jcbxlistahorarios.getSelectedItem();
+        if (horarioSeleccionado != null) {
+            if (this.servicioHorario.eliminarHorario(horarioSeleccionado.getId())) {
+                JOptionPane.showMessageDialog(null, "Se elimino el horario");
+                initializeTable();
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo eliminar");
+            }
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
         String hora = jcbxhora.getSelectedItem().toString();
         int in = hora.indexOf("-");
         hora = hora.substring(0, in);
         int controlado = 0;
         Prenda prendas = Prenda.valueOf(cmbGarantia.getSelectedItem().toString());
         String responsable = txtresponsable.getText();
-        
+
         Horario nHorario = new Horario(Long.valueOf("0"), jcbxdia.getSelectedItem().toString(), hora,
                 jtxtMateria.getText(), aula, laboratorio);
         //Verificar que no se agreguen horarios para la misma hora y para el mismo dia
@@ -310,62 +332,49 @@ public class FrmReservas extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(null, "No se puede agregar horarios existentes");
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_btnAgregarActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-
-        Horario horarioSeleccionado = (Horario) jcbxlistahorarios.getSelectedItem();
-        if (horarioSeleccionado != null) {
-            if (this.servicioHorario.eliminarHorario(horarioSeleccionado.getId())) {
-                JOptionPane.showMessageDialog(null, "Se elimino el horario");
-                initializeTable();
-            } else {
-                JOptionPane.showMessageDialog(null, "No se pudo eliminar");
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
             }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
+        //</editor-fold>
+        //</editor-fold>
 
-      /**
-       * @param args the command line arguments
-       */
-      public static void main(String args[]) {
-          /* Set the Nimbus look and feel */
-          //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-          /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-           */
-          try {
-              for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                  if ("Nimbus".equals(info.getName())) {
-                      javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                      break;
-                  }
-              }
-          } catch (ClassNotFoundException ex) {
-              java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-          } catch (InstantiationException ex) {
-              java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-          } catch (IllegalAccessException ex) {
-              java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-          } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-              java.util.logging.Logger.getLogger(FrmReservas.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-          }
-          //</editor-fold>
-          //</editor-fold>
-
-          /* Create and display the form */
-          java.awt.EventQueue.invokeLater(new Runnable() {
-              public void run() {
-                  new FrmReservas().setVisible(true);
-              }
-          });
-      }
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FrmReservas().setVisible(true);
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAgregar;
+    private javax.swing.JButton btnAsignarResponsable;
     private javax.swing.JComboBox<String> cmbGarantia;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;

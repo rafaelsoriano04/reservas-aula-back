@@ -26,6 +26,7 @@ public class FrmLogin extends javax.swing.JFrame {
 
         if (servicioUsuario.validarUsuario(txtUsername.getText(), new String(txtContrasenia.getPassword()))) {
             frmPrincipal.setVisible(true);
+            frmPrincipal.setLocationRelativeTo(null);
             this.dispose();
         } else {
             lbMensaje.setVisible(true);
@@ -64,11 +65,6 @@ public class FrmLogin extends javax.swing.JFrame {
 
         txtUsername.setFont(new java.awt.Font("Arial", 0, 15)); // NOI18N
         txtUsername.setBorder(null);
-        txtUsername.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-            }
-        });
         getContentPane().add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 310, 310, 30));
 
         btnLogin.setBackground(new java.awt.Color(155, 43, 43));
@@ -108,11 +104,6 @@ public class FrmLogin extends javax.swing.JFrame {
 
         txtContrasenia.setFont(new java.awt.Font("Arial", 0, 15)); // NOI18N
         txtContrasenia.setBorder(null);
-        txtContrasenia.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-            }
-        });
         getContentPane().add(txtContrasenia, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 430, 260, 30));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/login.png"))); // NOI18N
