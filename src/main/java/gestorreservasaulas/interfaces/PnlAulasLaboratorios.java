@@ -18,6 +18,9 @@ import java.util.List;
 @Component
 public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
+private Long idSeleccionado;
+private String tipoSeleccionado;
+private Bloque bloqueSeleccionado;
     @Autowired
     private ServicioAula servicioAula;
 
@@ -45,15 +48,19 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private FrmHorarios frmHorarios;
     @Autowired
     private FrmReservas frmReservas;
+    @Autowired
+    private ServicioAula servicioaula;
+    @Autowired
+    private ServicioLaboratorio servicioLab;
 
     private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
     private List<Aula> aulas;
     private List<Laboratorio> laboratorios;
     private List<Bloque> bloques;
 
-
     public PnlAulasLaboratorios() {
         initComponents();
+        btnGuardar.setVisible(false); 
         cargarAulasLabPorBloque();
     }
 
@@ -71,6 +78,12 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             jcbxBloque.addItem(block);
         }
 
+    }
+
+    public void limpiar() {
+        jtxtnombre1.setText("");
+        jtxtpiso.setText("");
+        jtxtcapacidad.setText("");
     }
 
     public void cargarAulasLabPorBloque() {
@@ -158,13 +171,16 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        jtxtpiso = new javax.swing.JTextField();
         btnCrear = new javax.swing.JButton();
-        btnEditar = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
         btneliminar = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        jtxtcapacidad = new javax.swing.JTextField();
         jcbxBloque = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        jtxtnombre1 = new javax.swing.JTextField();
+        btnEditar1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -195,7 +211,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setText("Nombre:");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, -1, -1));
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, 410, -1));
+        jPanel1.add(jtxtpiso, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 160, 360, -1));
 
         btnCrear.setBackground(new java.awt.Color(153, 0, 0));
         btnCrear.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -208,16 +224,16 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         });
         jPanel1.add(btnCrear, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 160, -1, -1));
 
-        btnEditar.setBackground(new java.awt.Color(153, 0, 0));
-        btnEditar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnEditar.setForeground(new java.awt.Color(255, 255, 255));
-        btnEditar.setText("Editar");
-        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardar.setBackground(new java.awt.Color(153, 0, 0));
+        btnGuardar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnGuardar.setForeground(new java.awt.Color(255, 255, 255));
+        btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEditarActionPerformed(evt);
+                btnGuardarActionPerformed(evt);
             }
         });
-        jPanel1.add(btnEditar, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 160, -1, -1));
+        jPanel1.add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 160, -1, -1));
 
         btneliminar.setBackground(new java.awt.Color(153, 0, 0));
         btneliminar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -231,22 +247,48 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jPanel1.add(btneliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 160, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setText("Capacidad:");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 90, -1, -1));
+        jLabel1.setText("Piso:");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, -1, -1));
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        jtxtcapacidad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                jtxtcapacidadActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 120, 350, -1));
+        jPanel1.add(jtxtcapacidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 120, 350, -1));
 
+        jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+
+            }
+        });
+        jcbxBloque.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+
+            }
+        });
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxBloqueActionPerformed(evt);
             }
         });
         jPanel1.add(jcbxBloque, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 410, -1));
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel5.setText("Capacidad:");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 90, -1, -1));
+        jPanel1.add(jtxtnombre1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, 410, -1));
+
+        btnEditar1.setBackground(new java.awt.Color(153, 0, 0));
+        btnEditar1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEditar1.setForeground(new java.awt.Color(255, 255, 255));
+        btnEditar1.setText("Editar");
+        btnEditar1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditar1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnEditar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 160, -1, -1));
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 970, 200));
 
@@ -305,7 +347,6 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         // TODO add your handling code here:
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
 
-
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
@@ -335,52 +376,133 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
 
         if ("Aulas".equals(tipoSeleccionado)) {
-            frmcrearAula.setVisible(true);
+            String nombre = jtxtnombre1.getText();
+            String pisoStr = jtxtpiso.getText();
+            String capacidadStr = jtxtcapacidad.getText();
+
+            if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+                JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+                return;
+            }
+
+            if (!pisoStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+                return;
+            }
+
+            if (!capacidadStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+                return;
+            }
+
+            int piso = Integer.parseInt(pisoStr);
+            int capacidad = Integer.parseInt(capacidadStr);
+            Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
+
+            Aula aula = new Aula();
+            aula.setNombre(nombre);
+            aula.setCapacidad(capacidad);
+            aula.setPiso(piso);
+            aula.setBloque(bloques);
+
+            servicioaula.crearAula(aula);
+            cargarAulasLabPorBloque();
+            limpiar();
+            JOptionPane.showMessageDialog(null, "Se creó el Aula correctamente");
 
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
-            FrmCrearLaboratorio.setVisible(true);
+            String nombre = jtxtnombre1.getText();
+            String pisoStr = jtxtpiso.getText();
+            String capacidadStr = jtxtcapacidad.getText();
+
+            if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+                JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+                return;
+            }
+
+            if (!pisoStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+                return;
+            }
+
+            if (!capacidadStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+                return;
+            }
+
+            int piso = Integer.parseInt(pisoStr);
+            int capacidad = Integer.parseInt(capacidadStr);
+            Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
+
+            Laboratorio lab = new Laboratorio();
+            lab.setNombre(nombre);
+            lab.setPiso(piso);
+            lab.setCapacidad(capacidad);
+            lab.setBloque(bloques);
+
+            servicioLab.crearLaboratorio(lab);
+            cargarAulasLabPorBloque();
+            limpiar();
+            
+            JOptionPane.showMessageDialog(null, "Se creo el Laboratorio correctamente");
+
         }
 
 
     }//GEN-LAST:event_btnCrearActionPerformed
 
-    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        int fila = jTable1.getSelectedRow();
-        if (fila != -1) {
-            Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
-            String nombre = jTable1.getValueAt(fila, 1).toString();
-            int piso = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
-            int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 3).toString());
-            Bloque bloqueSeleccionado = (Bloque) jcbxBloque.getSelectedItem();
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+         String nombre = jtxtnombre1.getText();
+    String pisoStr = jtxtpiso.getText();
+    String capacidadStr = jtxtcapacidad.getText();
 
-            String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+    if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+        JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+        return;
+    }
 
-            if ("Aulas".equals(tipoSeleccionado)) {
-                Aula aula = new Aula();
-                aula.setId(id);
-                aula.setNombre(nombre);
-                aula.setPiso(piso);
-                aula.setCapacidad(capacidad);
-                aula.setBloque(bloqueSeleccionado);
+    if (!pisoStr.matches("\\d+")) {
+        JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+        return;
+    }
 
-                frmeditarAulas.LlevaraAula(aula);
-                frmeditarAulas.setVisible(true);
-            } else if ("Laboratorios".equals(tipoSeleccionado)) {
-                Laboratorio laboratorio = new Laboratorio();
-                laboratorio.setId(id);
-                laboratorio.setNombre(nombre);
-                laboratorio.setPiso(piso);
-                laboratorio.setCapacidad(capacidad);
-                laboratorio.setBloque(bloqueSeleccionado);
+    if (!capacidadStr.matches("\\d+")) {
+        JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+        return;
+    }
 
-                frmeditarLab.LlevaraLab(laboratorio);
-                frmeditarLab.setVisible(true);
-            }
+    int piso = Integer.parseInt(pisoStr);
+    int capacidad = Integer.parseInt(capacidadStr);
 
-        } else {
-            JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
-        }
-    }//GEN-LAST:event_btnEditarActionPerformed
+    if ("Aulas".equals(tipoSeleccionado)) {
+        Aula aula = new Aula();
+        aula.setId(idSeleccionado);
+        aula.setNombre(nombre);
+        aula.setPiso(piso);
+        aula.setCapacidad(capacidad);
+        aula.setBloque(bloqueSeleccionado);
+
+        servicioAula.editarAula(aula);
+        cargarAulasLabPorBloque();
+        JOptionPane.showMessageDialog(null, "Se modificó correctamente el aula");
+        btnGuardar.setVisible(false);
+    } else if ("Laboratorios".equals(tipoSeleccionado)) {
+        Laboratorio laboratorio = new Laboratorio();
+        laboratorio.setId(idSeleccionado);
+        laboratorio.setNombre(nombre);
+        laboratorio.setPiso(piso);
+        laboratorio.setCapacidad(capacidad);
+        laboratorio.setBloque(bloqueSeleccionado);
+
+        servicioLaboratorio.editarLaboratorio(laboratorio);
+        cargarAulasLabPorBloque();
+        JOptionPane.showMessageDialog(null, "Se modificó correctamente el laboratorio");
+        btnGuardar.setVisible(false);
+    }
+
+    limpiar();
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
 
     private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
         int fila = jTable1.getSelectedRow();
@@ -407,7 +529,6 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private void btnReservarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservarActionPerformed
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
 
-
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
@@ -432,9 +553,31 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnReservarActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void jtxtcapacidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtxtcapacidadActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_jtxtcapacidadActionPerformed
+
+    private void btnEditar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditar1ActionPerformed
+          int fila = jTable1.getSelectedRow();
+    if (fila != -1) {
+        Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+        String nombre = jTable1.getValueAt(fila, 1).toString();
+        int piso = Integer.parseInt(jTable1.getValueAt(fila, 2).toString());
+        int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 3).toString());
+        Bloque bloqueSeleccionado = (Bloque) jcbxBloque.getSelectedItem();
+
+        jtxtnombre1.setText(nombre);
+        jtxtpiso.setText(String.valueOf(piso));
+        jtxtcapacidad.setText(String.valueOf(capacidad));
+
+        btnGuardar.setVisible(true);
+        this.idSeleccionado = id;
+        this.tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        this.bloqueSeleccionado = bloqueSeleccionado;
+    }else{
+     JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
+    }
+    }//GEN-LAST:event_btnEditar1ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -471,7 +614,8 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCrear;
-    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btnEditar1;
+    private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnHorarios;
     private javax.swing.JButton btnReservar;
     private javax.swing.JButton btneliminar;
@@ -479,13 +623,15 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JComboBox<String> jcbxAula;
     private javax.swing.JComboBox<Bloque> jcbxBloque;
+    private javax.swing.JTextField jtxtcapacidad;
+    private javax.swing.JTextField jtxtnombre1;
+    private javax.swing.JTextField jtxtpiso;
     // End of variables declaration//GEN-END:variables
 }

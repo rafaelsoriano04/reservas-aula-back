@@ -126,7 +126,6 @@ public class FrmReservas extends javax.swing.JFrame {
         cmbGarantia = new javax.swing.JComboBox<>();
         jLabel15 = new javax.swing.JLabel();
         btnAgregar = new javax.swing.JButton();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -159,7 +158,7 @@ public class FrmReservas extends javax.swing.JFrame {
         jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 100, 100, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setText("D�a:");
+        jLabel9.setText("Día:");
         jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 31, -1));
 
         jcbxdia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Lunes", "Martes", "Miercoles", "Jueves", "Viernes" }));
@@ -227,7 +226,7 @@ public class FrmReservas extends javax.swing.JFrame {
         txtresponsable.setEditable(false);
         jPanel2.add(txtresponsable, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 50, 130, -1));
 
-        cmbGarantia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione---", "C�dula", "Licencia" }));
+        cmbGarantia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione---", "Cédula", "Licencia" }));
         jPanel2.add(cmbGarantia, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 120, 130, -1));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -244,7 +243,6 @@ public class FrmReservas extends javax.swing.JFrame {
             }
         });
         jPanel2.add(btnAgregar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 50, 101, -1));
-        jPanel2.add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 10, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -386,7 +384,6 @@ public class FrmReservas extends javax.swing.JFrame {
     private javax.swing.JButton btnAsignarResponsable;
     private javax.swing.JComboBox<String> cmbGarantia;
     private javax.swing.JButton jButton4;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
