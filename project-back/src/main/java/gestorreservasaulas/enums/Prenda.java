@@ -1,5 +1,5 @@
 package gestorreservasaulas.enums;
 
 public enum Prenda {
-    CEDULA, LICENCIA
+    CEDULA, LICENCIA, PASAPORTE
 }
