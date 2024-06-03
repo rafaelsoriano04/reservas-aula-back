@@ -191,7 +191,6 @@ public class FrmEditarAulas extends javax.swing.JFrame {
     }//GEN-LAST:event_jcbxBloqueActionPerformed
 
     private void btnregresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnregresarActionPerformed
-
         this.dispose();
     }//GEN-LAST:event_btnregresarActionPerformed
 

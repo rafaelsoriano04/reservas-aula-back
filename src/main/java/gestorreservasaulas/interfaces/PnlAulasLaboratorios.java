@@ -1,6 +1,5 @@
 package gestorreservasaulas.interfaces;
 
-import gestorreservasaulas.GestorReservasAulasApplication;
 import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Bloque;
 import gestorreservasaulas.entidades.Laboratorio;
@@ -8,7 +7,7 @@ import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioBloque;
 import gestorreservasaulas.servicios.ServicioLaboratorio;
 import jakarta.annotation.PostConstruct;
-import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +18,9 @@ import java.util.List;
 @Component
 public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
+private Long idSeleccionado;
+private String tipoSeleccionado;
+private Bloque bloqueSeleccionado;
     @Autowired
     private ServicioAula servicioAula;
 
@@ -27,16 +29,16 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     @Autowired
     private FrmCrearAulas frmcrearAula;
-    
+
     @Autowired
-    private  FrmCrearLaboratorio FrmCrearLaboratorio;
-    
+    private FrmCrearLaboratorio FrmCrearLaboratorio;
+
     @Autowired
     private FrmEditarAulas frmeditarAulas;
-    
+
     @Autowired
     private FrmEditarLaboratorio frmeditarLab;
-    
+
     @Autowired
     private ServicioBloque servicioBloque;
     private Aula aulaSeleccionada;
@@ -44,16 +46,21 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
     private int indextabla;
     @Autowired
     private FrmHorarios frmHorarios;
+    @Autowired
+    private FrmReservas frmReservas;
+    @Autowired
+    private ServicioAula servicioaula;
+    @Autowired
+    private ServicioLaboratorio servicioLab;
 
     private DefaultTableModel model = new DefaultTableModel(new String[]{"id", "Nombre", "Piso", "Capacidad"}, 0);
     private List<Aula> aulas;
     private List<Laboratorio> laboratorios;
     private List<Bloque> bloques;
-    
-   
 
     public PnlAulasLaboratorios() {
         initComponents();
+        btnGuardar.setVisible(false); 
         cargarAulasLabPorBloque();
     }
 
@@ -71,6 +78,12 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
             jcbxBloque.addItem(block);
         }
 
+    }
+
+    public void limpiar() {
+        jtxtnombre1.setText("");
+        jtxtpiso.setText("");
+        jtxtcapacidad.setText("");
     }
 
     public void cargarAulasLabPorBloque() {
@@ -109,7 +122,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     private Aula actualizarAulaSeleccionada() {
         int fila = jTable1.getSelectedRow();
-      
+
         if (fila != -1) {
             indextabla = jTable1.getSelectedRow();
             Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
@@ -158,25 +171,28 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        jtxtpiso = new javax.swing.JTextField();
         btnCrear = new javax.swing.JButton();
-        btnEditar = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
         btneliminar = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        jtxtcapacidad = new javax.swing.JTextField();
         jcbxBloque = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        jtxtnombre1 = new javax.swing.JTextField();
+        btnEditar1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jButton3 = new javax.swing.JButton();
+        btnReservar = new javax.swing.JButton();
+        btnHorarios = new javax.swing.JButton();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jcbxAula.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Aulas", "Laboratorios", " " }));
+        jcbxAula.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Aulas", "Laboratorios" }));
         jcbxAula.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxAulaActionPerformed(evt);
@@ -195,9 +211,7 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setText("Nombre:");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, -1, -1));
-
-        jTextField1.setText("jTextField1");
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, 410, -1));
+        jPanel1.add(jtxtpiso, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 160, 360, -1));
 
         btnCrear.setBackground(new java.awt.Color(153, 0, 0));
         btnCrear.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -210,16 +224,16 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         });
         jPanel1.add(btnCrear, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 160, -1, -1));
 
-        btnEditar.setBackground(new java.awt.Color(153, 0, 0));
-        btnEditar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnEditar.setForeground(new java.awt.Color(255, 255, 255));
-        btnEditar.setText("Editar");
-        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardar.setBackground(new java.awt.Color(153, 0, 0));
+        btnGuardar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnGuardar.setForeground(new java.awt.Color(255, 255, 255));
+        btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEditarActionPerformed(evt);
+                btnGuardarActionPerformed(evt);
             }
         });
-        jPanel1.add(btnEditar, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 160, -1, -1));
+        jPanel1.add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 160, -1, -1));
 
         btneliminar.setBackground(new java.awt.Color(153, 0, 0));
         btneliminar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -232,31 +246,49 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         });
         jPanel1.add(btneliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 160, -1, -1));
 
-        jButton5.setBackground(new java.awt.Color(153, 0, 0));
-        jButton5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Horarios");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel1.setText("Piso:");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, -1, -1));
+
+        jtxtcapacidad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                jtxtcapacidadActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 160, -1, -1));
+        jPanel1.add(jtxtcapacidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 120, 350, -1));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setText("Capacidad:");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 90, -1, -1));
+        jcbxBloque.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
 
-        jTextField2.setText("jTextField1");
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 120, 350, -1));
+            }
+        });
+        jcbxBloque.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
 
-        
+            }
+        });
         jcbxBloque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jcbxBloqueActionPerformed(evt);
             }
         });
         jPanel1.add(jcbxBloque, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 410, -1));
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel5.setText("Capacidad:");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 90, -1, -1));
+        jPanel1.add(jtxtnombre1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, 410, -1));
+
+        btnEditar1.setBackground(new java.awt.Color(153, 0, 0));
+        btnEditar1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEditar1.setForeground(new java.awt.Color(255, 255, 255));
+        btnEditar1.setText("Editar");
+        btnEditar1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditar1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnEditar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 160, -1, -1));
 
         add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 970, 200));
 
@@ -278,11 +310,27 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
         jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 810, 250));
 
-        jButton3.setBackground(new java.awt.Color(153, 0, 0));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Reservar");
-        jPanel2.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 140, -1, -1));
+        btnReservar.setBackground(new java.awt.Color(153, 0, 0));
+        btnReservar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnReservar.setForeground(new java.awt.Color(255, 255, 255));
+        btnReservar.setText("Reservar");
+        btnReservar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReservarActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnReservar, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 140, -1, -1));
+
+        btnHorarios.setBackground(new java.awt.Color(153, 0, 0));
+        btnHorarios.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnHorarios.setForeground(new java.awt.Color(255, 255, 255));
+        btnHorarios.setText("Horarios");
+        btnHorarios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHorariosActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnHorarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 80, -1, -1));
 
         add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, 970, 270));
     }// </editor-fold>//GEN-END:initComponents
@@ -295,53 +343,222 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         cargarAulasLabPorBloque();
     }//GEN-LAST:event_jcbxAulaActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void btnHorariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHorariosActionPerformed
         // TODO add your handling code here:
         String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
-        
-        
+
         if ("Aulas".equals(tipoSeleccionado)) {
             actualizarAulaSeleccionada();
             if (aulaSeleccionada != null) {
-                FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
-                frmHorarios.setAula(aulas.get(indextabla));  
+                frmHorarios.setAula(aulas.get(indextabla));
                 frmHorarios.initializeTable();
                 frmHorarios.setVisible(true);
                 frmHorarios.setLocationRelativeTo(this);
-                
-            }else{
+
+            } else {
                 JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
             }
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
             actualizarLaboratorioSeleccionado();
             if (labSeleccionada != null) {
-                 FrmHorarios frmHorarios = GestorReservasAulasApplication.getApplicationContext().getBean(FrmHorarios.class);
-                frmHorarios.setLaboratorio(laboratorios.get(indextabla));  
+                frmHorarios.setLaboratorio(laboratorios.get(indextabla));
                 frmHorarios.initializeTable();
                 frmHorarios.setVisible(true);
                 frmHorarios.setLocationRelativeTo(this);
-            }else{
+            } else {
                 JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
             }
         }
-        
-    }//GEN-LAST:event_jButton5ActionPerformed
+
+    }//GEN-LAST:event_btnHorariosActionPerformed
 
     private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearActionPerformed
-           String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
-           
+        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+
         if ("Aulas".equals(tipoSeleccionado)) {
-            frmcrearAula.setVisible(true);
-            
+            String nombre = jtxtnombre1.getText();
+            String pisoStr = jtxtpiso.getText();
+            String capacidadStr = jtxtcapacidad.getText();
+
+            if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+                JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+                return;
+            }
+
+            if (!pisoStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+                return;
+            }
+
+            if (!capacidadStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+                return;
+            }
+
+            int piso = Integer.parseInt(pisoStr);
+            int capacidad = Integer.parseInt(capacidadStr);
+            Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
+
+            Aula aula = new Aula();
+            aula.setNombre(nombre);
+            aula.setCapacidad(capacidad);
+            aula.setPiso(piso);
+            aula.setBloque(bloques);
+
+            servicioaula.crearAula(aula);
+            cargarAulasLabPorBloque();
+            limpiar();
+            JOptionPane.showMessageDialog(null, "Se creó el Aula correctamente");
+
         } else if ("Laboratorios".equals(tipoSeleccionado)) {
-           FrmCrearLaboratorio.setVisible(true);
+            String nombre = jtxtnombre1.getText();
+            String pisoStr = jtxtpiso.getText();
+            String capacidadStr = jtxtcapacidad.getText();
+
+            if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+                JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+                return;
+            }
+
+            if (!pisoStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+                return;
+            }
+
+            if (!capacidadStr.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+                return;
+            }
+
+            int piso = Integer.parseInt(pisoStr);
+            int capacidad = Integer.parseInt(capacidadStr);
+            Bloque bloques = (Bloque) jcbxBloque.getSelectedItem();
+
+            Laboratorio lab = new Laboratorio();
+            lab.setNombre(nombre);
+            lab.setPiso(piso);
+            lab.setCapacidad(capacidad);
+            lab.setBloque(bloques);
+
+            servicioLab.crearLaboratorio(lab);
+            cargarAulasLabPorBloque();
+            limpiar();
+            
+            JOptionPane.showMessageDialog(null, "Se creo el Laboratorio correctamente");
+
         }
-       
-    
+
+
     }//GEN-LAST:event_btnCrearActionPerformed
 
-    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+         String nombre = jtxtnombre1.getText();
+    String pisoStr = jtxtpiso.getText();
+    String capacidadStr = jtxtcapacidad.getText();
+
+    if (!nombre.matches("[a-zA-Z0-9\\s]+")) {
+        JOptionPane.showMessageDialog(this, "El nombre solo debe contener letras y números.");
+        return;
+    }
+
+    if (!pisoStr.matches("\\d+")) {
+        JOptionPane.showMessageDialog(this, "El piso solo debe contener números.");
+        return;
+    }
+
+    if (!capacidadStr.matches("\\d+")) {
+        JOptionPane.showMessageDialog(this, "La capacidad solo debe contener números.");
+        return;
+    }
+
+    int piso = Integer.parseInt(pisoStr);
+    int capacidad = Integer.parseInt(capacidadStr);
+
+    if ("Aulas".equals(tipoSeleccionado)) {
+        Aula aula = new Aula();
+        aula.setId(idSeleccionado);
+        aula.setNombre(nombre);
+        aula.setPiso(piso);
+        aula.setCapacidad(capacidad);
+        aula.setBloque(bloqueSeleccionado);
+
+        servicioAula.editarAula(aula);
+        cargarAulasLabPorBloque();
+        JOptionPane.showMessageDialog(null, "Se modificó correctamente el aula");
+        btnGuardar.setVisible(false);
+    } else if ("Laboratorios".equals(tipoSeleccionado)) {
+        Laboratorio laboratorio = new Laboratorio();
+        laboratorio.setId(idSeleccionado);
+        laboratorio.setNombre(nombre);
+        laboratorio.setPiso(piso);
+        laboratorio.setCapacidad(capacidad);
+        laboratorio.setBloque(bloqueSeleccionado);
+
+        servicioLaboratorio.editarLaboratorio(laboratorio);
+        cargarAulasLabPorBloque();
+        JOptionPane.showMessageDialog(null, "Se modificó correctamente el laboratorio");
+        btnGuardar.setVisible(false);
+    }
+
+    limpiar();
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+
+    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
         int fila = jTable1.getSelectedRow();
+        if (fila != -1) {
+            int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quiere eliminar esta fila?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
+                String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+
+                if ("Aulas".equals(tipoSeleccionado)) {
+                    servicioAula.eliminarAula(id);
+                } else if ("Laboratorios".equals(tipoSeleccionado)) {
+                    servicioLaboratorio.eliminarLaboratorio(id);
+                }
+
+                cargarAulasLabPorBloque();
+                JOptionPane.showMessageDialog(null, "Fila eliminada correctamente");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Selecciona una fila para eliminar");
+        }
+    }//GEN-LAST:event_btneliminarActionPerformed
+
+    private void btnReservarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservarActionPerformed
+        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+
+        if ("Aulas".equals(tipoSeleccionado)) {
+            actualizarAulaSeleccionada();
+            if (aulaSeleccionada != null) {
+                frmReservas.setAula(aulas.get(indextabla));
+                frmReservas.initializeTable();
+                frmReservas.setVisible(true);
+                frmReservas.setLocationRelativeTo(this);
+
+            } else {
+                JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
+            }
+        } else if ("Laboratorios".equals(tipoSeleccionado)) {
+            actualizarLaboratorioSeleccionado();
+            if (labSeleccionada != null) {
+                frmReservas.setLaboratorio(laboratorios.get(indextabla));
+                frmReservas.initializeTable();
+                frmReservas.setVisible(true);
+                frmReservas.setLocationRelativeTo(this);
+            } else {
+                JOptionPane.showMessageDialog(null, "Seleccione un item de la lista");
+            }
+        }
+    }//GEN-LAST:event_btnReservarActionPerformed
+
+    private void jtxtcapacidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtxtcapacidadActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtxtcapacidadActionPerformed
+
+    private void btnEditar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditar1ActionPerformed
+          int fila = jTable1.getSelectedRow();
     if (fila != -1) {
         Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
         String nombre = jTable1.getValueAt(fila, 1).toString();
@@ -349,60 +566,19 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
         int capacidad = Integer.parseInt(jTable1.getValueAt(fila, 3).toString());
         Bloque bloqueSeleccionado = (Bloque) jcbxBloque.getSelectedItem();
 
-        String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
-        
-        if ("Aulas".equals(tipoSeleccionado)) {
-            Aula aula = new Aula();
-            aula.setId(id);
-            aula.setNombre(nombre);
-            aula.setPiso(piso);
-            aula.setCapacidad(capacidad);
-            aula.setBloque(bloqueSeleccionado);
+        jtxtnombre1.setText(nombre);
+        jtxtpiso.setText(String.valueOf(piso));
+        jtxtcapacidad.setText(String.valueOf(capacidad));
 
-            frmeditarAulas.LlevaraAula(aula);
-            frmeditarAulas.setVisible(true);
-        } else if ("Laboratorios".equals(tipoSeleccionado)) {
-             Laboratorio laboratorio = new Laboratorio();
-             laboratorio.setId(id);
-             laboratorio.setNombre(nombre);
-             laboratorio.setPiso(piso);
-             laboratorio.setCapacidad(capacidad);
-             laboratorio.setBloque(bloqueSeleccionado);
-
-             frmeditarLab.LlevaraLab(laboratorio);
-             frmeditarLab.setVisible(true);
-        }
-        
+        btnGuardar.setVisible(true);
+        this.idSeleccionado = id;
+        this.tipoSeleccionado = jcbxAula.getSelectedItem().toString();
+        this.bloqueSeleccionado = bloqueSeleccionado;
     }else{
-        JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
+     JOptionPane.showMessageDialog(null, "Seleccione una fila para editar");
     }
-    }//GEN-LAST:event_btnEditarActionPerformed
+    }//GEN-LAST:event_btnEditar1ActionPerformed
 
-    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
-           int fila = jTable1.getSelectedRow();
-    if (fila != -1) {
-        int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de que quiere eliminar esta fila?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            Long id = Long.parseLong(jTable1.getValueAt(fila, 0).toString());
-            String tipoSeleccionado = jcbxAula.getSelectedItem().toString();
-
-            if ("Aulas".equals(tipoSeleccionado)) {
-                servicioAula.eliminarAula(id);
-            } else if ("Laboratorios".equals(tipoSeleccionado)) {
-               servicioLaboratorio.eliminarLaboratorio(id);
-            }
-
-            cargarAulasLabPorBloque(); 
-            JOptionPane.showMessageDialog(null, "Fila eliminada correctamente");
-        }
-    } else {
-        JOptionPane.showMessageDialog(null, "Selecciona una fila para eliminar");
-    }
-    }//GEN-LAST:event_btneliminarActionPerformed
- 
-    
-    
-    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -438,21 +614,24 @@ public class PnlAulasLaboratorios extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCrear;
-    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btnEditar1;
+    private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnHorarios;
+    private javax.swing.JButton btnReservar;
     private javax.swing.JButton btneliminar;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JComboBox<String> jcbxAula;
     private javax.swing.JComboBox<Bloque> jcbxBloque;
+    private javax.swing.JTextField jtxtcapacidad;
+    private javax.swing.JTextField jtxtnombre1;
+    private javax.swing.JTextField jtxtpiso;
     // End of variables declaration//GEN-END:variables
 }

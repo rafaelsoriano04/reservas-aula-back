@@ -16,4 +16,13 @@ RepositorioReserva repositorioReserva;
     public List<Reserva> obtenerReservaporDia(String dia) {
         return repositorioReserva.getByDia(dia);
     }
+
+    @Override
+    public Boolean crearReserva(Reserva reserva) {
+        if (repositorioReserva.save(reserva) !=null){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
