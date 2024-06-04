@@ -34,11 +34,6 @@ public class Laboratorio {
 
     @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Horario> listaHorario= new ArrayList<>();
-
-
-    @Enumerated(value = EnumType.STRING)
-    private Estado estado;
-
     
     @ManyToOne
     @JoinColumn(name = "id_bloque")

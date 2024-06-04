@@ -22,5 +22,4 @@ public class Usuario {
     String username;
 
     String contrasenia;
-
 }
