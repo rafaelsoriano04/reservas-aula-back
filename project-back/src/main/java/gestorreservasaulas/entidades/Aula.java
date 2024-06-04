@@ -25,8 +25,8 @@ public class Aula {
     @Column(unique = true)
     private String nombre;
 
-    private int piso;
-    private int capacidad;
+    private Integer piso;
+    private Integer capacidad;
 
     @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Reserva> listaReservas = new ArrayList<>();

@@ -14,7 +14,7 @@ import java.util.List;
 public class AulaDTO {
     private Long id;
     private String nombre;
-    private int piso;
-    private int capacidad;
+    private Integer piso;
+    private Integer capacidad;
     private Long id_bloque;
 }

@@ -1,6 +1,7 @@
 package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.entidades.Bloque;
+import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RepositorioBloque;
 import gestorreservasaulas.servicios.ServicioBloque;
 import java.util.List;
@@ -14,8 +15,8 @@ public class ServicioBloqueImpl implements ServicioBloque {
     RepositorioBloque repositorioBloque;
 
     @Override
-    public Bloque obtenerBloque(Long id) {
-        return repositorioBloque.findById(id).orElse(null);
+    public Bloque obtenerBloque(Long id) throws NotFoundException {
+        return repositorioBloque.findById(id).orElseThrow(() -> new NotFoundException("Bloque not found"));
     }
 
     @Override

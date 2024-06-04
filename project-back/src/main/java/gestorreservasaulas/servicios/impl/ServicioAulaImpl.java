@@ -2,8 +2,10 @@ package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.dtos.AulaDTO;
 import gestorreservasaulas.entidades.Aula;
+import gestorreservasaulas.entidades.Bloque;
+import gestorreservasaulas.exceptions.ConflictException;
+import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RepositorioAula;
-import gestorreservasaulas.respositorios.RepositorioBloque;
 import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioBloque;
 import jakarta.transaction.Transactional;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -43,46 +46,58 @@ public class ServicioAulaImpl implements ServicioAula {
 
     @Override
     @Transactional
-    public boolean editarAula(Aula aula) {
+    public AulaDTO editarAula(Long id, AulaDTO aulaDTO) throws NotFoundException, ConflictException {
 
-        Aula aulaExistente = repositorioAula.findById(aula.getId()).orElse(null);
-        if (aulaExistente == null) {
-            return false;
+        Aula aulaExistente = repositorioAula.findById(id).orElseThrow(() -> new NotFoundException("Aula not found"));
+
+        if (aulaDTO.getNombre() != null) {
+            if (repositorioAula.getByNombre(aulaDTO.getNombre()).isPresent()) {
+                throw new ConflictException("El aula ya existe");
+            }
+            aulaExistente.setNombre(aulaDTO.getNombre());
+        }
+        if (aulaDTO.getCapacidad() != null) {
+            aulaExistente.setCapacidad(aulaDTO.getCapacidad());
+        }
+        if (aulaDTO.getPiso() != null) {
+            aulaExistente.setPiso(aulaDTO.getPiso());
         }
 
-        aulaExistente.setNombre(aula.getNombre());
-        aulaExistente.setCapacidad(aula.getCapacidad());
-        aulaExistente.setPiso(aula.getPiso());
-        aulaExistente.setBloque(aula.getBloque());
+        aulaExistente.setBloque(servicioBloque.obtenerBloque(aulaDTO.getId_bloque()));
 
-
-        aulaExistente.setListaReservas(aulaExistente.getListaReservas());
-        aulaExistente.setListaHorario(aulaExistente.getListaHorario());
-
-        repositorioAula.save(aulaExistente);
-        return true;
+        return aulaToDto(repositorioAula.save(aulaExistente));
     }
 
     @Override
-    public List<AulaDTO> findByBloque(Long id_bloque) {
+    public List<AulaDTO> findByBloque(Long id_bloque) throws NotFoundException {
+        servicioBloque.obtenerBloque(id_bloque);
+
         List<Aula> listaAulas = repositorioAula.findByBloque(id_bloque);
         if (listaAulas.isEmpty()) {
-            return null;
+            throw new NotFoundException("El bloque no tiene aulas");
         }
+
         return listaAulas.stream().map(this::aulaToDto).collect(Collectors.toList());
     }
 
     @Override
-    public AulaDTO save(AulaDTO aulaDTO) {
-        if (servicioBloque.obtenerBloque(aulaDTO.getId_bloque()) == null) {
-            return null;
+    public AulaDTO save(AulaDTO aulaDTO) throws NotFoundException, ConflictException {
+        Optional<Aula> aula = repositorioAula.getByNombre(aulaDTO.getNombre());
+        if (aula.isPresent()) {
+            throw new ConflictException("El aula ya existe");
         }
+        servicioBloque.obtenerBloque(aulaDTO.getId_bloque());
+
         return aulaToDto(repositorioAula.save(dtoToAula(aulaDTO)));
     }
 
     @Override
-    public void eliminarAula(Long id) {
-        repositorioAula.deleteById(id);
+    public void eliminarAula(Long id) throws NotFoundException {
+        if (repositorioAula.existsById(id)) {
+            repositorioAula.deleteById(id);
+        } else {
+            throw new NotFoundException("Aula not found");
+        }
     }
 
     private AulaDTO aulaToDto(Aula aula) {
@@ -91,7 +106,7 @@ public class ServicioAulaImpl implements ServicioAula {
         return aulaDto;
     }
 
-    private Aula dtoToAula(AulaDTO aulaDTO) {
+    private Aula dtoToAula(AulaDTO aulaDTO) throws NotFoundException {
         Aula aula = modelMapper.map(aulaDTO, Aula.class);
         aula.setBloque(servicioBloque.obtenerBloque(aulaDTO.getId_bloque()));
         return aula;
