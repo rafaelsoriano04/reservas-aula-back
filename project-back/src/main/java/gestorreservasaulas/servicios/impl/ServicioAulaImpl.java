@@ -86,6 +86,7 @@ public class ServicioAulaImpl implements ServicioAula {
     }
 
     @Override
+    @Transactional
     public void eliminarAula(Long id) throws NotFoundException {
         if (repositorioAula.existsById(id)) {
             repositorioAula.deleteById(id);

@@ -87,6 +87,7 @@ public class ServicioLaboratorioImpl implements ServicioLaboratorio {
     }
 
     @Override
+    @Transactional
     public void eliminarLab(Long id) throws NotFoundException {
         if (repositorioLaboratorio.existsById(id)) {
             repositorioLaboratorio.deleteById(id);
