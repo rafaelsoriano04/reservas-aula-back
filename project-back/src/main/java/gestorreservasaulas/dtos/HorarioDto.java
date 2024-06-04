@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class HorarioDTO {
+public class HorarioDto {
     private Long id;
     private String dia;
     private String hora;

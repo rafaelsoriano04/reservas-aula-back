@@ -1,6 +1,6 @@
 package gestorreservasaulas.servicios.impl;
 
-import gestorreservasaulas.dtos.HorarioDTO;
+import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioHorario;
 import gestorreservasaulas.servicios.ServicioAula;
@@ -12,11 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ServicioHorarioImpl implements ServicioHorario {
@@ -43,7 +40,7 @@ public class ServicioHorarioImpl implements ServicioHorario {
     }
 
     @Override
-    public HorarioDTO crearHorario(HorarioDTO horarioDTO) {
+    public HorarioDto crearHorario(HorarioDto horarioDTO) {
         if (servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()) == null) {
             return null;
         }
@@ -51,7 +48,7 @@ public class ServicioHorarioImpl implements ServicioHorario {
     }
 
     @Override
-    public List<HorarioDTO> obtenerHorariosPorAula(Long id) {
+    public List<HorarioDto> obtenerHorariosPorAula(Long id) {
         List<Horario> listaHorarios = repositorioHorario.horariosAulas(id);
         if (listaHorarios.isEmpty()) {
             return null;
@@ -61,7 +58,7 @@ public class ServicioHorarioImpl implements ServicioHorario {
     }
 
     @Override
-    public List<HorarioDTO> obtenerHorariosPorLabs(Long id) {
+    public List<HorarioDto> obtenerHorariosPorLabs(Long id) {
         List<Horario> listaHorarios = repositorioHorario.horariosLabos(id);
         if (listaHorarios.isEmpty()) {
             return null;
@@ -86,8 +83,8 @@ public class ServicioHorarioImpl implements ServicioHorario {
      y Horario tiene como atributo Aula u Horario, toca mappear manual esos
      atributos
      */
-    private HorarioDTO horarioToDto(Horario horario) {
-        HorarioDTO horarioDTO = modelMapper.map(horario, HorarioDTO.class);
+    private HorarioDto horarioToDto(Horario horario) {
+        HorarioDto horarioDTO = modelMapper.map(horario, HorarioDto.class);
         if (horario.getAula() == null) {
             horarioDTO.setId_laboratorio(horario.getLaboratorio().getId());
         } else {
@@ -96,7 +93,7 @@ public class ServicioHorarioImpl implements ServicioHorario {
         return horarioDTO;
     }
 
-    private Horario dtoToHorario(HorarioDTO horarioDTO) {
+    private Horario dtoToHorario(HorarioDto horarioDTO) {
         Horario horario = modelMapper.map(horarioDTO, Horario.class);
         if (horarioDTO.getId_aula() == null) {
             horario.setLaboratorio(servicioLaboratorio.obtenerLabPorId(horarioDTO.getId_laboratorio()));

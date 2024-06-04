@@ -1,7 +1,6 @@
 package gestorreservasaulas.controllers;
 
-import gestorreservasaulas.dtos.HorarioDTO;
-import gestorreservasaulas.entidades.Horario;
+import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.servicios.ServicioHorario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +16,17 @@ public class HorarioController {
     private ServicioHorario servicioHorario;
 
     @GetMapping("/aula/{id}")
-    public List<HorarioDTO> getByAula(@PathVariable Long id) {
+    public List<HorarioDto> getByAula(@PathVariable Long id) {
         return servicioHorario.obtenerHorariosPorAula(id);
     }
 
     @GetMapping("/lab/{id}")
-    public List<HorarioDTO> getByLabs(@PathVariable Long id) {
+    public List<HorarioDto> getByLabs(@PathVariable Long id) {
         return servicioHorario.obtenerHorariosPorLabs(id);
     }
 
     @PostMapping
-    public HorarioDTO save(@RequestBody HorarioDTO horario) {
+    public HorarioDto save(@RequestBody HorarioDto horario) {
         return servicioHorario.crearHorario(horario);
     }
 

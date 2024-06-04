@@ -4,7 +4,7 @@
  */
 package gestorreservasaulas.servicios;
 
-import gestorreservasaulas.dtos.HorarioDTO;
+import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.entidades.Horario;
 
 import java.util.List;
@@ -13,11 +13,11 @@ import java.util.List;
 public interface ServicioHorario {
     Horario obtenerHorario(Long id);
 
-    HorarioDTO crearHorario(HorarioDTO horarioDTO);
+    HorarioDto crearHorario(HorarioDto horarioDTO);
 
-    List<HorarioDTO> obtenerHorariosPorAula(Long id);
+    List<HorarioDto> obtenerHorariosPorAula(Long id);
 
-    List<HorarioDTO> obtenerHorariosPorLabs(Long id);
+    List<HorarioDto> obtenerHorariosPorLabs(Long id);
 
     boolean eliminarHorario(Long id);
 }

@@ -1,6 +1,6 @@
 package gestorreservasaulas.controllers;
 
-import gestorreservasaulas.dtos.AulaDTO;
+import gestorreservasaulas.dtos.AulaDto;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.servicios.ServicioAula;
@@ -18,17 +18,17 @@ public class AulaController {
     private ServicioAula servicioAula;
 
     @GetMapping("/bloque/{id}")
-    public List<AulaDTO> getAllByBloque(@PathVariable Long id) throws NotFoundException {
+    public List<AulaDto> getAllByBloque(@PathVariable Long id) throws NotFoundException {
         return servicioAula.findByBloque(id);
     }
 
     @PostMapping
-    public AulaDTO save(@RequestBody AulaDTO aulaDTO) throws NotFoundException, ConflictException {
+    public AulaDto save(@RequestBody AulaDto aulaDTO) throws NotFoundException, ConflictException {
         return servicioAula.save(aulaDTO);
     }
 
     @PutMapping("/{id}")
-    public AulaDTO update(@PathVariable Long id, @RequestBody AulaDTO request) throws NotFoundException, ConflictException {
+    public AulaDto update(@PathVariable Long id, @RequestBody AulaDto request) throws NotFoundException, ConflictException {
         return servicioAula.editarAula(id, request);
     }
 
