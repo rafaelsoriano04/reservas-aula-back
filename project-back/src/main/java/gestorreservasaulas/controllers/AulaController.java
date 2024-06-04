@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/aula")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AulaController {
 
     @Autowired
@@ -23,6 +24,5 @@ public class AulaController {
     public AulaDTO save(@RequestBody AulaDTO aulaDTO) {
         return servicioAula.save(aulaDTO);
     }
-
 
 }
