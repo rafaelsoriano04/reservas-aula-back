@@ -11,13 +11,13 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class GestorReservasAulasApplication {
 
     public static void main(String[] args) {
-        // SpringApplication.run(GestorReservasAulasApplication.class, args);
+        SpringApplication.run(GestorReservasAulasApplication.class, args);
 
-        ConfigurableApplicationContext context = new SpringApplicationBuilder(
-                GestorReservasAulasApplication.class).headless(false).run(args);
-
-        FrmLogin appFrame = context.getBean(FrmLogin.class);
-        appFrame.setVisible(true);
+//        ConfigurableApplicationContext context = new SpringApplicationBuilder(
+//                GestorReservasAulasApplication.class).headless(false).run(args);
+//
+//        FrmLogin appFrame = context.getBean(FrmLogin.class);
+//        appFrame.setVisible(true);
     }
 }
 
