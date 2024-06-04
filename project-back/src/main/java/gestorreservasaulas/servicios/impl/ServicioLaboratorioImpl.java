@@ -13,6 +13,12 @@ import java.util.List;
 public class ServicioLaboratorioImpl implements ServicioLaboratorio {
     @Autowired
     RepositorioLaboratorio repositorioLaboratorio;
+
+    @Override
+    public Laboratorio obtenerLabPorId(Long id) {
+        return repositorioLaboratorio.findById(id).orElse(null);
+    }
+
     @Override
     public Laboratorio obtenerLab(String nombre) {
         return repositorioLaboratorio.getByNombre(nombre).orElse(null);

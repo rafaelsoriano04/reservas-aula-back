@@ -18,6 +18,11 @@ public class ServicioAulaImpl implements ServicioAula {
     RepositorioAula repositorioAula;
 
     @Override
+    public Aula obtenerAulaPorId(Long id) {
+        return repositorioAula.findById(id).orElse(null);
+    }
+
+    @Override
     public Aula obtenerAula(String nombre) {
         return repositorioAula.findByNombreWithHorarios(nombre).orElse(null);
     }

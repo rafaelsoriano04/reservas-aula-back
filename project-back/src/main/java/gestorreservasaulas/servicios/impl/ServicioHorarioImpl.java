@@ -3,7 +3,9 @@ package gestorreservasaulas.servicios.impl;
 import gestorreservasaulas.dtos.HorarioDTO;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioHorario;
+import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioHorario;
+import gestorreservasaulas.servicios.ServicioLaboratorio;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -16,14 +18,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * @author fredd
- */
 @Service
 public class ServicioHorarioImpl implements ServicioHorario {
 
     @Autowired
     private RepositorioHorario repositorioHorario;
+
+    @Autowired
+    private ServicioAula servicioAula;
+
+    @Autowired
+    private ServicioLaboratorio servicioLaboratorio;
 
     private final ModelMapper modelMapper;
 
@@ -38,8 +43,11 @@ public class ServicioHorarioImpl implements ServicioHorario {
     }
 
     @Override
-    public Horario crearHorario(Horario horario) {
-        return repositorioHorario.save(horario);
+    public HorarioDTO crearHorario(HorarioDTO horarioDTO) {
+        if (servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()) == null) {
+            return null;
+        }
+        return horarioToDto(repositorioHorario.save(dtoToHorario(horarioDTO)));
     }
 
     @Override
@@ -52,18 +60,23 @@ public class ServicioHorarioImpl implements ServicioHorario {
         return listaHorarios.stream().map(this::horarioToDto).collect(Collectors.toList());
     }
 
-    public List<Horario> obtenerHorariosPorLabs(Long id) {
-        return repositorioHorario.horariosLabos(id);
+    @Override
+    public List<HorarioDTO> obtenerHorariosPorLabs(Long id) {
+        List<Horario> listaHorarios = repositorioHorario.horariosLabos(id);
+        if (listaHorarios.isEmpty()) {
+            return null;
+        }
+        // stream().map() es como un for, que simplifica y se llama directo al metodo por cada item de la lista
+        return listaHorarios.stream().map(this::horarioToDto).collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Boolean eliminarHorario(Long idHorario) {
-        int count = repositorioHorario.deleteHorario(idHorario);
+    public boolean eliminarHorario(Long id) {
+        int count = repositorioHorario.deleteHorario(id);
         if (count > 0) {
             return true;
         } else {
-            System.err.println("No se encontró el horario con ID: " + idHorario + " o no pudo ser eliminado.");
             return false;
         }
     }
@@ -75,12 +88,22 @@ public class ServicioHorarioImpl implements ServicioHorario {
      */
     private HorarioDTO horarioToDto(Horario horario) {
         HorarioDTO horarioDTO = modelMapper.map(horario, HorarioDTO.class);
-        if (horario.getAula().getId() == null) {
+        if (horario.getAula() == null) {
             horarioDTO.setId_laboratorio(horario.getLaboratorio().getId());
         } else {
             horarioDTO.setId_aula(horario.getAula().getId());
         }
         return horarioDTO;
+    }
+
+    private Horario dtoToHorario(HorarioDTO horarioDTO) {
+        Horario horario = modelMapper.map(horarioDTO, Horario.class);
+        if (horarioDTO.getId_aula() == null) {
+            horario.setLaboratorio(servicioLaboratorio.obtenerLabPorId(horarioDTO.getId_laboratorio()));
+        } else {
+            horario.setAula(servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()));
+        }
+        return horario;
     }
 
 }

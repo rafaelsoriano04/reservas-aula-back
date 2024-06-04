@@ -21,18 +21,18 @@ public class HorarioController {
     }
 
     @GetMapping("/lab/{id}")
-    public List<Horario> getByLabs(@PathVariable Long id) {
+    public List<HorarioDTO> getByLabs(@PathVariable Long id) {
         return servicioHorario.obtenerHorariosPorLabs(id);
     }
 
     @PostMapping
-    public Horario saveHorario(@RequestBody Horario horario) {
+    public HorarioDTO saveHorario(@RequestBody HorarioDTO horario) {
         return servicioHorario.crearHorario(horario);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteHorario(@PathVariable Long id) {
-        servicioHorario.eliminarHorario(id);
+    public boolean deleteHorario(@PathVariable Long id) {
+        return servicioHorario.eliminarHorario(id);
     }
 
 }
