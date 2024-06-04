@@ -1,14 +1,18 @@
 package gestorreservasaulas.servicios.impl;
 
+import gestorreservasaulas.dtos.AulaDTO;
 import gestorreservasaulas.entidades.Aula;
-import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.respositorios.RepositorioAula;
+import gestorreservasaulas.respositorios.RepositorioBloque;
 import gestorreservasaulas.servicios.ServicioAula;
+import gestorreservasaulas.servicios.ServicioBloque;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -16,6 +20,16 @@ public class ServicioAulaImpl implements ServicioAula {
 
     @Autowired
     RepositorioAula repositorioAula;
+
+    @Autowired
+    ServicioBloque servicioBloque;
+
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public ServicioAulaImpl() {
+        this.modelMapper = new ModelMapper();
+    }
 
     @Override
     public Aula obtenerAulaPorId(Long id) {
@@ -50,19 +64,37 @@ public class ServicioAulaImpl implements ServicioAula {
     }
 
     @Override
-    public List<Aula> findByBloque(Long id_bloque) {
-        return repositorioAula.findByBloque(id_bloque);
+    public List<AulaDTO> findByBloque(Long id_bloque) {
+        List<Aula> listaAulas = repositorioAula.findByBloque(id_bloque);
+        if (listaAulas.isEmpty()) {
+            return null;
+        }
+        return listaAulas.stream().map(this::aulaToDto).collect(Collectors.toList());
     }
 
-
     @Override
-    public Aula crearAula(Aula aula) {
-        return repositorioAula.save(aula);
+    public AulaDTO save(AulaDTO aulaDTO) {
+        if (servicioBloque.obtenerBloque(aulaDTO.getId_bloque()) == null) {
+            return null;
+        }
+        return aulaToDto(repositorioAula.save(dtoToAula(aulaDTO)));
     }
 
     @Override
     public void eliminarAula(Long id) {
         repositorioAula.deleteById(id);
+    }
+
+    private AulaDTO aulaToDto(Aula aula) {
+        AulaDTO aulaDto = modelMapper.map(aula, AulaDTO.class);
+        aulaDto.setId_bloque(aula.getBloque().getId());
+        return aulaDto;
+    }
+
+    private Aula dtoToAula(AulaDTO aulaDTO) {
+        Aula aula = modelMapper.map(aulaDTO, Aula.class);
+        aula.setBloque(servicioBloque.obtenerBloque(aulaDTO.getId_bloque()));
+        return aula;
     }
 
 

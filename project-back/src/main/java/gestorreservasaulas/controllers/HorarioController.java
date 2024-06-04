@@ -26,12 +26,12 @@ public class HorarioController {
     }
 
     @PostMapping
-    public HorarioDTO saveHorario(@RequestBody HorarioDTO horario) {
+    public HorarioDTO save(@RequestBody HorarioDTO horario) {
         return servicioHorario.crearHorario(horario);
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteHorario(@PathVariable Long id) {
+    public boolean delete(@PathVariable Long id) {
         return servicioHorario.eliminarHorario(id);
     }
 
