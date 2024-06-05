@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../menu/menu.css'
+import '../styles/menu.css'
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Horarios from "../horario/horario";
-import Reservas from "../componentes/Reservas";
+import Horarios from "./horario";
+import Reservas from "./Reservas";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 const SidebarMenu = () => {

@@ -1,8 +1,7 @@
-import { useState } from "react";
-import SidebarMenu from "../src/menu/menu";
-import Login from "../src/login/login";
-import Horarios from '../src/horario/horario';
-import Reservas from '../src/componentes/Reservas';
+import SidebarMenu from "./components/menu";
+import Login from "./components/login";
+import Horarios from './components/horario';
+import Reservas from './components/Reservas';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
