@@ -212,8 +212,34 @@ const LabReservations = () => {
 
     const selectedDay = weekDates[dias.indexOf(dia)];
 
+    // Validación para fechas pasadas
+    const now = new Date();
+    if (selectedDay < now.setHours(0, 0, 0, 0)) {
+      Swal.fire({
+        title: "Fecha inválida",
+        text: "No puedes reservar una fecha que ya ha pasado.",
+        icon: "error",
+      });
+      return;
+    }
+
+    // Validación para horas pasadas en el día de hoy
+    if (selectedDay.toDateString() === new Date().toDateString()) {
+      const currentTime = new Date();
+      const [startHour] = hora.split("-").map(Number);
+      if (currentTime.getHours() >= startHour) {
+        Swal.fire({
+          title: "Hora inválida",
+          text: "No puedes reservar una hora que ya ha pasado.",
+          icon: "error",
+        });
+        return;
+      }
+    }
+
     if (text === "Disponible") {
       setSelectedDate(selectedDay);
+      setNewReservation((prev) => ({ ...prev, hora }));
       setShowAddModal(true);
     } else if (text.startsWith("Reservado")) {
       const info = event.target.getAttribute("data-info").split(", ");
