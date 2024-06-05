@@ -128,6 +128,14 @@ const LabReservations = () => {
   };
 
   const renderTableCell = (dia, hora) => {
+    if (hora === "13-14") {
+      return (
+        <td key={`${dia}-${hora}`} style={{ backgroundColor: "#ffff99", textAlign: "center" }}>
+          Receso
+        </td>
+      );
+    }
+  
     const selectedDay = weekDates[dias.indexOf(dia)];
     const formattedDate = formatDate(selectedDay);
     const reservation = reservations.find(
@@ -136,6 +144,7 @@ const LabReservations = () => {
     const horario = horarios.find(
       (h) => h.dia === dia && h.hora === hora.split("-")[0]
     );
+  
     if (reservation) {
       return (
         <td
@@ -155,6 +164,7 @@ const LabReservations = () => {
           data-dia={dia}
           data-hora={hora}
           onClick={(e) => handleCellClick(e, dia, hora)}
+          style={{ backgroundColor: "lightblue" }} // Celeste bajito
         >
           {horario.materia}
         </td>
@@ -166,13 +176,15 @@ const LabReservations = () => {
           data-dia={dia}
           data-hora={hora}
           onClick={(e) => handleCellClick(e, dia, hora)}
-          style={{ backgroundColor: "#ccffcc" }} // Verde pastel
+          style={{ backgroundColor: "#ccffcc" }} // Verde pastel claro
         >
           Disponible
         </td>
       );
     }
   };
+  
+  
   
 
   const horas = [
