@@ -3,6 +3,7 @@ import "./Reserva.css"; // Asegúrate de tener este archivo en la misma carpeta
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
@@ -28,15 +29,16 @@ const LabReservations = () => {
     hora: "",
   });
 
+  // Variables reactivas
   const [bloques, setBloques] = useState([]);
+  const [horarios, setHorarios] = useState([]);
+  const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
-  const [selectedBloque, setSelectedBloque] = useState("");
-  const [selectedTipo, setSelectedTipo] = useState("Aulas");
-  const [selectedAulaLab, setSelectedAulaLab] = useState("");
+  const [selectedTipo, setSelectedTipo] = useState("Aula");
+  const [selectedAulaLab, setSelectedAulaLab] = useState();
 
   useEffect(() => {
     updateWeekRange();
-    fetchBloques();
   }, [currentWeek]);
 
   useEffect(() => {
@@ -45,12 +47,30 @@ const LabReservations = () => {
     }
   }, [selectedBloque, selectedTipo]);
 
-  const fetchBloques = async () => {
+  const getHorarios = async () => {
+    const url =
+      selectedTipo === "Laboratorios"
+        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
+        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    console.log(url);
     try {
-      const response = await axios.get("http://localhost:8080/bloque");
-      setBloques(response.data);
+      const response = await axios.get(url);
+      console.log(response.data);
+      setHorarios(response.data);
     } catch (error) {
-      console.error("Error fetching bloques:", error);
+      const { message } = error.response.data;
+      console.log(message);
+      setHorarios([]); // Limpia los datos si la petición falla
+    }
+  };
+
+  const getBloques = async () => {
+    try {
+      const resp = await axios.get("http://localhost:8080/bloque");
+      setBloques(resp.data);
+    } catch (error) {
+      const { message } = error.response.data;
+      console.log(message);
     }
   };
 
@@ -63,8 +83,24 @@ const LabReservations = () => {
       const response = await axios.get(url);
       setAulasLabs(response.data);
     } catch (error) {
-      console.error("Error fetching aulas/labs:", error);
-      setAulasLabs([]);
+      const { message } = error.response.data;
+      if (
+        message === "El bloque no tiene laboratorios" ||
+        message === "El bloque no tiene aulas"
+      ) {
+        Swal.fire({
+          title: "Oops...",
+          html: `<i>${message}</i>`,
+          icon: "error",
+        });
+      } else {
+        Swal.fire({
+          title: "Oops...",
+          html: `<i>Error al conectar con el servidor</i>`,
+          icon: "error",
+        });
+      }
+      setAulasLabs([]); // Limpia los datos si la petición falla
     }
   };
 
@@ -79,6 +115,46 @@ const LabReservations = () => {
   const handleAulaLabChange = (event) => {
     setSelectedAulaLab(event.target.value);
   };
+
+  useEffect(() => {
+    getBloques();
+  }, []);
+
+  useEffect(() => {
+    if (selectedBloque && selectedTipo) {
+      fetchAulasLabs();
+    }
+  }, [selectedBloque, selectedTipo]);
+
+  useEffect(() => {
+    if (selectedAulaLab) {
+      getHorarios();
+    }
+  }, [selectedAulaLab]);
+
+  const renderTableCell = (dia, hora) => {
+    const horario = horarios.find(
+      (h) => h.dia === dia && h.hora === hora.split("-")[0],
+    );
+    return horario ? `${horario.materia}` : "";
+  };
+
+  const horas = [
+    "7-8",
+    "8-9",
+    "9-10",
+    "10-11",
+    "11-12",
+    "12-13",
+    "13-14",
+    "14-15",
+    "15-16",
+    "16-17",
+    "17-18",
+    "18-19",
+    "19-20",
+  ];
+  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
   const getMonday = (d) => {
     d = new Date(d);
@@ -271,7 +347,6 @@ const LabReservations = () => {
             value={selectedBloque}
             onChange={handleBloqueChange}
           >
-            <option value="">Seleccione un Bloque</option>
             {bloques.map((bloque) => (
               <option key={bloque.id} value={bloque.id}>
                 {bloque.nombre}
@@ -299,7 +374,6 @@ const LabReservations = () => {
             value={selectedAulaLab}
             onChange={handleAulaLabChange}
           >
-            <option value="">Seleccione un Aula/Laboratorio</option>
             {aulasLabs.map((aulaLab) => (
               <option key={aulaLab.id} value={aulaLab.id}>
                 {aulaLab.nombre}
@@ -320,24 +394,26 @@ const LabReservations = () => {
         </div>
       </div>
 
-      <table className="table table-bordered text-center mt-3">
+      <table className="table table-bordered mt-4">
         <thead>
           <tr>
-            <th>Hora/Día</th>
+            <th>Horas</th>
             <th>Lunes</th>
             <th>Martes</th>
             <th>Miércoles</th>
             <th>Jueves</th>
             <th>Viernes</th>
-            <th>Sábado</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>07:00-08:00</td>
-            {renderTableCells("07:00-08:00")}
-          </tr>
-          {/* Más filas aquí */}
+          {horas.map((hora) => (
+            <tr key={hora}>
+              <td>{hora}</td>
+              {dias.map((dia) => (
+                <td key={`${dia}-${hora}`}>{renderTableCell(dia, hora)}</td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
 
