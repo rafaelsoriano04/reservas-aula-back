@@ -127,7 +127,7 @@ function Horarios() {
         "18-19",
         "19-20",
     ];
-    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+    const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
     return (
         <div className="container-fluid">
