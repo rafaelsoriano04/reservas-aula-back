@@ -3,12 +3,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../login/login.css";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [mensajeError, setMensajeError] = useState("");
-
+    const navigate = useNavigate();
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
     };
@@ -28,14 +29,18 @@ function Login() {
                     username,
                     password,
                 });
-                Swal.fire({
-                    title: 'Bienvenido...',
-                    html: "<i>Inicio de sesión exitoso</i>",
-                    icon: "success",
-                });
-                return resp.data;
+                if (resp.data) {
+                    Swal.fire({
+                        title: 'Bienvenido...',
+                        html: "<i>Inicio de sesión exitoso</i>",
+                        icon: "success",
+                    });
+                    setMensajeError("");
+                    //Llamar al Componente Menu
+                    navigate('/menu');
+                }
             } catch (error) {
-                const {message} = error.response.data;
+                const { message } = error.response.data;
                 console.log(message);
                 if (message == "Credenciales inválidas") {
                     setMensajeError(message);
@@ -86,6 +91,9 @@ function Login() {
                             Iniciar sesión
                         </button>
                     </form>
+                    {mensajeError && (
+                        <p className="text-black mb-0 mt-2 fst-italic">{mensajeError}</p>
+                    )}
                 </div>
             </div>
             <div className="right-panel">
