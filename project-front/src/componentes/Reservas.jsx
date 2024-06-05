@@ -6,7 +6,9 @@ import { Modal, Button } from 'react-bootstrap';
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
   const [weekRange, setWeekRange] = useState('');
+  const [weekDates, setWeekDates] = useState([]);
   const [selectedCell, setSelectedCell] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -15,6 +17,7 @@ const LabReservations = () => {
     asunto: '',
     descripcion: '',
     hora: '',
+    fecha: '',
     editable: false,
   });
   const [newReservation, setNewReservation] = useState({
@@ -47,26 +50,36 @@ const LabReservations = () => {
     return [day, month, year].join('-');
   };
 
-  const updateWeekRange = (addWeeks = 0) => {
+  const updateWeekRange = () => {
     const now = new Date();
     now.setDate(now.getDate() + currentWeek * 7);
     const monday = getMonday(now);
-    const saturday = new Date(monday);
-    saturday.setDate(monday.getDate() + 5);
-
-    setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(saturday)}`);
+    const dates = [monday];
+    for (let i = 1; i <= 5; i++) {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + i);
+      dates.push(day);
+    }
+    setWeekDates(dates);
+    setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[5])}`);
   };
 
   const changeWeek = (change) => {
     setCurrentWeek((prev) => prev + change);
   };
 
-  const handleCellClick = (event, cell) => {
+  const handleCellClick = (event, cell, date) => {
     const text = cell.textContent.trim();
     const menu = document.getElementById('context-menu');
     setSelectedCell(cell);
 
     if (text === 'Disponible') {
+      const now = new Date();
+      if (date < now.setHours(0, 0, 0, 0)) {
+        alert('No se puede reservar en fechas pasadas.');
+        return;
+      }
+      setSelectedDate(date);
       menu.style.display = 'block';
       menu.style.left = `${event.pageX}px`;
       menu.style.top = `${event.pageY}px`;
@@ -82,6 +95,7 @@ const LabReservations = () => {
         asunto: info[1].split(': ')[1],
         descripcion: 'Descripción aquí',
         hora: cell.parentElement.firstChild.textContent,
+        fecha: formatDate(date),
         editable: false,
       });
       setShowModal(true);
@@ -114,6 +128,7 @@ const LabReservations = () => {
       asunto: '',
       descripcion: '',
       hora: '',
+      fecha: '',
       editable: false,
     });
   };
@@ -152,6 +167,39 @@ const LabReservations = () => {
       descripcion: '',
       hora: '',
     });
+  };
+
+  const renderTableCells = (hour) => {
+    const cells = [];
+    const now = new Date();
+    for (let i = 0; i < 6; i++) {
+      const date = weekDates[i];
+      if (i === 1 && hour === '07:00-08:00') {
+        cells.push(
+          <td key={i} data-info="Encargado: Dr. Ana, Asunto: Física" onClick={(e) => handleCellClick(e, e.target, date)}>
+            Reservado - Descripción
+          </td>
+        );
+      } else if (i === 2 && hour === '07:00-08:00') {
+        cells.push(
+          <td key={i} onClick={(e) => handleCellClick(e, e.target, date)}>
+            Asunto - Encargado
+          </td>
+        );
+      } else {
+        cells.push(
+          <td
+            key={i}
+            data-date={formatDate(date)}
+            onClick={(e) => handleCellClick(e, e.target, date)}
+            className={date < now.setHours(0, 0, 0, 0) ? 'past-date' : 'available'}
+          >
+            Disponible
+          </td>
+        );
+      }
+    }
+    return cells;
   };
 
   return (
@@ -196,12 +244,7 @@ const LabReservations = () => {
         <tbody>
           <tr>
             <td>07:00-08:00</td>
-            <td data-info="Encargado: Dr. Juan, Asunto: Matemáticas" onClick={(e) => handleCellClick(e, e.target)}>Disponible</td>
-            <td data-info="Encargado: Dr. Ana, Asunto: Física" onClick={(e) => handleCellClick(e, e.target)}>Reservado - Descripción</td>
-            <td onClick={(e) => handleCellClick(e, e.target)}>Asunto - Encargado</td>
-            <td onClick={(e) => handleCellClick(e, e.target)}>Asunto - Encargado</td>
-            <td data-info="Encargado: Dr. Pedro, Asunto: Química" onClick={(e) => handleCellClick(e, e.target)}>Disponible</td>
-            <td data-info="Encargado: Dra. Luisa, Asunto: Biología" onClick={(e) => handleCellClick(e, e.target)}>Reservado - Descripción</td>
+            {renderTableCells('07:00-08:00')}
           </tr>
           {/* Más filas aquí */}
         </tbody>
@@ -218,6 +261,10 @@ const LabReservations = () => {
         </Modal.Header>
         <Modal.Body>
           <form id="reservationForm">
+            <div className="mb-3">
+              <label htmlFor="fecha" className="form-label">Fecha</label>
+              <input type="text" className="form-control" id="fecha" value={reservationDetails.fecha} disabled />
+            </div>
             <div className="mb-3">
               <label htmlFor="encargado" className="form-label">Responsable</label>
               <input type="text" className="form-control" id="encargado" value={reservationDetails.encargado} disabled={!reservationDetails.editable} onChange={(e) => setReservationDetails((prev) => ({ ...prev, encargado: e.target.value }))} />
@@ -250,6 +297,10 @@ const LabReservations = () => {
         </Modal.Header>
         <Modal.Body>
           <form id="newReservationForm">
+            <div className="mb-3">
+              <label htmlFor="newDate" className="form-label">Fecha</label>
+              <input type="text" className="form-control" id="newDate" value={selectedDate ? formatDate(selectedDate) : ''} disabled />
+            </div>
             <div className="mb-3">
               <label htmlFor="newEncargado" className="form-label">Responsable</label>
               <input type="text" className="form-control" id="newEncargado" value={newReservation.encargado} onChange={(e) => setNewReservation((prev) => ({ ...prev, encargado: e.target.value }))} />
