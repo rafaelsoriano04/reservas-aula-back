@@ -1,0 +1,37 @@
+body { background-color: #f4f4f4; }
+        .header { background: #8B0000; color: white; padding: 10px 20px; }
+        table { width: 100%; cursor: pointer; }
+        thead { background-color: #8B0000; color: #fff; }
+        tbody tr:nth-child(even) { background-color: #f0f0f0; }
+        tbody tr:nth-child(odd) { background-color: #fff; }
+        .context-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            z-index: 1000;
+            padding: 5px;
+            display: none;
+        }
+        .btn {
+            background: #8B0000; 
+            color: #fff; 
+            border: none;
+        }
+        .btn:hover {
+            background: #701c1c; 
+            color: #fff; 
+        }
+        .week-display { text-align: center; margin-top: 10px; flex: 1; }
+        .nav-buttons { display: flex; align-items: center; justify-content: center; margin-top: 10px; }
+        .modal-header { background: #8B0000; color: #fff; }
+        .modal-footer .btn-primary,
+        .modal-footer .btn-danger,
+        .modal-footer .btn-secondary {
+            background: #8B0000; 
+            border: none;
+        }
+        .modal-footer .btn-primary:hover,
+        .modal-footer .btn-danger:hover,
+        .modal-footer .btn-secondary:hover {
+            background: #701c1c;
+        }

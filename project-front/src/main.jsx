@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
 import "bootstrap/dist/js/bootstrap.min.js";
+import Reservas from "./componentes/Reservas";
+import LabReservations from "./componentes/Reservas";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <LabReservations />
   </React.StrictMode>,
 );
