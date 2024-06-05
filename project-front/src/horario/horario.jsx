@@ -13,6 +13,10 @@ function Horarios() {
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
   const [selectedAulaLab, setSelectedAulaLab] = useState();
+  const [selectedHora, setselectedHora] = useState("7-8");
+  const [selectedDia, setselectedDia] = useState("Lunes");
+  const [selectedMateria, setselectedMateria] = useState();
+  const [selectedDocentde, setselectedDocente] = useState();
 
   // Metodos
   const handleCellClick = (e, rowIndex, cellIndex) => {
@@ -60,7 +64,7 @@ function Horarios() {
     try {
       const response = await axios.get(url);
       console.log(response.data);
-      setHorarios(response.data);
+      setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       const { message } = error.response.data;
       console.log(message);
@@ -90,6 +94,55 @@ function Horarios() {
     setSelectedAulaLab(event.target.value);
   };
 
+  const handleCreateHorario = async () => {
+    try {
+      const horarioExiste = horarios.some(horario =>
+        horario.dia === selectedDia && horario.hora === selectedHora.split("-")[0]
+      );
+      if (horarioExiste) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Ya existe un horario en el mismo día y hora',
+          icon: 'error',
+        });
+        return; 
+      }
+      
+    const url = 'http://localhost:8080/horario';
+    const nuevoHorario = {
+      dia: selectedDia,
+      hora: selectedHora.split('-')[0],
+      materia: selectedMateria,
+      id_persona: selectedDocentde
+    };
+
+    if (selectedTipo === "Laboratorio") {
+      nuevoHorario.id_laboratorio = selectedAulaLab;
+    } else {
+      nuevoHorario.id_aula = selectedAulaLab;
+    }
+    console.log(nuevoHorario)
+    await axios.post(url, nuevoHorario);
+   
+      Swal.fire({
+        title: 'Éxito',
+        text: 'Horario creado correctamente',
+        icon: 'success',
+      });
+
+      getHorarios();
+
+
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo crear el horario',
+        icon: 'error',
+      });
+    }
+  };
+  
+
   useEffect(() => {
     getBloques();
   }, []);
@@ -107,6 +160,9 @@ function Horarios() {
   }, [selectedAulaLab]);
 
   const renderTableCell = (dia, hora) => {
+    if (hora === "13-14") {
+      return <td style={{ backgroundColor: '#ffcccb' }}>Receso</td>;
+    }
     const horario = horarios.find(
       (h) => h.dia === dia && h.hora === hora.split("-")[0],
     );
@@ -191,26 +247,23 @@ function Horarios() {
               <div className="form-container">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="dia">Día:</Form.Label>
-                  <Form.Control as="select" id="dia" className="form-control">
+                  <Form.Control as="select" id="dia" className="form-control" value={selectedDia} onChange={(e) => setselectedDia(e.target.value)}>
                     <option>Lunes</option>
                     <option>Martes</option>
-                    <option>Miércoles</option>
+                    <option>Miercoles</option>
                     <option>Jueves</option>
                     <option>Viernes</option>
-                    <option>Sábado</option>
-                    <option>Domingo</option>
                   </Form.Control>
                 </Form.Group>
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="hora">Hora:</Form.Label>
-                  <Form.Control as="select" id="hora" className="form-control">
+                  <Form.Control as="select" id="hora" className="form-control" value={selectedHora}  onChange={(e) => setselectedHora(e.target.value)}>
                     <option>7-8</option>
                     <option>8-9</option>
                     <option>9-10</option>
                     <option>10-11</option>
                     <option>11-12</option>
                     <option>12-13</option>
-                    <option>13-14</option>
                     <option>14-15</option>
                     <option>15-16</option>
                     <option>16-17</option>
@@ -225,13 +278,18 @@ function Horarios() {
                     type="text"
                     id="materia"
                     className="form-control"
+                    placeholder="Ingrese una Materia"
+                    value={selectedMateria}
+                    onChange={(e) => setselectedMateria(e.target.value)}
                   />
                 </Form.Group>
                 <div className="form-group docente-container">
                   <Form.Label htmlFor="docente">Docente</Form.Label>
                   <Form.Control
+                    readOnly
                     type="text"
                     id="docente"
+                    placeholder="Seleccione en Agregar Docente"
                     className="form-control"
                   />
                   <Button variant="custom" id="agregar-docente-btn">
@@ -241,8 +299,8 @@ function Horarios() {
               </div>
               <div className="form-container">
                 <div className="form-group d-flex align-items-end">
-                  <Button variant="custom" id="agregar-btn">
-                    Agregar
+                  <Button variant="custom" id="agregar-btn"  onClick={handleCreateHorario}>
+                    Crear Horario
                   </Button>
                   <Button
                     variant="custom"
@@ -254,7 +312,7 @@ function Horarios() {
                 </div>
               </div>
             </Form>
-            <table className="table table-bordered mt-4">
+            <table className="table table-bordered mt-4 table-centered">
               <thead>
                 <tr>
                   <th>Horas</th>
@@ -266,16 +324,20 @@ function Horarios() {
                 </tr>
               </thead>
               <tbody>
-                {horas.map((hora) => (
-                  <tr key={hora}>
-                    <td>{hora}</td>
-                    {dias.map((dia) => (
-                      <td key={`${dia}-${hora}`}>
-                        {renderTableCell(dia, hora)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+              {horas.map((hora) => (
+    <tr key={hora} style={hora === "13-14" ? { backgroundColor: '#ffcccb', textAlign: 'center' } : {}}>
+      <td style={hora === "13-14" ? { textAlign: 'center' } : {}}>{hora}</td>
+      {dias.map((dia) => (
+        <React.Fragment key={`${dia}-${hora}`}>
+          {hora === "13-14" ? (
+            <td style={{ backgroundColor: '#ffcccb', textAlign: 'center' }}>Receso</td>
+          ) : (
+            <td>{renderTableCell(dia, hora)}</td>
+          )}
+        </React.Fragment>
+      ))}
+    </tr>
+  ))}
               </tbody>
             </table>
             <div className="context-menu" id="context-menu">

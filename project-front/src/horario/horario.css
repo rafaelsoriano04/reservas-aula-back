@@ -93,3 +93,9 @@ body, html, #root, .app-container {
 .docente-container button {
     margin-left: 10px;
 }
+
+.table-centered td, .table-centered th {
+    text-align: center;
+    vertical-align: middle;
+  }
+  

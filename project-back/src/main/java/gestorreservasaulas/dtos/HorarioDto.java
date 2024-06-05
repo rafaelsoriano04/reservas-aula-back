@@ -12,4 +12,5 @@ public class HorarioDto {
     private String materia;
     private Long id_aula;
     private Long id_laboratorio;
+    private Long id_persona;
 }
