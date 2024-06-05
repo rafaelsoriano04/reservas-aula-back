@@ -8,6 +8,7 @@ const LabReservations = () => {
   const [weekRange, setWeekRange] = useState('');
   const [selectedCell, setSelectedCell] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: '',
@@ -15,6 +16,12 @@ const LabReservations = () => {
     descripcion: '',
     hora: '',
     editable: false,
+  });
+  const [newReservation, setNewReservation] = useState({
+    encargado: '',
+    asunto: '',
+    descripcion: '',
+    hora: '',
   });
 
   useEffect(() => {
@@ -83,16 +90,16 @@ const LabReservations = () => {
 
   const enableEditing = () => {
     document.getElementById('encargado').disabled = false;
-            document.getElementById('asunto').disabled = false;
-            document.getElementById('descripcion').disabled = false;
-            const saveBtn = document.createElement('button');
-            saveBtn.textContent = 'Guardar';
-            saveBtn.classList.add('btn', 'btn-success');
-            saveBtn.onclick = saveReservation;
-            saveBtn.id = 'saveBtn';
-            const footer = document.querySelector('.modal-footer');
-            footer.insertBefore(saveBtn, footer.firstChild);
-            document.querySelector('.btn-primary').style.display = 'none';
+    document.getElementById('asunto').disabled = false;
+    document.getElementById('descripcion').disabled = false;
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Guardar';
+    saveBtn.classList.add('btn', 'btn-success');
+    saveBtn.onclick = saveReservation;
+    saveBtn.id = 'saveBtn';
+    const footer = document.querySelector('.modal-footer');
+    footer.insertBefore(saveBtn, footer.firstChild);
+    document.querySelector('.btn-primary').style.display = 'none';
   };
 
   const saveReservation = () => {
@@ -120,6 +127,31 @@ const LabReservations = () => {
     selectedCell.removeAttribute('data-info');
     setShowConfirmDelete(false);
     setShowModal(false);
+  };
+
+  const handleAddReservation = () => {
+    if (selectedCell) {
+      const hora = selectedCell.closest('tr').firstChild.textContent;
+      setNewReservation((prev) => ({ ...prev, hora }));
+      setShowAddModal(true);
+    }
+  };
+
+  const saveNewReservation = () => {
+    if (selectedCell) {
+      selectedCell.setAttribute(
+        'data-info',
+        `Encargado: ${newReservation.encargado}, Asunto: ${newReservation.asunto}`
+      );
+      selectedCell.textContent = 'Reservado - Descripción';
+    }
+    setShowAddModal(false);
+    setNewReservation({
+      encargado: '',
+      asunto: '',
+      descripcion: '',
+      hora: '',
+    });
   };
 
   return (
@@ -176,12 +208,10 @@ const LabReservations = () => {
       </table>
 
       <div id="context-menu" className="context-menu">
-        <button className="btn btn-sm" onClick={() => setShowModal(true)}>Agregar</button>
-        <button className="btn btn-sm" onClick={enableEditing}>Modificar</button>
-        <button className="btn btn-sm" onClick={confirmDelete}>Eliminar</button>
+        <button className="btn btn-sm" onClick={handleAddReservation}>Reservar</button>
       </div>
 
-      {/* Modal */}
+      {/* Modal para detalles de reserva */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Detalles de la Reserva</Modal.Title>
@@ -189,7 +219,7 @@ const LabReservations = () => {
         <Modal.Body>
           <form id="reservationForm">
             <div className="mb-3">
-              <label htmlFor="encargado" className="form-label">Encargado</label>
+              <label htmlFor="encargado" className="form-label">Responsable</label>
               <input type="text" className="form-control" id="encargado" value={reservationDetails.encargado} disabled={!reservationDetails.editable} onChange={(e) => setReservationDetails((prev) => ({ ...prev, encargado: e.target.value }))} />
             </div>
             <div className="mb-3">
@@ -210,6 +240,37 @@ const LabReservations = () => {
           <Button variant="primary" onClick={enableEditing}>Modificar</Button>
           <Button variant="danger" onClick={confirmDelete}>Eliminar</Button>
           <Button variant="secondary" onClick={() => setShowModal(false)}>Cerrar</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal para agregar reserva */}
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Reserva</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form id="newReservationForm">
+            <div className="mb-3">
+              <label htmlFor="newEncargado" className="form-label">Responsable</label>
+              <input type="text" className="form-control" id="newEncargado" value={newReservation.encargado} onChange={(e) => setNewReservation((prev) => ({ ...prev, encargado: e.target.value }))} />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="newAsunto" className="form-label">Asunto</label>
+              <input type="text" className="form-control" id="newAsunto" value={newReservation.asunto} onChange={(e) => setNewReservation((prev) => ({ ...prev, asunto: e.target.value }))} />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="newDescripcion" className="form-label">Descripción</label>
+              <input type="text" className="form-control" id="newDescripcion" value={newReservation.descripcion} onChange={(e) => setNewReservation((prev) => ({ ...prev, descripcion: e.target.value }))} />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="newHora" className="form-label">Hora</label>
+              <input type="text" className="form-control" id="newHora" value={newReservation.hora} disabled />
+            </div>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={saveNewReservation}>Agregar</Button>
+          <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cerrar</Button>
         </Modal.Footer>
       </Modal>
 
