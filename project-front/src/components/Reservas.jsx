@@ -32,6 +32,7 @@ const LabReservations = () => {
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
   const [horarios, setHorarios] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
@@ -42,10 +43,20 @@ const LabReservations = () => {
   }, [currentWeek]);
 
   useEffect(() => {
+    getBloques();
+  }, []);
+
+  useEffect(() => {
     if (selectedBloque && selectedTipo) {
       fetchAulasLabs();
     }
   }, [selectedBloque, selectedTipo]);
+
+  useEffect(() => {
+    if (selectedAulaLab) {
+      getHorarios();
+    }
+  }, [selectedAulaLab, weekDates]);
 
   const getHorarios = async () => {
     const url =
@@ -116,36 +127,60 @@ const LabReservations = () => {
     setSelectedAulaLab(event.target.value);
   };
 
-  useEffect(() => {
-    getBloques();
-  }, []);
-
-  useEffect(() => {
-    if (selectedBloque && selectedTipo) {
-      fetchAulasLabs();
-    }
-  }, [selectedBloque, selectedTipo]);
-
-  useEffect(() => {
-    if (selectedAulaLab) {
-      getHorarios();
-    }
-  }, [selectedAulaLab]);
-
   const renderTableCell = (dia, hora) => {
-    const horario = horarios.find(
-      (h) => h.dia === dia && h.hora === hora.split("-")[0],
+    if (hora === "13-14") {
+      return (
+        <td key={`${dia}-${hora}`} style={{ backgroundColor: "#ffff99", textAlign: "center" }}>
+          Receso
+        </td>
+      );
+    }
+
+    const selectedDay = weekDates[dias.indexOf(dia)];
+    const formattedDate = formatDate(selectedDay);
+    const reservation = reservations.find(
+      (r) => r.dia === dia && r.hora === hora && r.fecha === formattedDate
     );
-    if (horario) {
-      return horario.materia;
+    const horario = horarios.find(
+      (h) => h.dia === dia && h.hora === hora.split("-")[0]
+    );
+
+    if (reservation) {
+      return (
+        <td
+          key={`${dia}-${hora}`}
+          data-dia={dia}
+          data-hora={hora}
+          data-info={`Encargado: ${reservation.encargado}, Asunto: ${reservation.asunto}`}
+          onClick={(e) => handleCellClick(e, dia, hora)}
+          style={{ backgroundColor: "lightcoral" }} // Rojo pastel
+        >
+          Reservado - {reservation.descripcion || "Descripción"}
+        </td>
+      );
+    } else if (horario) {
+      return (
+        <td
+          key={`${dia}-${hora}`}
+          data-dia={dia}
+          data-hora={hora}
+          onClick={(e) => handleCellClick(e, dia, hora)}
+          style={{ backgroundColor: "lightblue" }} // Celeste bajito
+        >
+          {horario.materia}
+        </td>
+      );
     } else {
       return (
-        <div
+        <td
+          key={`${dia}-${hora}`}
+          data-dia={dia}
+          data-hora={hora}
           onClick={(e) => handleCellClick(e, dia, hora)}
-          className="available"
+          style={{ backgroundColor: "#ccffcc" }} // Verde pastel claro
         >
           Disponible
-        </div>
+        </td>
       );
     }
   };
@@ -165,7 +200,7 @@ const LabReservations = () => {
     "18-19",
     "19-20",
   ];
-  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+  const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
   const getMonday = (d) => {
     d = new Date(d);
@@ -246,7 +281,7 @@ const LabReservations = () => {
       setReservationDetails({
         encargado: info[0].split(": ")[1],
         asunto: info[1].split(": ")[1],
-        descripcion: "Descripción aquí",
+        descripcion: event.target.textContent.split(" - ")[1] || "Descripción aquí",
         hora,
         fecha: formatDate(selectedDay),
         editable: false,
@@ -270,11 +305,18 @@ const LabReservations = () => {
   };
 
   const saveReservation = () => {
-    selectedCell.setAttribute(
-      "data-info",
-      `Encargado: ${reservationDetails.encargado}, Asunto: ${reservationDetails.asunto}`,
-    );
-    selectedCell.textContent = "Reservado - Descripción";
+    const formattedDate = formatDate(selectedDate);
+    setReservations((prev) => [
+      ...prev,
+      {
+        dia: selectedCell.dia,
+        hora: selectedCell.hora,
+        fecha: formattedDate,
+        encargado: reservationDetails.encargado,
+        asunto: reservationDetails.asunto,
+        descripcion: reservationDetails.descripcion,
+      },
+    ]);
     setShowModal(false);
     setReservationDetails({
       encargado: "",
@@ -291,8 +333,15 @@ const LabReservations = () => {
   };
 
   const deleteReservation = () => {
-    selectedCell.textContent = "Disponible";
-    selectedCell.removeAttribute("data-info");
+    const formattedDate = formatDate(selectedDate);
+    setReservations((prev) =>
+      prev.filter(
+        (res) =>
+          res.dia !== selectedCell.dia ||
+          res.hora !== selectedCell.hora ||
+          res.fecha !== formattedDate,
+      ),
+    );
     setShowConfirmDelete(false);
     setShowModal(false);
   };
@@ -306,22 +355,26 @@ const LabReservations = () => {
 
   const saveNewReservation = () => {
     if (selectedCell) {
-      const dia = selectedCell.dia;
-      const hora = selectedCell.hora;
-      const cell = document.querySelector(`[data-dia="${dia}"][data-hora="${hora}"]`);
-      cell.setAttribute(
-        "data-info",
-        `Encargado: ${newReservation.encargado}, Asunto: ${newReservation.asunto}`,
-      );
-      cell.textContent = "Reservado - Descripción";
+      const formattedDate = formatDate(selectedDate);
+      setReservations((prev) => [
+        ...prev,
+        {
+          dia: selectedCell.dia,
+          hora: selectedCell.hora,
+          fecha: formattedDate,
+          encargado: newReservation.encargado,
+          asunto: newReservation.asunto,
+          descripcion: newReservation.descripcion,
+        },
+      ]);
+      setShowAddModal(false);
+      setNewReservation({
+        encargado: "",
+        asunto: "",
+        descripcion: "",
+        hora: "",
+      });
     }
-    setShowAddModal(false);
-    setNewReservation({
-      encargado: "",
-      asunto: "",
-      descripcion: "",
-      hora: "",
-    });
   };
 
   return (
@@ -400,16 +453,7 @@ const LabReservations = () => {
           {horas.map((hora) => (
             <tr key={hora}>
               <td>{hora}</td>
-              {dias.map((dia) => (
-                <td
-                  key={`${dia}-${hora}`}
-                  data-dia={dia}
-                  data-hora={hora}
-                  onClick={(e) => handleCellClick(e, dia, hora)}
-                >
-                  {renderTableCell(dia, hora)}
-                </td>
-              ))}
+              {dias.map((dia) => renderTableCell(dia, hora))}
             </tr>
           ))}
         </tbody>
