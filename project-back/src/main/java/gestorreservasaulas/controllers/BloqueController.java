@@ -1,7 +1,6 @@
 package gestorreservasaulas.controllers;
 
 import gestorreservasaulas.dtos.BloqueDto;
-import gestorreservasaulas.entidades.Bloque;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.servicios.ServicioBloque;
 import org.springframework.beans.factory.annotation.Autowired;

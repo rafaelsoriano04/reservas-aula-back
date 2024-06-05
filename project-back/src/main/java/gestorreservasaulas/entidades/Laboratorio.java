@@ -1,6 +1,5 @@
 package gestorreservasaulas.entidades;
 
-import gestorreservasaulas.enums.Estado;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 

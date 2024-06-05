@@ -1,6 +1,5 @@
 package gestorreservasaulas.entidades;
 
-import gestorreservasaulas.enums.Prenda;
 import jakarta.persistence.*;
 import java.sql.Date;
 import lombok.AllArgsConstructor;

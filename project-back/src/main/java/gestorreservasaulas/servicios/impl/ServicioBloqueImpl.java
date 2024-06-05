@@ -18,11 +18,18 @@ public class ServicioBloqueImpl implements ServicioBloque {
     @Autowired
     RepositorioBloque repositorioBloque;
 
+
+
     private final ModelMapper modelMapper;
 
     @Autowired
     public ServicioBloqueImpl() {
         this.modelMapper = new ModelMapper();
+    }
+
+    @Override
+    public Bloque obtenerBloque(Long id) throws NotFoundException {
+        return repositorioBloque.findById(id).orElseThrow(() -> new NotFoundException("Bloque not found"));
     }
 
     @Override
