@@ -27,10 +27,10 @@ public class Aula {
     private Integer piso;
     private Integer capacidad;
 
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> listaReservas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario = new ArrayList<>();
 
     @ManyToOne
