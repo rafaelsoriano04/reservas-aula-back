@@ -2,7 +2,9 @@ package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.entidades.Horario;
+import gestorreservasaulas.entidades.Persona;
 import gestorreservasaulas.respositorios.RepositorioHorario;
+import gestorreservasaulas.respositorios.RepositorioPersona;
 import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioHorario;
 import gestorreservasaulas.servicios.ServicioLaboratorio;
@@ -20,6 +22,9 @@ public class ServicioHorarioImpl implements ServicioHorario {
 
     @Autowired
     private RepositorioHorario repositorioHorario;
+
+    @Autowired
+    private RepositorioPersona repositorioPersona;
 
     @Autowired
     private ServicioAula servicioAula;
@@ -44,7 +49,11 @@ public class ServicioHorarioImpl implements ServicioHorario {
         if (servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()) == null) {
             return null;
         }
+
+
         return horarioToDto(repositorioHorario.save(dtoToHorario(horarioDTO)));
+
+
     }
 
     @Override
@@ -101,6 +110,8 @@ public class ServicioHorarioImpl implements ServicioHorario {
         } else {
             horario.setAula(servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()));
         }
+        Persona persona = repositorioPersona.findById(horarioDTO.getId_persona()).orElse(null);
+        horario.setDocente(persona);
         return horario;
     }
 
