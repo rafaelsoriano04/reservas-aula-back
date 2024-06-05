@@ -1,7 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Reserva.css'; // Asegúrate de tener este archivo en la misma carpeta
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
+import axios from 'axios';
 
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
@@ -27,9 +28,57 @@ const LabReservations = () => {
     hora: '',
   });
 
+  const [bloques, setBloques] = useState([]);
+  const [aulasLabs, setAulasLabs] = useState([]);
+  const [selectedBloque, setSelectedBloque] = useState('');
+  const [selectedTipo, setSelectedTipo] = useState('Aulas');
+  const [selectedAulaLab, setSelectedAulaLab] = useState('');
+
   useEffect(() => {
     updateWeekRange();
+    fetchBloques();
   }, [currentWeek]);
+
+  useEffect(() => {
+    if (selectedBloque && selectedTipo) {
+      fetchAulasLabs();
+    }
+  }, [selectedBloque, selectedTipo]);
+
+  const fetchBloques = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/bloque');
+      setBloques(response.data);
+    } catch (error) {
+      console.error('Error fetching bloques:', error);
+    }
+  };
+
+  const fetchAulasLabs = async () => {
+    const url =
+      selectedTipo === 'Laboratorios'
+        ? `http://localhost:8080/lab/bloque/${selectedBloque}`
+        : `http://localhost:8080/aula/bloque/${selectedBloque}`;
+    try {
+      const response = await axios.get(url);
+      setAulasLabs(response.data);
+    } catch (error) {
+      console.error('Error fetching aulas/labs:', error);
+      setAulasLabs([]);
+    }
+  };
+
+  const handleBloqueChange = (event) => {
+    setSelectedBloque(event.target.value);
+  };
+
+  const handleTipoChange = (event) => {
+    setSelectedTipo(event.target.value);
+  };
+
+  const handleAulaLabChange = (event) => {
+    setSelectedAulaLab(event.target.value);
+  };
 
   const getMonday = (d) => {
     d = new Date(d);
@@ -210,16 +259,31 @@ const LabReservations = () => {
       <div className="row">
         <div className="col-md-4">
           <label>Bloque/Edificio</label>
-          <select className="form-control" id="edificioSelect">
-            <option value="Edificio A,1,30">Edificio A - Piso 1 - Capacidad 30</option>
-            <option value="Edificio B,2,25">Edificio B - Piso 2 - Capacidad 25</option>
+          <select className="form-control" id="bloqueSelect" value={selectedBloque} onChange={handleBloqueChange}>
+            <option value="">Seleccione un Bloque</option>
+            {bloques.map((bloque) => (
+              <option key={bloque.id} value={bloque.id}>
+                {bloque.nombre}
+              </option>
+            ))}
           </select>
         </div>
         <div className="col-md-4">
-          <label>Laboratorio/Aula</label>
-          <select className="form-control" id="aulaSelect">
-            <option value="Aula 101,1,20">Aula 101 - Piso 1 - Capacidad 20</option>
-            <option value="Aula 102,2,25">Aula 102 - Piso 2 - Capacidad 25</option>
+          <label>Tipo</label>
+          <select className="form-control" id="tipoSelect" value={selectedTipo} onChange={handleTipoChange}>
+            <option value="Aulas">Aulas</option>
+            <option value="Laboratorios">Laboratorios</option>
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label>Aula/Laboratorio</label>
+          <select className="form-control" id="aulaLabSelect" value={selectedAulaLab} onChange={handleAulaLabChange}>
+            <option value="">Seleccione un Aula/Laboratorio</option>
+            {aulasLabs.map((aulaLab) => (
+              <option key={aulaLab.id} value={aulaLab.id}>
+                {aulaLab.nombre}
+              </option>
+            ))}
           </select>
         </div>
         <div className="col-md-4 nav-buttons">
