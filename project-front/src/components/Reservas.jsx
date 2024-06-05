@@ -135,7 +135,7 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     const selectedDay = weekDates[dias.indexOf(dia)];
     const formattedDate = formatDate(selectedDay);
     const reservation = reservations.find(
@@ -144,15 +144,16 @@ const LabReservations = () => {
     const horario = horarios.find(
       (h) => h.dia === dia && h.hora === hora.split("-")[0]
     );
-  
+
     if (reservation) {
       return (
         <td
           key={`${dia}-${hora}`}
           data-dia={dia}
           data-hora={hora}
+          data-info={`Encargado: ${reservation.encargado}, Asunto: ${reservation.asunto}`}
           onClick={(e) => handleCellClick(e, dia, hora)}
-          style={{ backgroundColor: "#ffcccb" }} // Rojo pastel
+          style={{ backgroundColor: "lightcoral" }} // Rojo pastel
         >
           Reservado - {reservation.descripcion || "Descripción"}
         </td>
@@ -183,9 +184,6 @@ const LabReservations = () => {
       );
     }
   };
-  
-  
-  
 
   const horas = [
     "7-8",
@@ -283,7 +281,7 @@ const LabReservations = () => {
       setReservationDetails({
         encargado: info[0].split(": ")[1],
         asunto: info[1].split(": ")[1],
-        descripcion: "Descripción aquí",
+        descripcion: event.target.textContent.split(" - ")[1] || "Descripción aquí",
         hora,
         fecha: formatDate(selectedDay),
         editable: false,
@@ -441,26 +439,25 @@ const LabReservations = () => {
       </div>
 
       <table className="table table-bordered mt-4">
-  <thead>
-    <tr>
-      <th>Horas</th>
-      <th>Lunes</th>
-      <th>Martes</th>
-      <th>Miércoles</th>
-      <th>Jueves</th>
-      <th>Viernes</th>
-    </tr>
-  </thead>
-  <tbody>
-    {horas.map((hora) => (
-      <tr key={hora}>
-        <td>{hora}</td>
-        {dias.map((dia) => renderTableCell(dia, hora))}
-      </tr>
-    ))}
-  </tbody>
-</table>
-
+        <thead>
+          <tr>
+            <th>Horas</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {horas.map((hora) => (
+            <tr key={hora}>
+              <td>{hora}</td>
+              {dias.map((dia) => renderTableCell(dia, hora))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <div id="context-menu" className="context-menu">
         <button className="btn btn-sm" onClick={handleAddReservation}>
