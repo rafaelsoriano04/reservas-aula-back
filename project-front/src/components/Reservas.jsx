@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./Reserva.css"; // Asegúrate de tener este archivo en la misma carpeta
+import "../styles/Reserva.css"; // Asegúrate de tener este archivo en la misma carpeta
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import axios from "axios";

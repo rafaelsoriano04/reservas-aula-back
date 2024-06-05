@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form , Modal} from "react-bootstrap";
-import "../horario/horario.css";
+import "../styles/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
 
