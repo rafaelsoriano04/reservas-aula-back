@@ -1,9 +1,12 @@
 package gestorreservasaulas.servicios;
 
+import gestorreservasaulas.dtos.AuthDto;
+import gestorreservasaulas.dtos.UsuarioDto;
 import gestorreservasaulas.entidades.Usuario;
+import gestorreservasaulas.exceptions.UnauthorizedException;
 
 public interface ServicioUsuario {
 
-    boolean validarUsuario(String username, String contrasenia);
+    UsuarioDto validarUsuario(AuthDto authDto) throws UnauthorizedException;
 
 }

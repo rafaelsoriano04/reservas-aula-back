@@ -1,6 +1,5 @@
 package gestorreservasaulas.entidades;
 
-import gestorreservasaulas.enums.Estado;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import lombok.AllArgsConstructor;
@@ -25,17 +24,14 @@ public class Aula {
     @Column(unique = true)
     private String nombre;
 
-    private int piso;
-    private int capacidad;
+    private Integer piso;
+    private Integer capacidad;
 
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> listaReservas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario = new ArrayList<>();
-
-    @Enumerated(value = EnumType.STRING)
-    private Estado estado;
 
     @ManyToOne
     @JoinColumn(name = "id_bloque")
