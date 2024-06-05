@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form , Modal} from "react-bootstrap";
 import "../horario/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
+
 
 function Horarios() {
   // Variables reactivas
@@ -16,7 +17,14 @@ function Horarios() {
   const [selectedHora, setselectedHora] = useState("7-8");
   const [selectedDia, setselectedDia] = useState("Lunes");
   const [selectedMateria, setselectedMateria] = useState();
-  const [selectedDocentde, setselectedDocente] = useState();
+
+  const [showModal, setShowModal] = useState(false); 
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
 
   // Metodos
   const handleCellClick = (e, rowIndex, cellIndex) => {
@@ -168,6 +176,9 @@ function Horarios() {
     );
     return horario ? `${horario.materia}` : "";
   };
+  const handleModalClose = () => setShowModal(false);
+  const handleModalShow = () => setShowModal(true);
+
 
   const horas = [
     "7-8",
@@ -292,7 +303,7 @@ function Horarios() {
                     placeholder="Seleccione en Agregar Docente"
                     className="form-control"
                   />
-                  <Button variant="custom" id="agregar-docente-btn">
+                  <Button variant="custom" id="agregar-docente-btn" onClick={handleModalShow}>
                     Agregar Docente
                   </Button>
                 </div>
@@ -324,33 +335,110 @@ function Horarios() {
                 </tr>
               </thead>
               <tbody>
-              {horas.map((hora) => (
-    <tr key={hora} style={hora === "13-14" ? { backgroundColor: '#ffcccb', textAlign: 'center' } : {}}>
-      <td style={hora === "13-14" ? { textAlign: 'center' } : {}}>{hora}</td>
-      {dias.map((dia) => (
+  {horas.map((hora, rowIndex) => (
+    <tr
+      key={hora}
+      style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
+    >
+      <td style={hora === "13-14" ? { textAlign: "center" } : {}}>{hora}</td>
+      {dias.map((dia, cellIndex) => (
         <React.Fragment key={`${dia}-${hora}`}>
           {hora === "13-14" ? (
-            <td style={{ backgroundColor: '#ffcccb', textAlign: 'center' }}>Receso</td>
+            <td style={{ backgroundColor: "#ffcccb", textAlign: "center" }}>Receso</td>
           ) : (
-            <td>{renderTableCell(dia, hora)}</td>
+            <td
+              onClick={(e) => handleCellClick(e, rowIndex, cellIndex)}
+              className={
+                selectedCell &&
+                selectedCell.rowIndex === rowIndex &&
+                selectedCell.cellIndex === cellIndex
+                  ? "selected"
+                  : ""
+              }
+            >
+              {renderTableCell(dia, hora)}
+            </td>
           )}
         </React.Fragment>
       ))}
     </tr>
   ))}
-              </tbody>
+</tbody>
+
             </table>
-            <div className="context-menu" id="context-menu">
-              <Button variant="custom" id="editar-btn">
+            <div
+              className="context-menu"
+              id="context-menu"
+              style={{
+                display: showContextMenu ? "block" : "none",
+                top: contextMenuPosition.top,
+                left: contextMenuPosition.left,
+              }}
+            >
+              <Button variant="custom" id="editar-btn" >
                 Editar
               </Button>
-              <Button variant="custom" id="eliminar-btn">
+              <Button variant="custom" id="eliminar-btn" >
                 Eliminar
               </Button>
             </div>
           </div>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleModalClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Docente</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Cédula</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type="text"
+                  name="cedula"
+                  
+                />
+                <Button variant="custom"  className="ml-2">
+                  Buscar
+                </Button>
+              </div>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                name="nombre"
+             
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Apellido</Form.Label>
+              <Form.Control
+                type="text"
+                name="apellido"
+                
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Teléfono</Form.Label>
+              <Form.Control
+                type="text"
+                name="telefono"
+                
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Cancelar
+          </Button>
+          <Button variant="custom">
+            Asignar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
