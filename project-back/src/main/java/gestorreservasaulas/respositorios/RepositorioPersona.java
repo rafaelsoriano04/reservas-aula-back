@@ -9,6 +9,5 @@ import java.util.Optional;
 @Repository
 public interface RepositorioPersona extends JpaRepository<Persona, Long> {
     Optional<Persona> findByCedula(String cedula);
-
     boolean existsByCedula(String cedula);
 }

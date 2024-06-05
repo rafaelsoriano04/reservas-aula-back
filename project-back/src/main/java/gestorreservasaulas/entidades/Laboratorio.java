@@ -1,6 +1,5 @@
 package gestorreservasaulas.entidades;
 
-import gestorreservasaulas.enums.Estado;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 
@@ -36,8 +35,6 @@ public class Laboratorio {
     private List<Horario> listaHorario= new ArrayList<>();
 
 
-    @Enumerated(value = EnumType.STRING)
-    private Estado estado;
 
     
     @ManyToOne
