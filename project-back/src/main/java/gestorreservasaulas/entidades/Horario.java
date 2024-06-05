@@ -35,6 +35,10 @@ public class Horario {
     @ManyToOne
     @JoinColumn(name = "id_laboratorio")
     private Laboratorio laboratorio;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_persona")
+    private Persona docente;
 
     @Override
     public String toString() {

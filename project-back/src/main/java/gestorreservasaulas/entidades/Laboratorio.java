@@ -36,8 +36,6 @@ public class Laboratorio {
     private List<Horario> listaHorario= new ArrayList<>();
 
 
-    @Enumerated(value = EnumType.STRING)
-    private Estado estado;
 
     
     @ManyToOne
