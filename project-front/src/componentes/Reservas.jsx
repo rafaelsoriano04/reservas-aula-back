@@ -5,14 +5,17 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 const LabReservations = () => {
-  const [currentWeek, setCurrentWeek] = useState(0);
-  const [weekRange, setWeekRange] = useState('');
-  const [weekDates, setWeekDates] = useState([]);
-  const [selectedCell, setSelectedCell] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [bloques, setBloques] = useState([]);
+  const [aulasLabs, setAulasLabs] = useState([]);
+  const [selectedBloque, setSelectedBloque] = useState('');
+  const [selectedTipo, setSelectedTipo] = useState('Aulas');
+  const [selectedAulaLab, setSelectedAulaLab] = useState('');
+  const [horarios, setHorarios] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: '',
     asunto: '',
@@ -28,22 +31,21 @@ const LabReservations = () => {
     hora: '',
   });
 
-  const [bloques, setBloques] = useState([]);
-  const [aulasLabs, setAulasLabs] = useState([]);
-  const [selectedBloque, setSelectedBloque] = useState('');
-  const [selectedTipo, setSelectedTipo] = useState('Aulas');
-  const [selectedAulaLab, setSelectedAulaLab] = useState('');
-
   useEffect(() => {
-    updateWeekRange();
     fetchBloques();
-  }, [currentWeek]);
+  }, []);
 
   useEffect(() => {
     if (selectedBloque && selectedTipo) {
       fetchAulasLabs();
     }
   }, [selectedBloque, selectedTipo]);
+
+  useEffect(() => {
+    if (selectedAulaLab) {
+      getHorarios();
+    }
+  }, [selectedAulaLab]);
 
   const fetchBloques = async () => {
     try {
@@ -68,6 +70,23 @@ const LabReservations = () => {
     }
   };
 
+  const getHorarios = async () => {
+    const url =
+      selectedTipo === 'Laboratorios'
+        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
+        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    console.log(url);
+    try {
+      const response = await axios.get(url);
+      console.log(response.data);
+      setHorarios(response.data);
+    } catch (error) {
+      const { message } = error.response.data;
+      console.log(message);
+      setHorarios([]); // Limpia los datos si la petición falla
+    }
+  };
+
   const handleBloqueChange = (event) => {
     setSelectedBloque(event.target.value);
   };
@@ -80,62 +99,10 @@ const LabReservations = () => {
     setSelectedAulaLab(event.target.value);
   };
 
-  const getMonday = (d) => {
-    d = new Date(d);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setDate(diff));
-  };
-
-  const formatDate = (date) => {
-    const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [day, month, year].join('-');
-  };
-
-  const updateWeekRange = () => {
-    const now = new Date();
-    now.setDate(now.getDate() + currentWeek * 7);
-    const monday = getMonday(now);
-    const dates = [monday];
-    for (let i = 1; i <= 5; i++) {
-      const day = new Date(monday);
-      day.setDate(monday.getDate() + i);
-      dates.push(day);
-    }
-    setWeekDates(dates);
-    setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[5])}`);
-  };
-
-  const changeWeek = (change) => {
-    setCurrentWeek((prev) => prev + change);
-  };
-
   const handleCellClick = (event, cell, date) => {
     const text = cell.textContent.trim();
     const menu = document.getElementById('context-menu');
     setSelectedCell(cell);
-
-    if (text === 'Disponible') {
-      const now = new Date();
-      if (date < now.setHours(0, 0, 0, 0)) {
-        alert('No se puede reservar en fechas pasadas.');
-        return;
-      }
-      setSelectedDate(date);
-      menu.style.display = 'block';
-      menu.style.left = `${event.pageX}px`;
-      menu.style.top = `${event.pageY}px`;
-      event.stopPropagation();
-    } else {
-      menu.style.display = 'none';
-    }
 
     if (text.startsWith('Reservado')) {
       const info = cell.getAttribute('data-info').split(', ');
@@ -144,7 +111,7 @@ const LabReservations = () => {
         asunto: info[1].split(': ')[1],
         descripcion: 'Descripción aquí',
         hora: cell.parentElement.firstChild.textContent,
-        fecha: formatDate(date),
+        fecha: date,
         editable: false,
       });
       setShowModal(true);
@@ -187,7 +154,7 @@ const LabReservations = () => {
   };
 
   const deleteReservation = () => {
-    selectedCell.textContent = 'Disponible';
+    selectedCell.textContent = '';
     selectedCell.removeAttribute('data-info');
     setShowConfirmDelete(false);
     setShowModal(false);
@@ -216,39 +183,6 @@ const LabReservations = () => {
       descripcion: '',
       hora: '',
     });
-  };
-
-  const renderTableCells = (hour) => {
-    const cells = [];
-    const now = new Date();
-    for (let i = 0; i < 6; i++) {
-      const date = weekDates[i];
-      if (i === 1 && hour === '07:00-08:00') {
-        cells.push(
-          <td key={i} data-info="Encargado: Dr. Ana, Asunto: Física" onClick={(e) => handleCellClick(e, e.target, date)}>
-            Reservado - Descripción
-          </td>
-        );
-      } else if (i === 2 && hour === '07:00-08:00') {
-        cells.push(
-          <td key={i} onClick={(e) => handleCellClick(e, e.target, date)}>
-            Asunto - Encargado
-          </td>
-        );
-      } else {
-        cells.push(
-          <td
-            key={i}
-            data-date={formatDate(date)}
-            onClick={(e) => handleCellClick(e, e.target, date)}
-            className={date < now.setHours(0, 0, 0, 0) ? 'past-date' : 'available'}
-          >
-            Disponible
-          </td>
-        );
-      }
-    }
-    return cells;
   };
 
   return (
@@ -286,33 +220,68 @@ const LabReservations = () => {
             ))}
           </select>
         </div>
-        <div className="col-md-4 nav-buttons">
-          <button className="btn" onClick={() => changeWeek(-1)}>&lt;&lt;</button>
-          <span id="weekRange" className="week-display">{weekRange}</span>
-          <button className="btn" onClick={() => changeWeek(1)}>&gt;&gt;</button>
-        </div>
       </div>
 
-      <table className="table table-bordered text-center mt-3">
-        <thead>
-          <tr>
-            <th>Hora/Día</th>
-            <th>Lunes</th>
-            <th>Martes</th>
-            <th>Miércoles</th>
-            <th>Jueves</th>
-            <th>Viernes</th>
-            <th>Sábado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>07:00-08:00</td>
-            {renderTableCells('07:00-08:00')}
-          </tr>
-          {/* Más filas aquí */}
-        </tbody>
-      </table>
+      <div className="row mt-3">
+        <div className="col-md-12">
+          <table className="table table-bordered text-center">
+            <thead>
+              <tr>
+                <th>Hora/Día</th>
+                <th>Lunes</th>
+                <th>Martes</th>
+                <th>Miércoles</th>
+                <th>Jueves</th>
+                <th>Viernes</th>
+                <th>Sábado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {horarios.map((horario) => (
+                <tr key={horario.hora}>
+                  <td>{horario.hora}</td>
+                  <td
+                    data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
+                    onClick={(e) => handleCellClick(e, e.target, horario.fecha)}
+                  >
+                    {horario.Lunes}
+                  </td>
+                  <td
+                    data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
+                    onClick={(e) => handleCellClick(e, e.target, horario.fecha)}
+                  >
+                    {horario.Martes}
+                  </td>
+                  <td
+                    data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
+                    onClick={(e) => handleCellClick(e, e.target, horario.fecha)}
+                  >
+                    {horario.Miércoles}
+                  </td>
+                  <td
+                    data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
+                    onClick={(e) => handleCellClick(e, e.target, horario.fecha)}
+                  >
+                    {horario.Jueves}
+                  </td>
+                  <td
+                    data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
+                    onClick={(e) => handleCellClick(e, e.target, horario.fecha)}
+                  >
+                    {horario.Viernes}
+                  </td>
+                  <td
+                    data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
+                    onClick={(e) => handleCellClick(e, e.target, horario.fecha)}
+                  >
+                    {horario.Sábado}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div id="context-menu" className="context-menu">
         <button className="btn btn-sm" onClick={handleAddReservation}>Reservar</button>
@@ -363,7 +332,7 @@ const LabReservations = () => {
           <form id="newReservationForm">
             <div className="mb-3">
               <label htmlFor="newDate" className="form-label">Fecha</label>
-              <input type="text" className="form-control" id="newDate" value={selectedDate ? formatDate(selectedDate) : ''} disabled />
+              <input type="text" className="form-control" id="newDate" value={selectedDate ? selectedDate : ''} disabled />
             </div>
             <div className="mb-3">
               <label htmlFor="newEncargado" className="form-label">Responsable</label>
