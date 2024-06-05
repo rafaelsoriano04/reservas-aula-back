@@ -8,7 +8,8 @@ body, html, #root, .app-container {
     background-color: #8B0000;
     color: white;
     text-align: center;
-    padding: 10px 0;
+    padding: 10px 20px;
+    margin-bottom: 30px;
 }
 
 .btn-custom {
@@ -54,7 +55,7 @@ body, html, #root, .app-container {
     border: none;
     background: none;
     text-align: left;
-    color: white;
+    color:#641515;
 }
 
 .context-menu button:hover {
@@ -118,3 +119,10 @@ body, html, #root, .app-container {
     text-align: center;
     vertical-align: middle;
   }
+  #agregar-btn, #guardar-btn {
+    margin-top: 20px;
+}
+.mt-2 {
+    margin-left: 10px; 
+  }
+  

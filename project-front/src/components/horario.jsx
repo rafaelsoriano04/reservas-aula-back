@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form , Modal} from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import "../styles/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -10,15 +10,17 @@ function Horarios() {
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
   const [horarios, setHorarios] = useState([]);
+
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
   const [selectedAulaLab, setSelectedAulaLab] = useState();
-  const [selectedHora, setselectedHora] = useState("7-8");
-  const [selectedDia, setselectedDia] = useState("Lunes");
-  const [selectedMateria, setselectedMateria] = useState();
+  const [selectedHora, setSelectedHora] = useState("7-8");
+  const [selectedDia, setSelectedDia] = useState("Lunes");
+  const [selectedMateria, setSelectedMateria] = useState();
+  const [selectedDocente, setSelectedDocente] = useState("");
 
-  const [showModal, setShowModal] = useState(false); 
+  const [showModal, setShowModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
@@ -102,6 +104,11 @@ function Horarios() {
     setSelectedAulaLab(event.target.value);
   };
 
+  const handleDocenteChange = (event) => {
+    setSelectedDocente(event.target.value);
+    console.log(selectedDocente);
+  };
+
   const handleCreateHorario = async () => {
     try {
       const horarioExiste = horarios.some(horario =>
@@ -113,25 +120,27 @@ function Horarios() {
           text: 'Ya existe un horario en el mismo día y hora',
           icon: 'error',
         });
-        return; 
+        return;
       }
-      
-    const url = 'http://localhost:8080/horario';
-    const nuevoHorario = {
-      dia: selectedDia,
-      hora: selectedHora.split('-')[0],
-      materia: selectedMateria,
-      id_persona: selectedDocentde
-    };
+      const idPersona = document.getElementById('docente').value;
+      console.log(idPersona)
+      const url = 'http://localhost:8080/horario';
+      const nuevoHorario = {
+        dia: selectedDia,
+        hora: selectedHora.split('-')[0],
+        materia: selectedMateria,
+        id_persona: idPersona
+      };
 
-    if (selectedTipo === "Laboratorio") {
-      nuevoHorario.id_laboratorio = selectedAulaLab;
-    } else {
-      nuevoHorario.id_aula = selectedAulaLab;
-    }
-    console.log(nuevoHorario)
-    await axios.post(url, nuevoHorario);
-   
+      if (selectedTipo === "Laboratorio") {
+        nuevoHorario.id_laboratorio = selectedAulaLab;
+      } else {
+        nuevoHorario.id_aula = selectedAulaLab;
+      }
+      console.log(nuevoHorario)
+
+      await axios.post(url, nuevoHorario);
+
       Swal.fire({
         title: 'Éxito',
         text: 'Horario creado correctamente',
@@ -139,8 +148,6 @@ function Horarios() {
       });
 
       getHorarios();
-
-
     } catch (error) {
       Swal.fire({
         title: 'Error',
@@ -149,7 +156,7 @@ function Horarios() {
       });
     }
   };
-  
+
 
   useEffect(() => {
     getBloques();
@@ -200,6 +207,9 @@ function Horarios() {
   return (
     <div className="container-fluid">
       <div className="container mt-4">
+        <div className="header text-center">
+          <h2> HORARIOS</h2>
+        </div>
         <div className="row">
           <div className="col-md-12">
             <Form id="form-horarios">
@@ -258,7 +268,7 @@ function Horarios() {
               <div className="form-container">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="dia">Día:</Form.Label>
-                  <Form.Control as="select" id="dia" className="form-control" value={selectedDia} onChange={(e) => setselectedDia(e.target.value)}>
+                  <Form.Control as="select" id="dia" className="form-control" value={selectedDia} onChange={(e) => setSelectedDia(e.target.value)}>
                     <option>Lunes</option>
                     <option>Martes</option>
                     <option>Miercoles</option>
@@ -268,7 +278,7 @@ function Horarios() {
                 </Form.Group>
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="hora">Hora:</Form.Label>
-                  <Form.Control as="select" id="hora" className="form-control" value={selectedHora}  onChange={(e) => setselectedHora(e.target.value)}>
+                  <Form.Control as="select" id="hora" className="form-control" value={selectedHora} onChange={(e) => setSelectedHora(e.target.value)}>
                     <option>7-8</option>
                     <option>8-9</option>
                     <option>9-10</option>
@@ -291,17 +301,21 @@ function Horarios() {
                     className="form-control"
                     placeholder="Ingrese una Materia"
                     value={selectedMateria}
-                    onChange={(e) => setselectedMateria(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedMateria(e.target.value);
+                      console.log(selectedMateria);
+                    }}
                   />
                 </Form.Group>
                 <div className="form-group docente-container">
                   <Form.Label htmlFor="docente">Docente</Form.Label>
-                  <Form.Control
-                    readOnly
+                  <input
                     type="text"
                     id="docente"
                     placeholder="Seleccione en Agregar Docente"
                     className="form-control"
+                    onChange={handleDocenteChange}
+                    value={selectedDocente}
                   />
                   <Button variant="custom" id="agregar-docente-btn" onClick={handleModalShow}>
                     Agregar Docente
@@ -310,7 +324,7 @@ function Horarios() {
               </div>
               <div className="form-container">
                 <div className="form-group d-flex align-items-end">
-                  <Button variant="custom" id="agregar-btn"  onClick={handleCreateHorario}>
+                  <Button variant="custom" id="agregar-btn" onClick={handleCreateHorario}>
                     Crear Horario
                   </Button>
                   <Button
@@ -335,35 +349,35 @@ function Horarios() {
                 </tr>
               </thead>
               <tbody>
-  {horas.map((hora, rowIndex) => (
-    <tr
-      key={hora}
-      style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
-    >
-      <td style={hora === "13-14" ? { textAlign: "center" } : {}}>{hora}</td>
-      {dias.map((dia, cellIndex) => (
-        <React.Fragment key={`${dia}-${hora}`}>
-          {hora === "13-14" ? (
-            <td style={{ backgroundColor: "#ffcccb", textAlign: "center" }}>Receso</td>
-          ) : (
-            <td
-              onClick={(e) => handleCellClick(e, rowIndex, cellIndex)}
-              className={
-                selectedCell &&
-                selectedCell.rowIndex === rowIndex &&
-                selectedCell.cellIndex === cellIndex
-                  ? "selected"
-                  : ""
-              }
-            >
-              {renderTableCell(dia, hora)}
-            </td>
-          )}
-        </React.Fragment>
-      ))}
-    </tr>
-  ))}
-</tbody>
+                {horas.map((hora, rowIndex) => (
+                  <tr
+                    key={hora}
+                    style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
+                  >
+                    <td style={hora === "13-14" ? { textAlign: "center" } : {}}>{hora}</td>
+                    {dias.map((dia, cellIndex) => (
+                      <React.Fragment key={`${dia}-${hora}`}>
+                        {hora === "13-14" ? (
+                          <td style={{ backgroundColor: "#ffcccb", textAlign: "center" }}>Receso</td>
+                        ) : (
+                          <td
+                            onClick={(e) => handleCellClick(e, rowIndex, cellIndex)}
+                            className={
+                              selectedCell &&
+                                selectedCell.rowIndex === rowIndex &&
+                                selectedCell.cellIndex === cellIndex
+                                ? "selected"
+                                : ""
+                            }
+                          >
+                            {renderTableCell(dia, hora)}
+                          </td>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
 
             </table>
             <div
@@ -393,13 +407,12 @@ function Horarios() {
           <Form>
             <Form.Group>
               <Form.Label>Cédula</Form.Label>
-              <div className="d-flex">
+              <div className="d-flex ">
                 <Form.Control
                   type="text"
                   name="cedula"
-                  
                 />
-                <Button variant="custom"  className="ml-2">
+                <Button variant="custom" className="mt-2">
                   Buscar
                 </Button>
               </div>
@@ -409,7 +422,6 @@ function Horarios() {
               <Form.Control
                 type="text"
                 name="nombre"
-             
               />
             </Form.Group>
             <Form.Group>
@@ -417,7 +429,6 @@ function Horarios() {
               <Form.Control
                 type="text"
                 name="apellido"
-                
               />
             </Form.Group>
             <Form.Group>
@@ -425,7 +436,6 @@ function Horarios() {
               <Form.Control
                 type="text"
                 name="telefono"
-                
               />
             </Form.Group>
           </Form>
@@ -439,6 +449,7 @@ function Horarios() {
           </Button>
         </Modal.Footer>
       </Modal>
+
     </div>
   );
 }
