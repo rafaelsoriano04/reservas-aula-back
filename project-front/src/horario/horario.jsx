@@ -1,137 +1,133 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, Table } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import "../horario/horario.css";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 function Horarios() {
-    const [selectedCell, setSelectedCell] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const [showContextMenu, setShowContextMenu] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({
-        top: 0,
-        left: 0,
-    });
-    const [formData, setFormData] = useState({
-        bloque: "",
-        tipo: "Aula",
-        aulaLab: "",
-        dia: "Lunes",
-        hora: "7-8",
-        materia: "",
-        docente: "",
-    });
+    // Variables reactivas
+    const [bloques, setBloques] = useState([]);
+    const [horarios, setHorarios] = useState([]);
+    const [selectedBloque, setSelectedBloque] = useState(1);
+    const [aulasLabs, setAulasLabs] = useState([]);
+    const [selectedTipo, setSelectedTipo] = useState("Aula");
+    const [selectedAulaLab, setSelectedAulaLab] = useState();
 
+    // Metodos
     const handleCellClick = (e, rowIndex, cellIndex) => {
         setSelectedCell({ rowIndex, cellIndex });
         setContextMenuPosition({ top: e.pageY, left: e.pageX });
         setShowContextMenu(true);
     };
 
-    const handleContextMenuClick = (action) => {
-        if (action === "edit") {
-            const { materia } = formData;
-            const newTableData = [...tableData];
-            newTableData[selectedCell.rowIndex][selectedCell.cellIndex] =
-                materia;
-            setTableData(newTableData);
-        } else if (action === "delete") {
-            const newTableData = [...tableData];
-            newTableData[selectedCell.rowIndex][selectedCell.cellIndex] = "";
-            setTableData(newTableData);
-        }
-        setShowContextMenu(false);
-    };
-
-    const handleFormChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-        if (name === "tipo" && value === "Laboratorio") {
-            fetchAulasLabs(formData.bloque);
-        }
-    };
-
-    const fetchAulasLabs = async (bloqueId) => {
+    const fetchAulasLabs = async () => {
+        const url =
+            selectedTipo === "Laboratorios"
+                ? `http://localhost:8080/lab/bloque/${selectedBloque}`
+                : `http://localhost:8080/aula/bloque/${selectedBloque}`;
         try {
-            const response = await axios.get(
-                `http://localhost:8080/lab/bloque/${bloqueId}`
-            );
+            const response = await axios.get(url);
             setAulasLabs(response.data);
         } catch (error) {
-            console.error("Error fetching data: ", error);
-            setAulasLabs([]); // Limpia los laboratorios si la petición falla
-        }
-    };
-    const handleBloqueChange = (e) => {
-        setFormData({ ...formData, bloque: e.target.value });
-        if (formData.tipo === "Laboratorio") {
-            fetchAulasLabs(e.target.value);
-        }
-    };
-
-    const [tableData, setTableData] = useState(
-        Array.from({ length: 13 }, () => Array.from({ length: 5 }, () => ""))
-    );
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest(".context-menu")) {
-                setShowContextMenu(false);
+            const { message } = error.response.data;
+            if (
+                message === "El bloque no tiene laboratorios" ||
+                message === "El bloque no tiene aulas"
+            ) {
+                Swal.fire({
+                    title: "Oops...",
+                    html: `<i>${message}</i>`,
+                    icon: "error",
+                });
+            } else {
+                Swal.fire({
+                    title: "Oops...",
+                    html: `<i>Error al conectar con el servidor</i>`,
+                    icon: "error",
+                });
             }
-        };
-        document.addEventListener("click", handleClickOutside);
-        return () => {
-            document.removeEventListener("click", handleClickOutside);
-        };
-    }, []);
-
-    const buscarDocente = () => {
-        if (docente.cedula === "1234567890") {
-            setDocente({
-                cedula: "1234567890",
-                nombre: "Juan",
-                apellido: "Pérez",
-                telefono: "0987654321",
-            });
-        } else {
-            setDocente({
-                ...docente,
-                nombre: "",
-                apellido: "",
-                telefono: "",
-            });
-        }
-    };
-    const [horarios, setHorarios] = useState([]);
-    useEffect(() => {
-        const fetchHorarios = async () => {
-            try {
-                const response = await fetch("http://localhost:8080/reservas");
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const data = await response.json();
-                setHorarios(data);
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            }
-        };
-        fetchHorarios();
-    }, []);
-
-    const asignarDocente = () => {
-        if (docente.nombre && docente.apellido) {
-            document.getElementById(
-                "docente"
-            ).value = `${docente.nombre} ${docente.apellido}`;
-            handleClose();
-        } else {
-            alert("Docente no encontrado.");
+            setAulasLabs([]); // Limpia los datos si la petición falla
         }
     };
 
+    const getHorarios = async () => {
+        const url =
+            selectedTipo === "Laboratorios"
+                ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
+                : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+        console.log(url);
+        try {
+            const response = await axios.get(url);
+            console.log(response);
+            setHorarios(response.data);
+        } catch (error) {
+            const { message } = error.response.data;
+            setHorarios([]); // Limpia los datos si la petición falla
+        }
+    };
+
+    const getBloques = async () => {
+        try {
+            const resp = await axios.get("http://localhost:8080/bloque");
+            setBloques(resp.data);
+        } catch (error) {
+            const { message } = error.response.data;
+            console.log(message);
+        }
+    };
+
+    const handleBloqueChange = (event) => {
+        setSelectedBloque(event.target.value);
+    };
+
+    const handleTipoChange = (event) => {
+        setSelectedTipo(event.target.value);
+    };
+
+    const handleAulaLabChange = (event) => {
+        setSelectedAulaLab(event.target.value);
+    };
+
     useEffect(() => {
-        // Código para manejar los cambios de bloque y tipo
+        getBloques();
     }, []);
+
+    useEffect(() => {
+        if (selectedBloque && selectedTipo) {
+            fetchAulasLabs();
+        }
+    }, [selectedBloque, selectedTipo]);
+
+    useEffect(() => {
+        if (selectedAulaLab) {
+            getHorarios();
+        }
+    }, [selectedAulaLab]);
+
+    const renderTableCell = (dia, hora) => {
+        const horario = horarios.find(
+            (h) => h.dia === dia && h.hora === hora.split("-")[0]
+        );
+        return horario ? `${horario.materia}` : "";
+    };
+
+    const horas = [
+        "7-8",
+        "8-9",
+        "9-10",
+        "10-11",
+        "11-12",
+        "12-13",
+        "13-14",
+        "14-15",
+        "15-16",
+        "16-17",
+        "17-18",
+        "18-19",
+        "19-20",
+    ];
+    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
     return (
         <div className="container-fluid">
@@ -148,7 +144,7 @@ function Horarios() {
                                         as="select"
                                         id="bloque"
                                         className="form-control"
-                                        value={formData.bloque}
+                                        value={selectedBloque}
                                         onChange={handleBloqueChange}
                                     >
                                         {bloques.map((bloque) => (
@@ -162,22 +158,25 @@ function Horarios() {
                                     </Form.Control>
                                 </Form.Group>
 
-                                <Form.Group className="form-group">
-                                    <Form.Label htmlFor="tipo">
+                                <Form.Group className="form-group col-md-6">
+                                    <Form.Label htmlFor="aula">
                                         Tipo:
                                     </Form.Label>
                                     <Form.Control
                                         as="select"
-                                        id="tipo"
+                                        id="aula"
                                         className="form-control"
-                                        value={formData.tipo}
-                                        onChange={handleFormChange}
-                                        name="tipo"
+                                        value={selectedTipo}
+                                        onChange={handleTipoChange}
+                                        name="aula"
                                     >
-                                        <option selected>Aula</option>
-                                        <option>Laboratorio</option>
+                                        <option value="Aulas">Aulas</option>
+                                        <option value="Laboratorios">
+                                            Laboratorios
+                                        </option>
                                     </Form.Control>
                                 </Form.Group>
+
                                 <Form.Group className="form-group">
                                     <Form.Label htmlFor="aula-lab">
                                         Aula/Laboratorio:
@@ -186,8 +185,8 @@ function Horarios() {
                                         as="select"
                                         id="aula-lab"
                                         className="form-control"
-                                        value={formData.aulaLab}
-                                        onChange={handleFormChange}
+                                        value={selectedAulaLab}
+                                        onChange={handleAulaLabChange}
                                         name="aulaLab"
                                     >
                                         {aulasLabs.map((aulaLab) => (
@@ -210,7 +209,7 @@ function Horarios() {
                                         id="dia"
                                         className="form-control"
                                     >
-                                        <option selected>Lunes</option>
+                                        <option>Lunes</option>
                                         <option>Martes</option>
                                         <option>Miércoles</option>
                                         <option>Jueves</option>
@@ -228,7 +227,7 @@ function Horarios() {
                                         id="hora"
                                         className="form-control"
                                     >
-                                        <option selected>7-8</option>
+                                        <option>7-8</option>
                                         <option>8-9</option>
                                         <option>9-10</option>
                                         <option>10-11</option>
@@ -265,7 +264,6 @@ function Horarios() {
                                     <Button
                                         variant="custom"
                                         id="agregar-docente-btn"
-                                        onClick={handleShow}
                                     >
                                         Agregar Docente
                                     </Button>
@@ -286,7 +284,7 @@ function Horarios() {
                                 </div>
                             </div>
                         </Form>
-                        <Table className="table table-bordered mt-4">
+                        <table className="table table-bordered mt-4">
                             <thead>
                                 <tr>
                                     <th>Horas</th>
@@ -298,121 +296,29 @@ function Horarios() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {tableData.map((row, rowIndex) => (
-                                    <tr key={rowIndex}>
-                                        <td>{`${7 + rowIndex}-${
-                                            8 + rowIndex
-                                        }`}</td>
-                                        {row.map((cell, cellIndex) => (
-                                            <td
-                                                key={cellIndex}
-                                                onClick={(e) =>
-                                                    handleCellClick(
-                                                        e,
-                                                        rowIndex,
-                                                        cellIndex
-                                                    )
-                                                }
-                                                className={
-                                                    selectedCell?.rowIndex ===
-                                                        rowIndex &&
-                                                    selectedCell?.cellIndex ===
-                                                        cellIndex
-                                                        ? "selected"
-                                                        : ""
-                                                }
-                                            >
-                                                {cell}
+                                {horas.map((hora) => (
+                                    <tr key={hora}>
+                                        <td>{hora}</td>
+                                        {dias.map((dia) => (
+                                            <td key={`${dia}-${hora}`}>
+                                                {renderTableCell(dia, hora)}
                                             </td>
                                         ))}
                                     </tr>
                                 ))}
                             </tbody>
-                        </Table>
-                        <div
-                            className="context-menu"
-                            id="context-menu"
-                            style={{
-                                top: contextMenuPosition.top,
-                                left: contextMenuPosition.left,
-                                display: showContextMenu ? "block" : "none",
-                            }}
-                        >
-                            <Button
-                                variant="custom"
-                                onClick={() => handleContextMenuClick("edit")}
-                            >
+                        </table>
+                        <div className="context-menu" id="context-menu">
+                            <Button variant="custom" id="editar-btn">
                                 Editar
                             </Button>
-                            <Button
-                                variant="custom"
-                                onClick={() => handleContextMenuClick("delete")}
-                            >
+                            <Button variant="custom" id="eliminar-btn">
                                 Eliminar
                             </Button>
                         </div>
                     </div>
                 </div>
             </div>
-            <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Agregar Docente</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group>
-                            <Form.Label htmlFor="cedula-docente">
-                                Cédula:
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                id="cedula-docente"
-                                value={docente.cedula}
-                                onChange={handleDocenteChange}
-                            />
-                        </Form.Group>
-                        <Button variant="custom" onClick={buscarDocente}>
-                            Buscar
-                        </Button>
-                        <Form.Group className="mt-3">
-                            <Form.Label htmlFor="nombre-docente">
-                                Nombre:
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                id="nombre-docente"
-                                value={docente.nombre}
-                                onChange={handleDocenteChange}
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label htmlFor="apellido-docente">
-                                Apellido:
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                id="apellido-docente"
-                                value={docente.apellido}
-                                onChange={handleDocenteChange}
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label htmlFor="telefono-docente">
-                                Teléfono:
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                id="telefono-docente"
-                                value={docente.telefono}
-                                onChange={handleDocenteChange}
-                            />
-                        </Form.Group>
-                        <Button variant="custom" onClick={asignarDocente}>
-                            Asignar
-                        </Button>
-                    </Form>
-                </Modal.Body>
-            </Modal>
         </div>
     );
 }

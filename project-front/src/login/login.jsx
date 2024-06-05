@@ -19,7 +19,7 @@ function Login() {
 
     const validarLogin = async (e) => {
         e.preventDefault();
-        
+
         if (!username || !password) {
             setMensajeError("Completa todos los campos...");
         } else {
@@ -35,8 +35,10 @@ function Login() {
                 });
                 return resp.data;
             } catch (error) {
-                if (error.message == "Credenciales inválidas") {
-                    setMensajeError("error.message");
+                const {message} = error.response.data;
+                console.log(message);
+                if (message == "Credenciales inválidas") {
+                    setMensajeError(message);
                 } else {
                     Swal.fire({
                         title: 'Oops...',

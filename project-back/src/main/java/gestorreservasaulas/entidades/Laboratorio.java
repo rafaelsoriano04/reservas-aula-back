@@ -31,7 +31,7 @@ public class Laboratorio {
     @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> listaReserva;
 
-    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Horario> listaHorario= new ArrayList<>();
 
 
