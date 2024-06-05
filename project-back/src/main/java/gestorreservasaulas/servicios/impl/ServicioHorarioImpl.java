@@ -90,6 +90,7 @@ public class ServicioHorarioImpl implements ServicioHorario {
         } else {
             horarioDTO.setId_aula(horario.getAula().getId());
         }
+        horarioDTO.setId_persona(horario.getDocente().getId());
         return horarioDTO;
     }
 

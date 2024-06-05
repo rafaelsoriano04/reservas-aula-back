@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form , Modal} from "react-bootstrap";
 import "../horario/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
+
 
 function Horarios() {
   // Variables reactivas
@@ -13,6 +14,17 @@ function Horarios() {
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
   const [selectedAulaLab, setSelectedAulaLab] = useState();
+  const [selectedHora, setselectedHora] = useState("7-8");
+  const [selectedDia, setselectedDia] = useState("Lunes");
+  const [selectedMateria, setselectedMateria] = useState();
+
+  const [showModal, setShowModal] = useState(false); 
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
 
   // Metodos
   const handleCellClick = (e, rowIndex, cellIndex) => {
@@ -60,7 +72,7 @@ function Horarios() {
     try {
       const response = await axios.get(url);
       console.log(response.data);
-      setHorarios(response.data);
+      setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       const { message } = error.response.data;
       console.log(message);
@@ -90,6 +102,55 @@ function Horarios() {
     setSelectedAulaLab(event.target.value);
   };
 
+  const handleCreateHorario = async () => {
+    try {
+      const horarioExiste = horarios.some(horario =>
+        horario.dia === selectedDia && horario.hora === selectedHora.split("-")[0]
+      );
+      if (horarioExiste) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Ya existe un horario en el mismo día y hora',
+          icon: 'error',
+        });
+        return; 
+      }
+      
+    const url = 'http://localhost:8080/horario';
+    const nuevoHorario = {
+      dia: selectedDia,
+      hora: selectedHora.split('-')[0],
+      materia: selectedMateria,
+      id_persona: selectedDocentde
+    };
+
+    if (selectedTipo === "Laboratorio") {
+      nuevoHorario.id_laboratorio = selectedAulaLab;
+    } else {
+      nuevoHorario.id_aula = selectedAulaLab;
+    }
+    console.log(nuevoHorario)
+    await axios.post(url, nuevoHorario);
+   
+      Swal.fire({
+        title: 'Éxito',
+        text: 'Horario creado correctamente',
+        icon: 'success',
+      });
+
+      getHorarios();
+
+
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo crear el horario',
+        icon: 'error',
+      });
+    }
+  };
+  
+
   useEffect(() => {
     getBloques();
   }, []);
@@ -107,11 +168,17 @@ function Horarios() {
   }, [selectedAulaLab]);
 
   const renderTableCell = (dia, hora) => {
+    if (hora === "13-14") {
+      return <td style={{ backgroundColor: '#ffcccb' }}>Receso</td>;
+    }
     const horario = horarios.find(
       (h) => h.dia === dia && h.hora === hora.split("-")[0],
     );
     return horario ? `${horario.materia}` : "";
   };
+  const handleModalClose = () => setShowModal(false);
+  const handleModalShow = () => setShowModal(true);
+
 
   const horas = [
     "7-8",
@@ -191,26 +258,23 @@ function Horarios() {
               <div className="form-container">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="dia">Día:</Form.Label>
-                  <Form.Control as="select" id="dia" className="form-control">
+                  <Form.Control as="select" id="dia" className="form-control" value={selectedDia} onChange={(e) => setselectedDia(e.target.value)}>
                     <option>Lunes</option>
                     <option>Martes</option>
-                    <option>Miércoles</option>
+                    <option>Miercoles</option>
                     <option>Jueves</option>
                     <option>Viernes</option>
-                    <option>Sábado</option>
-                    <option>Domingo</option>
                   </Form.Control>
                 </Form.Group>
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="hora">Hora:</Form.Label>
-                  <Form.Control as="select" id="hora" className="form-control">
+                  <Form.Control as="select" id="hora" className="form-control" value={selectedHora}  onChange={(e) => setselectedHora(e.target.value)}>
                     <option>7-8</option>
                     <option>8-9</option>
                     <option>9-10</option>
                     <option>10-11</option>
                     <option>11-12</option>
                     <option>12-13</option>
-                    <option>13-14</option>
                     <option>14-15</option>
                     <option>15-16</option>
                     <option>16-17</option>
@@ -225,24 +289,29 @@ function Horarios() {
                     type="text"
                     id="materia"
                     className="form-control"
+                    placeholder="Ingrese una Materia"
+                    value={selectedMateria}
+                    onChange={(e) => setselectedMateria(e.target.value)}
                   />
                 </Form.Group>
                 <div className="form-group docente-container">
                   <Form.Label htmlFor="docente">Docente</Form.Label>
                   <Form.Control
+                    readOnly
                     type="text"
                     id="docente"
+                    placeholder="Seleccione en Agregar Docente"
                     className="form-control"
                   />
-                  <Button variant="custom" id="agregar-docente-btn">
+                  <Button variant="custom" id="agregar-docente-btn" onClick={handleModalShow}>
                     Agregar Docente
                   </Button>
                 </div>
               </div>
               <div className="form-container">
                 <div className="form-group d-flex align-items-end">
-                  <Button variant="custom" id="agregar-btn">
-                    Agregar
+                  <Button variant="custom" id="agregar-btn"  onClick={handleCreateHorario}>
+                    Crear Horario
                   </Button>
                   <Button
                     variant="custom"
@@ -254,7 +323,7 @@ function Horarios() {
                 </div>
               </div>
             </Form>
-            <table className="table table-bordered mt-4">
+            <table className="table table-bordered mt-4 table-centered">
               <thead>
                 <tr>
                   <th>Horas</th>
@@ -266,29 +335,110 @@ function Horarios() {
                 </tr>
               </thead>
               <tbody>
-                {horas.map((hora) => (
-                  <tr key={hora}>
-                    <td>{hora}</td>
-                    {dias.map((dia) => (
-                      <td key={`${dia}-${hora}`}>
-                        {renderTableCell(dia, hora)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
+  {horas.map((hora, rowIndex) => (
+    <tr
+      key={hora}
+      style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
+    >
+      <td style={hora === "13-14" ? { textAlign: "center" } : {}}>{hora}</td>
+      {dias.map((dia, cellIndex) => (
+        <React.Fragment key={`${dia}-${hora}`}>
+          {hora === "13-14" ? (
+            <td style={{ backgroundColor: "#ffcccb", textAlign: "center" }}>Receso</td>
+          ) : (
+            <td
+              onClick={(e) => handleCellClick(e, rowIndex, cellIndex)}
+              className={
+                selectedCell &&
+                selectedCell.rowIndex === rowIndex &&
+                selectedCell.cellIndex === cellIndex
+                  ? "selected"
+                  : ""
+              }
+            >
+              {renderTableCell(dia, hora)}
+            </td>
+          )}
+        </React.Fragment>
+      ))}
+    </tr>
+  ))}
+</tbody>
+
             </table>
-            <div className="context-menu" id="context-menu">
-              <Button variant="custom" id="editar-btn">
+            <div
+              className="context-menu"
+              id="context-menu"
+              style={{
+                display: showContextMenu ? "block" : "none",
+                top: contextMenuPosition.top,
+                left: contextMenuPosition.left,
+              }}
+            >
+              <Button variant="custom" id="editar-btn" >
                 Editar
               </Button>
-              <Button variant="custom" id="eliminar-btn">
+              <Button variant="custom" id="eliminar-btn" >
                 Eliminar
               </Button>
             </div>
           </div>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleModalClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Docente</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Cédula</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type="text"
+                  name="cedula"
+                  
+                />
+                <Button variant="custom"  className="ml-2">
+                  Buscar
+                </Button>
+              </div>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                name="nombre"
+             
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Apellido</Form.Label>
+              <Form.Control
+                type="text"
+                name="apellido"
+                
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Teléfono</Form.Label>
+              <Form.Control
+                type="text"
+                name="telefono"
+                
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Cancelar
+          </Button>
+          <Button variant="custom">
+            Asignar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
