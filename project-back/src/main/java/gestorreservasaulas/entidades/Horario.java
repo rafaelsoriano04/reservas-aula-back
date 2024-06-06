@@ -23,15 +23,14 @@ public class Horario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String dia;
     private String hora;
-    private String materia;
-
+    @ManyToOne
+    @JoinColumn(name = "id_materia")
+    private Materia materia;
     @ManyToOne
     @JoinColumn(name = "id_espacio")
     private Espacio espacio;
-
     @ManyToOne
     @JoinColumn(name = "id_persona")
     private Persona docente;

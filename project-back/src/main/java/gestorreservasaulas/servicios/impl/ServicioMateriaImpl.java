@@ -1,19 +1,15 @@
 package gestorreservasaulas.servicios.impl;
 
-import gestorreservasaulas.dtos.AulaDto;
 import gestorreservasaulas.dtos.MateriaDto;
-import gestorreservasaulas.entidades.Aula;
 import gestorreservasaulas.entidades.Materia;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
-import gestorreservasaulas.respositorios.RepositorioPersona;
 import gestorreservasaulas.respositorios.RespositorioMateria;
 import gestorreservasaulas.servicios.ServicioMateria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ServicioMateriaImpl implements ServicioMateria {
@@ -42,6 +38,12 @@ public class ServicioMateriaImpl implements ServicioMateria {
     public void eliminarMateria(Long id) {
         repositorioMateria.deleteById(id);
     }
+
+    @Override
+    public Materia buscarMateria(Long id) throws NotFoundException {
+        return repositorioMateria.findById(id).orElseThrow(() -> new NotFoundException("Materia not found"));
+    }
+
 
 
 }

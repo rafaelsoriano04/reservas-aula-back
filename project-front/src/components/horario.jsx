@@ -9,16 +9,14 @@ function Horarios() {
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
   const [horarios, setHorarios] = useState([]);
-
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
-  const [selectedAulaLab, setSelectedAulaLab] = useState();
+  const [selectedAulaLab, setSelectedAulaLab] = useState("");
   const [selectedHora, setSelectedHora] = useState("7-8");
   const [selectedDia, setSelectedDia] = useState("Lunes");
   const [selectedMateria, setSelectedMateria] = useState();
   const [selectedDocente, setSelectedDocente] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -35,19 +33,27 @@ function Horarios() {
   };
 
   const fetchAulasLabs = async () => {
-    const url =
-      selectedTipo === "Laboratorios"
-        ? `http://localhost:8080/lab/bloque/${selectedBloque}`
-        : `http://localhost:8080/aula/bloque/${selectedBloque}`;
+    //Se debe controlar que solo se llene de acuerdo al tipo
+    //pero la peticion trae todos, sin importar sean aulas o laboratorios
+
+    const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
+
     try {
       const response = await axios.get(url);
-      setAulasLabs(response.data);
+
+      //Aqui se debe controlar que se llene de acuerdo al tipo
+      let filteredData = [];
+      if (selectedTipo == "Aula") {
+        filteredData = response.data.filter(item => item.tipo === "Aula");
+      } else {
+        filteredData = response.data.filter(
+          item => item.tipo === "Laboratorio"
+        );
+      }
+      setAulasLabs(filteredData);
     } catch (error) {
       const { message } = error.response.data;
-      if (
-        message === "El bloque no tiene laboratorios" ||
-        message === "El bloque no tiene aulas"
-      ) {
+      if (message === "No hay espacios en este bloque") {
         Swal.fire({
           title: "Oops...",
           html: `<i>${message}</i>`,
@@ -66,10 +72,11 @@ function Horarios() {
 
   const getHorarios = async () => {
     const url =
-      selectedTipo === "Laboratorios"
+      selectedTipo === "Laboratorio"
         ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
         : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
     console.log(url);
+
     try {
       const response = await axios.get(url);
       console.log(response.data);
@@ -177,10 +184,11 @@ function Horarios() {
     if (hora === "13-14") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
+
     const horario = horarios.find(
       h => h.dia === dia && h.hora === hora.split("-")[0]
     );
-    return horario ? `${horario.materia}` : "";
+    return horario ? `${horario.nombre}` : "";
   };
   const handleModalClose = () => setShowModal(false);
   const handleModalShow = () => setShowModal(true);
@@ -206,12 +214,7 @@ function Horarios() {
     <div className="container-fluid">
       <div className="container mt-4">
         <div className="header text-center">
-          <h2> HORARIOS</h2>
-          <input
-            type="text"
-            value={selectedDocente}
-            onChange={handleDocenteChange}
-          />
+          <h2>Horarios</h2>
         </div>
         <div className="row">
           <div className="col-md-12">
@@ -244,8 +247,8 @@ function Horarios() {
                     onChange={handleTipoChange}
                     name="aula"
                   >
-                    <option value="Aulas">Aulas</option>
-                    <option value="Laboratorios">Laboratorios</option>
+                    <option value="Aula">Aulas</option>
+                    <option value="Laboratorio">Laboratorios</option>
                   </Form.Control>
                 </Form.Group>
 
@@ -259,6 +262,7 @@ function Horarios() {
                     onChange={handleAulaLabChange}
                     name="aulaLab"
                   >
+                    <option>Seleccione una opcion</option>
                     {aulasLabs.map(aulaLab => (
                       <option key={aulaLab.id} value={aulaLab.id}>
                         {aulaLab.nombre}

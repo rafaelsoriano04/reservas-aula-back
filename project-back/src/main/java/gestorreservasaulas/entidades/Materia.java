@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "materias")
 @AllArgsConstructor
@@ -19,4 +21,7 @@ public class Materia {
 
     @Column(unique = true)
     private String nombre;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "materia")
+    List<Horario> listaHorario;
 }
