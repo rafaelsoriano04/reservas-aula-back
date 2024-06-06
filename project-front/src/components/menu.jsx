@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/menu.css'
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "../styles/menu.css";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Horarios from "./horario";
@@ -14,10 +14,10 @@ const SidebarMenu = () => {
     const navigate = useNavigate();
     const [activeComponent, setActiveComponent] = useState('reservas');
 
-    const handleLogout = (event) => {
-        event.preventDefault();
-        navigate('/');
-    };
+  const handleLogout = event => {
+    event.preventDefault();
+    navigate("/");
+  };
 
     const renderActiveComponent = () => {
         switch (activeComponent) {
@@ -59,9 +59,9 @@ const SidebarMenu = () => {
                     {renderActiveComponent()}
                     </div>
                 </div>
-            </div>
-        </div>
-    );
+                </div>
+                </div>
+  );
 };
 
 export default SidebarMenu;

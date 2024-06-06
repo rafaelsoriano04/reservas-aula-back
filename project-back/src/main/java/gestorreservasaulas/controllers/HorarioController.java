@@ -1,6 +1,8 @@
 package gestorreservasaulas.controllers;
 
 import gestorreservasaulas.dtos.HorarioDto;
+import gestorreservasaulas.exceptions.ConflictException;
+import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.servicios.ServicioHorario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +28,7 @@ public class HorarioController {
     }
 
     @PostMapping
-    public HorarioDto save(@RequestBody HorarioDto horario) {
+    public HorarioDto save(@RequestBody HorarioDto horario) throws ConflictException, NotFoundException {
         return servicioHorario.crearHorario(horario);
     }
 

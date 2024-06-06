@@ -1,30 +1,27 @@
 package gestorreservasaulas.entidades;
 
 import jakarta.persistence.*;
-import java.sql.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
-@Table(name = "reservas")
-@NoArgsConstructor
+@Table(name = "materias")
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class Reserva {
-
+public class Materia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String hora;
-    private Date fecha;
-    @ManyToOne
-    @JoinColumn(name = "id_persona")
-    private Persona persona;
-    @ManyToOne
-    @JoinColumn(name = "id_espacio")
-    private Espacio espacio;
 
+    @Column(unique = true)
+    private String nombre;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "materia")
+    List<Horario> listaHorario;
 }

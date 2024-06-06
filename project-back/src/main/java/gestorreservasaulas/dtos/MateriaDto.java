@@ -1,9 +1,11 @@
 package gestorreservasaulas.dtos;
 
+
 import lombok.Data;
 
 @Data
-public class BloqueDto {
+public class MateriaDto {
     private Long id;
-    String nombre;
+    private String nombre;
+
 }
