@@ -41,19 +41,21 @@ public class ServicioReservaImpl implements ServicioReserva {
         // Para espacios
         List<HorarioDto> lista = this.servicioHorario.obtenerHorariosPorLabs(reservaDto.getId_espacio());
 
-        //comprobar que no exista reservas en esa misma hora y misma fecha
+        // Comprobar que no exista reservas en esa misma hora y misma fecha
         Reserva coincidenciasReservas = repositorioReserva.getPorHoraFecha(reservaDto.getHora(), reservaDto.getFecha(), reservaDto.getId_espacio());
         if (coincidenciasReservas != null) {
             throw new NotFoundException("Reserva Existente");
         }
 
-        //comprobar que no exista horarios en esa hora y ese dia
+        // comprobar que no exista horarios en esa hora y ese dia
         String diaReserva = Util.diaEnEspanol(reservaDto.getFecha().toLocalDate().getDayOfWeek());
 
-        for (HorarioDto horario : lista) {
-            if (horario.getDia().equalsIgnoreCase(diaReserva) &&
-                    horario.getHora().equals(reservaDto.getHora())) {
-                throw new NotFoundException("Horario Existente");
+        if (lista != null) {
+            for (HorarioDto horario : lista) {
+                if (horario.getDia().equalsIgnoreCase(diaReserva) &&
+                        horario.getHora().equals(reservaDto.getHora())) {
+                    throw new NotFoundException("Horario Existente");
+                }
             }
         }
 

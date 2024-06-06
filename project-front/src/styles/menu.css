@@ -1,17 +1,13 @@
-body, html {
+body,
+html {
     height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
 }
 
-.container-fluid {
-    height: 100%;
-    display: flex;
-    flex-wrap: nowrap;
-}
-
 .sidebar {
-    height: 100%;  /* Asegura que el menú ocupe toda la altura de la pantalla */
+    height: 100%;
+    /* Asegura que el menú ocupe toda la altura de la pantalla */
     background-color: #373c3d;
     color: white;
     padding: 20px;

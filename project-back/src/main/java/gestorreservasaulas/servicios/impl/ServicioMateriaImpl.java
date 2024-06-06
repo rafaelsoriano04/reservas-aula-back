@@ -6,32 +6,34 @@ import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RespositorioMateria;
 import gestorreservasaulas.servicios.ServicioMateria;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ServicioMateriaImpl implements ServicioMateria {
     @Autowired
     private RespositorioMateria repositorioMateria;
 
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public ServicioMateriaImpl() {
+        this.modelMapper = new ModelMapper();
+    }
+
     @Override
     public MateriaDto save(MateriaDto materiaDto) throws ConflictException {
-        Materia materia = new Materia();
-        materia.setId(materiaDto.getId());
-        materia.setNombre(materiaDto.getNombre());
-        Materia obtenido = repositorioMateria.save(materia);
-        if (obtenido == null)
-            throw new ConflictException("No se creo");
-        MateriaDto regreso = new MateriaDto();
-        regreso.setId(obtenido.getId());
-        regreso.setNombre(obtenido.getNombre());
-        return regreso;
+        return materiaToDto(repositorioMateria.save(dtoToMateria(materiaDto)));
     }
+
     @Override
-    public List<Materia> findTodos(){
-        return repositorioMateria.findAll();
+    public List<MateriaDto> findTodos(){
+        List<Materia> listaMateria = repositorioMateria.findAll();
+        return listaMateria.stream().map(this::materiaToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -44,6 +46,12 @@ public class ServicioMateriaImpl implements ServicioMateria {
         return repositorioMateria.findById(id).orElseThrow(() -> new NotFoundException("Materia not found"));
     }
 
+    private MateriaDto materiaToDto(Materia materia) {
+        return modelMapper.map(materia, MateriaDto.class);
+    }
 
+    private Materia dtoToMateria(MateriaDto materiaDto) {
+        return modelMapper.map(materiaDto, Materia.class);
+    }
 
 }
