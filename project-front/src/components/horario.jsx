@@ -186,6 +186,19 @@ function Horarios() {
   const handleModalClose = () => setShowModal(false);
   const handleModalShow = () => setShowModal(true);
 
+  const handleDocumentClick = (e) => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setSelectedCell(null);
+      setShowContextMenu(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
 
   const horas = [
     "7-8",
@@ -317,15 +330,13 @@ function Horarios() {
                     onChange={handleDocenteChange}
                     value={selectedDocente}
                   />
-                  <Button variant="custom" id="agregar-docente-btn" onClick={handleModalShow}>
-                    Agregar Docente
-                  </Button>
+                  
                 </div>
               </div>
               <div className="form-container">
-                <div className="form-group d-flex align-items-end">
+                <div className="form-group d-flex align-items-center">
                   <Button variant="custom" id="agregar-btn" onClick={handleCreateHorario}>
-                    Crear Horario
+                    Crear 
                   </Button>
                   <Button
                     variant="custom"

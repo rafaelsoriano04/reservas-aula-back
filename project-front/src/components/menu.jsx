@@ -5,24 +5,35 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Horarios from "./horario";
 import Reservas from "./Reservas";
+import Aulas from "./AuLabas";
+import Docentes from "./docentes";
+import Materia from "./materia";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 const SidebarMenu = () => {
     const navigate = useNavigate();
-    const [horariosActive, setHorariosActive] = useState(false);
+    const [activeComponent, setActiveComponent] = useState('reservas');
 
     const handleLogout = (event) => {
         event.preventDefault();
         navigate('/');
     };
 
-    const handleHorarios = () => {
-        setHorariosActive(true);
-    }
-
-    const handleReservas = () => {
-        setHorariosActive(false);
-    }
+    const renderActiveComponent = () => {
+        switch (activeComponent) {
+            case 'horarios':
+                return <Horarios />;
+            case 'aulabs':
+                return <Aulas />;
+                case 'docentes':
+                    return <Docentes />;
+                    case 'materia':
+                    return <Materia />;
+            case 'reservas':
+            default:
+                return <Reservas />;
+        }
+    };
 
     return (
         <div className="container p-0 m-0">
@@ -34,16 +45,18 @@ const SidebarMenu = () => {
                             <p>FISEI</p>
                         </div>
                         <div className="menu-items">
-                            <Link onClick={handleReservas}><i className="fas fa-calendar-alt"></i>Reservas</Link>
-                            <Link onClick={handleHorarios}><i className="fas fa-clock"></i>Horarios</Link>
-                            <Link ><i className="fas fa-chalkboard-teacher"></i>Aulas-Labs</Link>
+                            <Link onClick={() => setActiveComponent('reservas')} ><i className="fas fa-calendar-alt"></i>Reservas</Link>
+                            <Link onClick={() => setActiveComponent('horarios')}><i className="fas fa-clock"></i>Horarios</Link>
+                            <Link onClick={() => setActiveComponent('aulabs')}><i className="fas fa-chalkboard-teacher"></i>Aulas-Labs</Link>
+                            <Link onClick={() => setActiveComponent('docentes')}><i className="fas fa-user"></i>Docentes</Link>
+                            <Link onClick={() => setActiveComponent('materia')}><i className="fas fa-book"></i>Materia</Link>
                         </div>
                         <a href="/" className="menu-bottom" onClick={handleLogout}><i className="fas fa-sign-out-alt"></i>Cerrar Sesión</a>
                     </div>
                 </div>
                 <div className="col-md-9">
                     <div className="content">
-                        {horariosActive ? <Horarios /> : <Reservas />}
+                    {renderActiveComponent()}
                     </div>
                 </div>
             </div>
