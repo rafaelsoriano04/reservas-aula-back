@@ -14,7 +14,10 @@ import gestorreservasaulas.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 
@@ -65,6 +68,29 @@ public class ServicioReservaImpl implements ServicioReserva {
         return reservaToDto(repositorioReserva.save(dtoToReserva(reservaDto)));
     }
 
+    @Override
+    public List<ReservaDto> getReservasPorFecha(Date fecha, Long id_espacio) throws NotFoundException {
+        Date[] weekDates = getMondayAndFriday(fecha);
+        Espacio espacio = servicioEspacio.findById(id_espacio);
+        //Mapear de Reserva a ReservaDto
+
+        List<Reserva> reservas =  repositorioReserva.encontrarSemana(espacio, weekDates[0], weekDates[1]);
+        List<ReservaDto> reservasdto = List.of();
+        for (Reserva reserva : reservas) {
+            ReservaDto dto = new ReservaDto();
+            dto.setId(reserva.getId());
+            dto.setHora(reserva.getHora());
+            dto.setFecha(reserva.getFecha());
+            dto.setId_espacio(reserva.getEspacio().getId());
+            dto.setId_persona(reserva.getPersona().getId());
+            reservasdto.add(dto);
+        }
+
+        return reservasdto;
+    }
+
+
+
     private Reserva dtoToReserva(ReservaDto reservadto) throws NotFoundException {
         Reserva reserva = new Reserva();
         reserva.setId(reservadto.getId());
@@ -103,6 +129,21 @@ public class ServicioReservaImpl implements ServicioReserva {
         }
 
         return reservadto;
+    }
+
+    public static Date[] getMondayAndFriday(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        // Calcular el lunes
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        Date monday = new Date(calendar.getTimeInMillis());
+
+        // Calcular el viernes
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        Date friday = new Date(calendar.getTimeInMillis());
+
+        return new Date[]{monday, friday};
     }
 
 }

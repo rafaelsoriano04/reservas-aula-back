@@ -4,8 +4,12 @@ import gestorreservasaulas.dtos.ReservaDto;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.servicios.ServicioReserva;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/reservas")
@@ -25,5 +29,12 @@ public class ReservasController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error interno del servidor: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/semana")
+    public List<ReservaDto> getReservations(
+            @RequestParam Date fecha,
+            @RequestParam Long idEspacio) {
+        return servicioReservas.getReservasPorFecha(fecha, idEspacio);
     }
 }
