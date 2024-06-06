@@ -1,4 +1,5 @@
 # Node.js dependencies for frontend
+.gradle/
 /project-front/node_modules/
 
 # Build output for frontend
