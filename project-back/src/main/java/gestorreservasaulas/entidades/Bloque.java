@@ -23,10 +23,7 @@ public class Bloque {
     String descripcion;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloque")
-    List<Aula> listaAulas;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bloque")
-    List<Laboratorio> listaLaboratorios;
+    List<Espacio> listaEspacio;
 
     public Bloque(Long id, String nombre) {
         this.id = id;

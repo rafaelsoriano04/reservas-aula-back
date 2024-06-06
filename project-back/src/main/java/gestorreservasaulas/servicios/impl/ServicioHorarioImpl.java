@@ -3,11 +3,13 @@ package gestorreservasaulas.servicios.impl;
 import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Persona;
+import gestorreservasaulas.exceptions.ConflictException;
+import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RepositorioHorario;
 import gestorreservasaulas.respositorios.RepositorioPersona;
-import gestorreservasaulas.servicios.ServicioAula;
+import gestorreservasaulas.servicios.ServicioEspacio;
 import gestorreservasaulas.servicios.ServicioHorario;
-import gestorreservasaulas.servicios.ServicioLaboratorio;
+import gestorreservasaulas.servicios.ServicioPersona;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -24,13 +26,10 @@ public class ServicioHorarioImpl implements ServicioHorario {
     private RepositorioHorario repositorioHorario;
 
     @Autowired
-    private RepositorioPersona repositorioPersona;
+    private ServicioPersona servicioPersona;
 
     @Autowired
-    private ServicioAula servicioAula;
-
-    @Autowired
-    private ServicioLaboratorio servicioLaboratorio;
+    private ServicioEspacio servicioEspacio;
 
     private final ModelMapper modelMapper;
 
@@ -45,20 +44,15 @@ public class ServicioHorarioImpl implements ServicioHorario {
     }
 
     @Override
-    public HorarioDto crearHorario(HorarioDto horarioDTO) {
-        if (servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()) == null) {
-            return null;
-        }
-
+    public HorarioDto crearHorario(HorarioDto horarioDTO) throws NotFoundException {
+        servicioEspacio.findById(horarioDTO.getId_espacio());
 
         return horarioToDto(repositorioHorario.save(dtoToHorario(horarioDTO)));
-
-
     }
 
     @Override
     public List<HorarioDto> obtenerHorariosPorAula(Long id) {
-        List<Horario> listaHorarios = repositorioHorario.horariosAulas(id);
+        List<Horario> listaHorarios = repositorioHorario.horarios(id, "Aula");
         if (listaHorarios.isEmpty()) {
             return null;
         }
@@ -68,7 +62,17 @@ public class ServicioHorarioImpl implements ServicioHorario {
 
     @Override
     public List<HorarioDto> obtenerHorariosPorLabs(Long id) {
-        List<Horario> listaHorarios = repositorioHorario.horariosLabos(id);
+        List<Horario> listaHorarios = repositorioHorario.horarios(id, "Laboratorio");
+        if (listaHorarios.isEmpty()) {
+            return null;
+        }
+        // stream().map() es como un for, que simplifica y se llama directo al metodo por cada item de la lista
+        return listaHorarios.stream().map(this::horarioToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HorarioDto> obtenerHorariosPorEspecial(Long id) {
+        List<Horario> listaHorarios = repositorioHorario.horarios(id, "Especial");
         if (listaHorarios.isEmpty()) {
             return null;
         }
@@ -94,23 +98,15 @@ public class ServicioHorarioImpl implements ServicioHorario {
      */
     private HorarioDto horarioToDto(Horario horario) {
         HorarioDto horarioDTO = modelMapper.map(horario, HorarioDto.class);
-        if (horario.getAula() == null) {
-            horarioDTO.setId_laboratorio(horario.getLaboratorio().getId());
-        } else {
-            horarioDTO.setId_aula(horario.getAula().getId());
-        }
+        horarioDTO.setId_espacio(horario.getEspacio().getId());
         horarioDTO.setId_persona(horario.getDocente().getId());
         return horarioDTO;
     }
 
-    private Horario dtoToHorario(HorarioDto horarioDTO) {
+    private Horario dtoToHorario(HorarioDto horarioDTO) throws NotFoundException {
         Horario horario = modelMapper.map(horarioDTO, Horario.class);
-        if (horarioDTO.getId_aula() == null) {
-            horario.setLaboratorio(servicioLaboratorio.obtenerLabPorId(horarioDTO.getId_laboratorio()));
-        } else {
-            horario.setAula(servicioAula.obtenerAulaPorId(horarioDTO.getId_aula()));
-        }
-        Persona persona = repositorioPersona.findById(horarioDTO.getId_persona()).orElse(null);
+        horario.setEspacio(servicioEspacio.findById(horarioDTO.getId_espacio()));
+        Persona persona = servicioPersona.findById(horarioDTO.getId_persona());
         horario.setDocente(persona);
         return horario;
     }

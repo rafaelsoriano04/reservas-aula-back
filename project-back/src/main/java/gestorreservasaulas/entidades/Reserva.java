@@ -21,13 +21,10 @@ public class Reserva {
     private String hora;
     private Date fecha;
     @ManyToOne
-    @JoinColumn(name = "id_aula")
-    private Aula aula;
-    @ManyToOne
     @JoinColumn(name = "id_persona")
     private Persona persona;
     @ManyToOne
-    @JoinColumn(name = "id_laboratorio")
-    private Laboratorio laboratorio;
+    @JoinColumn(name = "id_espacio")
+    private Espacio espacio;
 
 }

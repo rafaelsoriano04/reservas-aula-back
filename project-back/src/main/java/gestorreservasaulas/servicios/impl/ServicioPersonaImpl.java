@@ -2,6 +2,7 @@ package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.dtos.PersonaDto;
 import gestorreservasaulas.entidades.Persona;
+import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RepositorioPersona;
 import gestorreservasaulas.servicios.ServicioPersona;
@@ -20,6 +21,11 @@ public class ServicioPersonaImpl implements ServicioPersona {
     @Autowired
     public ServicioPersonaImpl() {
         this.modelMapper = new ModelMapper();
+    }
+
+    @Override
+    public Persona findById(Long id) throws NotFoundException {
+        return repositorioPersona.findById(id).orElseThrow(() -> new NotFoundException("Persona not found"));
     }
 
     @Override

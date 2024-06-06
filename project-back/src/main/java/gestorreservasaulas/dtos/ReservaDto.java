@@ -10,7 +10,6 @@ public class ReservaDto {
     private Long id;
     private String hora;
     private Date fecha;
-    private Long id_aula;
-    private Long id_laboratorio;
+    private Long id_espacio;
     private Long id_persona;
 }

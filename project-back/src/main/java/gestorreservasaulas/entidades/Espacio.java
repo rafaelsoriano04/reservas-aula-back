@@ -1,40 +1,39 @@
 package gestorreservasaulas.entidades;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "aulas")
-@AllArgsConstructor
+@Table(name = "espacios")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class Aula {
-
+public class Espacio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String nombre;
-
     private Integer piso;
     private Integer capacidad;
-
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reserva> listaReservas = new ArrayList<>();
-
-    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Horario> listaHorario = new ArrayList<>();
+    private String tipo;
 
     @ManyToOne
     @JoinColumn(name = "id_bloque")
     private Bloque bloque;
+
+    @OneToMany(mappedBy = "espacio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> listaReserva;
+
+    @OneToMany(mappedBy = "espacio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Horario> listaHorario= new ArrayList<>();
+
 
 }
