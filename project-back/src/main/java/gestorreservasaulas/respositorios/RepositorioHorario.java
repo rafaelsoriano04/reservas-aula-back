@@ -17,11 +17,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RepositorioHorario extends JpaRepository<Horario, Long> {
 
-    @Query("SELECT h FROM Horario h WHERE h.aula.id = :id_aula")
-    List<Horario> horariosAulas(@Param("id_aula") Long idAula);
-
-    @Query("SELECT h FROM Horario h WHERE h.laboratorio.id = :id_laboratorio")
-    List<Horario> horariosLabos(@Param("id_laboratorio") Long idLaboratorio);
+    @Query("SELECT h FROM Horario h WHERE h.espacio.id = :id_espacio AND h.espacio.tipo = :tipo")
+    List<Horario> horarios(@Param("id_espacio") Long id_espacio, @Param("tipo") String tipo);
 
     @Modifying
     @Query("DELETE FROM Horario h WHERE h.id = :id_horario")

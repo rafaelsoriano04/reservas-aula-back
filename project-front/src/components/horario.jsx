@@ -5,7 +5,6 @@ import "../styles/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-
 function Horarios() {
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
@@ -92,44 +91,45 @@ function Horarios() {
     }
   };
 
-  const handleBloqueChange = (event) => {
+  const handleBloqueChange = event => {
     setSelectedBloque(event.target.value);
   };
 
-  const handleTipoChange = (event) => {
+  const handleTipoChange = event => {
     setSelectedTipo(event.target.value);
   };
 
-  const handleAulaLabChange = (event) => {
+  const handleAulaLabChange = event => {
     setSelectedAulaLab(event.target.value);
   };
 
-  const handleDocenteChange = (event) => {
+  const handleDocenteChange = event => {
     setSelectedDocente(event.target.value);
-    console.log(selectedDocente);
   };
 
   const handleCreateHorario = async () => {
     try {
-      const horarioExiste = horarios.some(horario =>
-        horario.dia === selectedDia && horario.hora === selectedHora.split("-")[0]
+      const horarioExiste = horarios.some(
+        horario =>
+          horario.dia === selectedDia &&
+          horario.hora === selectedHora.split("-")[0]
       );
       if (horarioExiste) {
         Swal.fire({
-          title: 'Error',
-          text: 'Ya existe un horario en el mismo día y hora',
-          icon: 'error',
+          title: "Error",
+          text: "Ya existe un horario en el mismo día y hora",
+          icon: "error",
         });
         return;
       }
-      const idPersona = document.getElementById('docente').value;
-      console.log(idPersona)
-      const url = 'http://localhost:8080/horario';
+      const idPersona = document.getElementById("docente").value;
+      console.log(idPersona);
+      const url = "http://localhost:8080/horario";
       const nuevoHorario = {
         dia: selectedDia,
-        hora: selectedHora.split('-')[0],
+        hora: selectedHora.split("-")[0],
         materia: selectedMateria,
-        id_persona: idPersona
+        id_persona: idPersona,
       };
 
       if (selectedTipo === "Laboratorio") {
@@ -137,26 +137,25 @@ function Horarios() {
       } else {
         nuevoHorario.id_aula = selectedAulaLab;
       }
-      console.log(nuevoHorario)
+      console.log(nuevoHorario);
 
       await axios.post(url, nuevoHorario);
 
       Swal.fire({
-        title: 'Éxito',
-        text: 'Horario creado correctamente',
-        icon: 'success',
+        title: "Éxito",
+        text: "Horario creado correctamente",
+        icon: "success",
       });
 
       getHorarios();
     } catch (error) {
       Swal.fire({
-        title: 'Error',
-        text: 'No se pudo crear el horario',
-        icon: 'error',
+        title: "Error",
+        text: "No se pudo crear el horario",
+        icon: "error",
       });
     }
   };
-
 
   useEffect(() => {
     getBloques();
@@ -176,16 +175,15 @@ function Horarios() {
 
   const renderTableCell = (dia, hora) => {
     if (hora === "13-14") {
-      return <td style={{ backgroundColor: '#ffcccb' }}>Receso</td>;
+      return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
     const horario = horarios.find(
-      (h) => h.dia === dia && h.hora === hora.split("-")[0],
+      h => h.dia === dia && h.hora === hora.split("-")[0]
     );
     return horario ? `${horario.materia}` : "";
   };
   const handleModalClose = () => setShowModal(false);
   const handleModalShow = () => setShowModal(true);
-
 
   const horas = [
     "7-8",
@@ -209,6 +207,11 @@ function Horarios() {
       <div className="container mt-4">
         <div className="header text-center">
           <h2> HORARIOS</h2>
+          <input
+            type="text"
+            value={selectedDocente}
+            onChange={handleDocenteChange}
+          />
         </div>
         <div className="row">
           <div className="col-md-12">
@@ -223,7 +226,7 @@ function Horarios() {
                     value={selectedBloque}
                     onChange={handleBloqueChange}
                   >
-                    {bloques.map((bloque) => (
+                    {bloques.map(bloque => (
                       <option key={bloque.id} value={bloque.id}>
                         {bloque.nombre}
                       </option>
@@ -256,7 +259,7 @@ function Horarios() {
                     onChange={handleAulaLabChange}
                     name="aulaLab"
                   >
-                    {aulasLabs.map((aulaLab) => (
+                    {aulasLabs.map(aulaLab => (
                       <option key={aulaLab.id} value={aulaLab.id}>
                         {aulaLab.nombre}
                       </option>
@@ -268,7 +271,13 @@ function Horarios() {
               <div className="form-container">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="dia">Día:</Form.Label>
-                  <Form.Control as="select" id="dia" className="form-control" value={selectedDia} onChange={(e) => setSelectedDia(e.target.value)}>
+                  <Form.Control
+                    as="select"
+                    id="dia"
+                    className="form-control"
+                    value={selectedDia}
+                    onChange={e => setSelectedDia(e.target.value)}
+                  >
                     <option>Lunes</option>
                     <option>Martes</option>
                     <option>Miercoles</option>
@@ -278,7 +287,13 @@ function Horarios() {
                 </Form.Group>
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="hora">Hora:</Form.Label>
-                  <Form.Control as="select" id="hora" className="form-control" value={selectedHora} onChange={(e) => setSelectedHora(e.target.value)}>
+                  <Form.Control
+                    as="select"
+                    id="hora"
+                    className="form-control"
+                    value={selectedHora}
+                    onChange={e => setSelectedHora(e.target.value)}
+                  >
                     <option>7-8</option>
                     <option>8-9</option>
                     <option>9-10</option>
@@ -301,7 +316,7 @@ function Horarios() {
                     className="form-control"
                     placeholder="Ingrese una Materia"
                     value={selectedMateria}
-                    onChange={(e) => {
+                    onChange={e => {
                       setSelectedMateria(e.target.value);
                       console.log(selectedMateria);
                     }}
@@ -317,14 +332,22 @@ function Horarios() {
                     onChange={handleDocenteChange}
                     value={selectedDocente}
                   />
-                  <Button variant="custom" id="agregar-docente-btn" onClick={handleModalShow}>
+                  <Button
+                    variant="custom"
+                    id="agregar-docente-btn"
+                    onClick={handleModalShow}
+                  >
                     Agregar Docente
                   </Button>
                 </div>
               </div>
               <div className="form-container">
                 <div className="form-group d-flex align-items-end">
-                  <Button variant="custom" id="agregar-btn" onClick={handleCreateHorario}>
+                  <Button
+                    variant="custom"
+                    id="agregar-btn"
+                    onClick={handleCreateHorario}
+                  >
                     Crear Horario
                   </Button>
                   <Button
@@ -352,20 +375,35 @@ function Horarios() {
                 {horas.map((hora, rowIndex) => (
                   <tr
                     key={hora}
-                    style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
+                    style={
+                      hora === "13-14"
+                        ? { backgroundColor: "#ffcccb", textAlign: "center" }
+                        : {}
+                    }
                   >
-                    <td style={hora === "13-14" ? { textAlign: "center" } : {}}>{hora}</td>
+                    <td style={hora === "13-14" ? { textAlign: "center" } : {}}>
+                      {hora}
+                    </td>
                     {dias.map((dia, cellIndex) => (
                       <React.Fragment key={`${dia}-${hora}`}>
                         {hora === "13-14" ? (
-                          <td style={{ backgroundColor: "#ffcccb", textAlign: "center" }}>Receso</td>
+                          <td
+                            style={{
+                              backgroundColor: "#ffcccb",
+                              textAlign: "center",
+                            }}
+                          >
+                            Receso
+                          </td>
                         ) : (
                           <td
-                            onClick={(e) => handleCellClick(e, rowIndex, cellIndex)}
+                            onClick={e =>
+                              handleCellClick(e, rowIndex, cellIndex)
+                            }
                             className={
                               selectedCell &&
-                                selectedCell.rowIndex === rowIndex &&
-                                selectedCell.cellIndex === cellIndex
+                              selectedCell.rowIndex === rowIndex &&
+                              selectedCell.cellIndex === cellIndex
                                 ? "selected"
                                 : ""
                             }
@@ -378,7 +416,6 @@ function Horarios() {
                   </tr>
                 ))}
               </tbody>
-
             </table>
             <div
               className="context-menu"
@@ -389,10 +426,10 @@ function Horarios() {
                 left: contextMenuPosition.left,
               }}
             >
-              <Button variant="custom" id="editar-btn" >
+              <Button variant="custom" id="editar-btn">
                 Editar
               </Button>
-              <Button variant="custom" id="eliminar-btn" >
+              <Button variant="custom" id="eliminar-btn">
                 Eliminar
               </Button>
             </div>
@@ -408,10 +445,7 @@ function Horarios() {
             <Form.Group>
               <Form.Label>Cédula</Form.Label>
               <div className="d-flex ">
-                <Form.Control
-                  type="text"
-                  name="cedula"
-                />
+                <Form.Control type="text" name="cedula" />
                 <Button variant="custom" className="mt-2">
                   Buscar
                 </Button>
@@ -419,24 +453,15 @@ function Horarios() {
             </Form.Group>
             <Form.Group>
               <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                name="nombre"
-              />
+              <Form.Control type="text" name="nombre" />
             </Form.Group>
             <Form.Group>
               <Form.Label>Apellido</Form.Label>
-              <Form.Control
-                type="text"
-                name="apellido"
-              />
+              <Form.Control type="text" name="apellido" />
             </Form.Group>
             <Form.Group>
               <Form.Label>Teléfono</Form.Label>
-              <Form.Control
-                type="text"
-                name="telefono"
-              />
+              <Form.Control type="text" name="telefono" />
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -444,12 +469,9 @@ function Horarios() {
           <Button variant="secondary" onClick={handleModalClose}>
             Cancelar
           </Button>
-          <Button variant="custom">
-            Asignar
-          </Button>
+          <Button variant="custom">Asignar</Button>
         </Modal.Footer>
       </Modal>
-
     </div>
   );
 }

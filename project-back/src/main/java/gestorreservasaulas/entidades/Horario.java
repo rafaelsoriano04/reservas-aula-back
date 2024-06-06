@@ -29,23 +29,11 @@ public class Horario {
     private String materia;
 
     @ManyToOne
-    @JoinColumn(name = "id_aula")
-    private Aula aula;
+    @JoinColumn(name = "id_espacio")
+    private Espacio espacio;
 
-    @ManyToOne
-    @JoinColumn(name = "id_laboratorio")
-    private Laboratorio laboratorio;
-    
     @ManyToOne
     @JoinColumn(name = "id_persona")
     private Persona docente;
 
-    @Override
-    public String toString() {
-        int ss = Integer.valueOf(getHora()) +1;
-        return getDia() +" " + getHora() + "-"+ss;
-    }
-    
-    
-    
 }
