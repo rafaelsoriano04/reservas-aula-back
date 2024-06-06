@@ -24,7 +24,7 @@ public class MateriaController
     }
 
     @GetMapping("/todos")
-    public List<Materia> getAll() throws NotFoundException {
+    public List<MateriaDto> getAll() throws NotFoundException {
         return servicioMateria.findTodos();
     }
 
