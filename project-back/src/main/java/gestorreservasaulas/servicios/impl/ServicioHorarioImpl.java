@@ -2,6 +2,7 @@ package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.entidades.Horario;
+import gestorreservasaulas.entidades.Materia;
 import gestorreservasaulas.entidades.Persona;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
@@ -10,6 +11,7 @@ import gestorreservasaulas.respositorios.RepositorioPersona;
 import gestorreservasaulas.servicios.ServicioEspacio;
 import gestorreservasaulas.servicios.ServicioHorario;
 import gestorreservasaulas.servicios.ServicioPersona;
+import gestorreservasaulas.servicios.ServicioMateria;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -30,6 +32,9 @@ public class ServicioHorarioImpl implements ServicioHorario {
 
     @Autowired
     private ServicioEspacio servicioEspacio;
+
+    @Autowired
+    private ServicioMateria servicioMateria;
 
     private final ModelMapper modelMapper;
 
@@ -100,6 +105,10 @@ public class ServicioHorarioImpl implements ServicioHorario {
         HorarioDto horarioDTO = modelMapper.map(horario, HorarioDto.class);
         horarioDTO.setId_espacio(horario.getEspacio().getId());
         horarioDTO.setId_persona(horario.getDocente().getId());
+        horarioDTO.setId_materia(horario.getMateria().getId());
+
+        horarioDTO.setNombre(horario.getMateria().getNombre() + " - " + horario.getDocente().getNombre() + " " +
+                horario.getDocente().getApellido());
         return horarioDTO;
     }
 
@@ -108,7 +117,11 @@ public class ServicioHorarioImpl implements ServicioHorario {
         horario.setEspacio(servicioEspacio.findById(horarioDTO.getId_espacio()));
         Persona persona = servicioPersona.findById(horarioDTO.getId_persona());
         horario.setDocente(persona);
+        Materia materia = servicioMateria.buscarMateria(horarioDTO.getId_materia());
+        horario.setMateria(materia);
         return horario;
+
     }
+
 
 }

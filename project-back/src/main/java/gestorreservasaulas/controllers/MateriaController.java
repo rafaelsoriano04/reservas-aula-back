@@ -1,11 +1,9 @@
 package gestorreservasaulas.controllers;
 
-import gestorreservasaulas.dtos.AulaDto;
 import gestorreservasaulas.dtos.MateriaDto;
 import gestorreservasaulas.entidades.Materia;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
-import gestorreservasaulas.servicios.ServicioAula;
 import gestorreservasaulas.servicios.ServicioMateria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

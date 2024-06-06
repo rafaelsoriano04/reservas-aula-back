@@ -12,4 +12,5 @@ public interface ServicioMateria {
     MateriaDto save(MateriaDto materiaDto) throws ConflictException;
     List<Materia> findTodos();
     void eliminarMateria(Long id);
+    Materia buscarMateria(Long id) throws NotFoundException;
 }
