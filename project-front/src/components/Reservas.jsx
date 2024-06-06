@@ -28,6 +28,14 @@ const LabReservations = () => {
     descripcion: "",
     hora: "",
   });
+  const [responsible, setResponsible] = useState({
+    cedula: "",
+    nombre: "",
+    apellido: "",
+    telefono: "",
+  });
+  const [isExistingResponsible, setIsExistingResponsible] = useState(false);
+  const [showAdditionalFields, setShowAdditionalFields] = useState(false);
 
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
@@ -165,7 +173,7 @@ const LabReservations = () => {
           data-dia={dia}
           data-hora={hora}
           onClick={(e) => handleCellClick(e, dia, hora)}
-          style={{ backgroundColor: "lightblue" }} // Celeste bajito
+          style={{ backgroundColor: "#ccf2ff" }} // Celeste bajito
         >
           {horario.materia}
         </td>
@@ -339,8 +347,8 @@ const LabReservations = () => {
         (res) =>
           res.dia !== selectedCell.dia ||
           res.hora !== selectedCell.hora ||
-          res.fecha !== formattedDate,
-      ),
+          res.fecha !== formattedDate
+      )
     );
     setShowConfirmDelete(false);
     setShowModal(false);
@@ -353,16 +361,36 @@ const LabReservations = () => {
     }
   };
 
-  const saveNewReservation = () => {
+  const saveNewReservation = async () => {
     if (selectedCell) {
       const formattedDate = formatDate(selectedDate);
+
+      // Guardar nuevo responsable si no existe
+      if (!isExistingResponsible) {
+        try {
+          const response = await axios.post("http://localhost:8080/person", responsible);
+          setResponsible(response.data); // Actualizar el responsable con los datos guardados
+          setNewReservation((prev) => ({
+            ...prev,
+            encargado: `${response.data.nombre} ${response.data.apellido}`,
+          }));
+        } catch (error) {
+          Swal.fire({
+            title: "Error",
+            text: "Hubo un error al guardar el nuevo responsable.",
+            icon: "error",
+          });
+          return;
+        }
+      }
+
       setReservations((prev) => [
         ...prev,
         {
           dia: selectedCell.dia,
           hora: selectedCell.hora,
           fecha: formattedDate,
-          encargado: newReservation.encargado,
+          encargado: `${responsible.nombre} ${responsible.apellido}`,
           asunto: newReservation.asunto,
           descripcion: newReservation.descripcion,
         },
@@ -374,6 +402,40 @@ const LabReservations = () => {
         descripcion: "",
         hora: "",
       });
+      setResponsible({
+        cedula: "",
+        nombre: "",
+        apellido: "",
+        telefono: "",
+      });
+      setIsExistingResponsible(false);
+      setShowAdditionalFields(false);
+    }
+  };
+
+  const handleResponsibleChange = (event) => {
+    const { name, value } = event.target;
+    setResponsible((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const searchResponsible = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/person/${responsible.cedula}`);
+      setResponsible(response.data);
+      setNewReservation((prev) => ({
+        ...prev,
+        encargado: `${response.data.nombre} ${response.data.apellido}`,
+      }));
+      setIsExistingResponsible(true);
+      setShowAdditionalFields(false);
+    } catch (error) {
+      Swal.fire({
+        title: "No encontrado",
+        text: "No se encontró ningún responsable con esa cédula. Puede agregarlo a continuación.",
+        icon: "info",
+      });
+      setIsExistingResponsible(false);
+      setShowAdditionalFields(true);
     }
   };
 
@@ -585,22 +647,80 @@ const LabReservations = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="newEncargado" className="form-label">
-                Responsable
+              <label htmlFor="cedula" className="form-label">
+                Cédula
               </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newEncargado"
-                value={newReservation.encargado}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
-                    ...prev,
-                    encargado: e.target.value,
-                  }))
-                }
-              />
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="cedula"
+                  name="cedula"
+                  value={responsible.cedula}
+                  onChange={handleResponsibleChange}
+                />
+                <button className="btn btn-secondary" type="button" onClick={searchResponsible}>
+                  Buscar
+                </button>
+              </div>
             </div>
+            {isExistingResponsible ? (
+              <div className="mb-3">
+                <label htmlFor="newEncargado" className="form-label">
+                  Responsable
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="newEncargado"
+                  value={newReservation.encargado}
+                  readOnly
+                />
+              </div>
+            ) : null}
+            {showAdditionalFields && (
+              <>
+                <div className="mb-3">
+                  <label htmlFor="nombre" className="form-label">
+                    Nombre
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="nombre"
+                    name="nombre"
+                    value={responsible.nombre}
+                    onChange={handleResponsibleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="apellido" className="form-label">
+                    Apellido
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="apellido"
+                    name="apellido"
+                    value={responsible.apellido}
+                    onChange={handleResponsibleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="telefono" className="form-label">
+                    Teléfono
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="telefono"
+                    name="telefono"
+                    value={responsible.telefono}
+                    onChange={handleResponsibleChange}
+                  />
+                </div>
+              </>
+            )}
             <div className="mb-3">
               <label htmlFor="newAsunto" className="form-label">
                 Asunto
@@ -660,24 +780,16 @@ const LabReservations = () => {
       </Modal>
 
       {/* Modal para confirmación de eliminación */}
-      <Modal
-        show={showConfirmDelete}
-        onHide={() => setShowConfirmDelete(false)}
-      >
+      <Modal show={showConfirmDelete} onHide={() => setShowConfirmDelete(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Eliminación</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro de que deseas eliminar esta reserva?
-        </Modal.Body>
+        <Modal.Body>¿Estás seguro de que deseas eliminar esta reserva?</Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={deleteReservation}>
             Eliminar
           </Button>
-          <Button
-            variant="secondary"
-            onClick={() => setShowConfirmDelete(false)}
-          >
+          <Button variant="secondary" onClick={() => setShowConfirmDelete(false)}>
             Cancelar
           </Button>
         </Modal.Footer>
