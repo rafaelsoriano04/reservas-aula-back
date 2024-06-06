@@ -9,6 +9,7 @@ function Horarios() {
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
   const [horarios, setHorarios] = useState([]);
+  const [materias, setMaterias] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
@@ -25,7 +26,6 @@ function Horarios() {
     left: 0,
   });
 
-  // Metodos
   const handleCellClick = (e, rowIndex, cellIndex) => {
     setSelectedCell({ rowIndex, cellIndex });
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
@@ -33,14 +33,10 @@ function Horarios() {
   };
 
   const fetchAulasLabs = async () => {
-    //Se debe controlar que solo se llene de acuerdo al tipo
-    //pero la peticion trae todos, sin importar sean aulas o laboratorios
-
     const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
 
     try {
       const response = await axios.get(url);
-
       //Aqui se debe controlar que se llene de acuerdo al tipo
       let filteredData = [];
       if (selectedTipo == "Aula") {
@@ -75,16 +71,22 @@ function Horarios() {
       selectedTipo === "Laboratorio"
         ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
         : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
-    console.log(url);
-
     try {
       const response = await axios.get(url);
-      console.log(response.data);
       setHorarios(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      setHorarios([]); // Limpia los datos si la petición falla
+    }
+  };
+
+  const getMaterias = async () => {
+    const url = "http://localhost:8080/materia/todos";
+    try {
+      const respuesta = await axios.get(url);
+      setMaterias(respuesta.data);
     } catch (error) {
       const { message } = error.response.data;
       console.log(message);
-      setHorarios([]); // Limpia los datos si la petición falla
     }
   };
 
@@ -104,6 +106,7 @@ function Horarios() {
 
   const handleTipoChange = event => {
     setSelectedTipo(event.target.value);
+    console.log(selectedTipo);
   };
 
   const handleAulaLabChange = event => {
@@ -129,21 +132,17 @@ function Horarios() {
         });
         return;
       }
+
       const idPersona = document.getElementById("docente").value;
-      console.log(idPersona);
       const url = "http://localhost:8080/horario";
       const nuevoHorario = {
         dia: selectedDia,
         hora: selectedHora.split("-")[0],
-        materia: selectedMateria,
+        id_materia: selectedMateria,
         id_persona: idPersona,
+        id_espacio: selectedAulaLab,
       };
 
-      if (selectedTipo === "Laboratorio") {
-        nuevoHorario.id_laboratorio = selectedAulaLab;
-      } else {
-        nuevoHorario.id_aula = selectedAulaLab;
-      }
       console.log(nuevoHorario);
 
       await axios.post(url, nuevoHorario);
@@ -165,6 +164,7 @@ function Horarios() {
   };
 
   useEffect(() => {
+    getMaterias();
     getBloques();
   }, []);
 
@@ -177,21 +177,31 @@ function Horarios() {
   useEffect(() => {
     if (selectedAulaLab) {
       getHorarios();
+      console.log("a");
     }
   }, [selectedAulaLab]);
+
+  useEffect(() => {
+    if (aulasLabs.length > 0) {
+      setSelectedAulaLab(aulasLabs[0].id);
+    }
+  }, [aulasLabs]);
+
+  useEffect(() => {
+    if (materias.length > 0 && !selectedMateria) {
+      setSelectedMateria(materias[0].id);
+    }
+  }, [materias]);
 
   const renderTableCell = (dia, hora) => {
     if (hora === "13-14") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
-
     const horario = horarios.find(
       h => h.dia === dia && h.hora === hora.split("-")[0]
     );
     return horario ? `${horario.nombre}` : "";
   };
-  const handleModalClose = () => setShowModal(false);
-  const handleModalShow = () => setShowModal(true);
 
   const horas = [
     "7-8",
@@ -211,7 +221,7 @@ function Horarios() {
   const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
   return (
-    <div className="container-fluid">
+    <div className="container">
       <div className="container mt-4">
         <div className="header text-center">
           <h2>Horarios</h2>
@@ -262,7 +272,6 @@ function Horarios() {
                     onChange={handleAulaLabChange}
                     name="aulaLab"
                   >
-                    <option>Seleccione una opcion</option>
                     {aulasLabs.map(aulaLab => (
                       <option key={aulaLab.id} value={aulaLab.id}>
                         {aulaLab.nombre}
@@ -271,96 +280,117 @@ function Horarios() {
                   </Form.Control>
                 </Form.Group>
               </div>
-              <h5 className="nuevo-horario">Nuevo Horario</h5>
-              <div className="form-container">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="dia">Día:</Form.Label>
-                  <Form.Control
-                    as="select"
-                    id="dia"
-                    className="form-control"
-                    value={selectedDia}
-                    onChange={e => setSelectedDia(e.target.value)}
-                  >
-                    <option>Lunes</option>
-                    <option>Martes</option>
-                    <option>Miercoles</option>
-                    <option>Jueves</option>
-                    <option>Viernes</option>
-                  </Form.Control>
-                </Form.Group>
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="hora">Hora:</Form.Label>
-                  <Form.Control
-                    as="select"
-                    id="hora"
-                    className="form-control"
-                    value={selectedHora}
-                    onChange={e => setSelectedHora(e.target.value)}
-                  >
-                    <option>7-8</option>
-                    <option>8-9</option>
-                    <option>9-10</option>
-                    <option>10-11</option>
-                    <option>11-12</option>
-                    <option>12-13</option>
-                    <option>14-15</option>
-                    <option>15-16</option>
-                    <option>16-17</option>
-                    <option>17-18</option>
-                    <option>18-19</option>
-                    <option>19-20</option>
-                  </Form.Control>
-                </Form.Group>
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="materia">Materia:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="materia"
-                    className="form-control"
-                    placeholder="Ingrese una Materia"
-                    value={selectedMateria}
-                    onChange={e => {
-                      setSelectedMateria(e.target.value);
-                      console.log(selectedMateria);
-                    }}
-                  />
-                </Form.Group>
-                <div className="form-group docente-container">
-                  <Form.Label htmlFor="docente">Docente</Form.Label>
-                  <input
-                    type="text"
-                    id="docente"
-                    placeholder="Seleccione en Agregar Docente"
-                    className="form-control"
-                    onChange={handleDocenteChange}
-                    value={selectedDocente}
-                  />
-                  <Button
-                    variant="custom"
-                    id="agregar-docente-btn"
-                    onClick={handleModalShow}
-                  >
-                    Agregar Docente
-                  </Button>
+              <hr />
+              <h5
+                className="nuevo-horario"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseForm"
+                aria-expanded="false"
+                aria-controls="collapseForm"
+                style={{
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  fontWeight: "bold",
+                }}
+                onMouseOver={({ target }) =>
+                  (target.style.textDecoration = "underline")
+                }
+                onMouseOut={({ target }) =>
+                  (target.style.textDecoration = "none")
+                }
+              >
+                Nuevo Horario
+              </h5>
+              <div className="collapse " id="collapseForm">
+                <div className="form-container">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="dia">Día:</Form.Label>
+                    <Form.Control
+                      as="select"
+                      id="dia"
+                      className="form-control"
+                      value={selectedDia}
+                      onChange={e => setSelectedDia(e.target.value)}
+                    >
+                      <option>Lunes</option>
+                      <option>Martes</option>
+                      <option>Miercoles</option>
+                      <option>Jueves</option>
+                      <option>Viernes</option>
+                    </Form.Control>
+                  </Form.Group>
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="hora">Hora:</Form.Label>
+                    <Form.Control
+                      as="select"
+                      id="hora"
+                      className="form-control"
+                      value={selectedHora}
+                      onChange={e => setSelectedHora(e.target.value)}
+                    >
+                      <option>7-8</option>
+                      <option>8-9</option>
+                      <option>9-10</option>
+                      <option>10-11</option>
+                      <option>11-12</option>
+                      <option>12-13</option>
+                      <option>14-15</option>
+                      <option>15-16</option>
+                      <option>16-17</option>
+                      <option>17-18</option>
+                      <option>18-19</option>
+                      <option>19-20</option>
+                    </Form.Control>
+                  </Form.Group>
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="materia">Materia:</Form.Label>
+                    <Form.Control
+                      as="select"
+                      id="materia"
+                      className="form-control"
+                      value={selectedMateria}
+                      onChange={e => {
+                        setSelectedMateria(e.target.value);
+                        console.log(selectedMateria);
+                      }}
+                    >
+                      {materias.map(materia => (
+                        <option key={materia.id} value={materia.id}>
+                          {materia.nombre}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </Form.Group>
+                  <div className="form-group docente-container">
+                    <Form.Label htmlFor="docente">Docente</Form.Label>
+                    <input
+                      type="text"
+                      id="docente"
+                      placeholder="Ingrese un numero de cedula"
+                      className="form-control"
+                      onChange={handleDocenteChange}
+                      value={selectedDocente}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="form-container">
-                <div className="form-group d-flex align-items-end">
-                  <Button
-                    variant="custom"
-                    id="agregar-btn"
-                    onClick={handleCreateHorario}
-                  >
-                    Crear Horario
-                  </Button>
-                  <Button
-                    variant="custom"
-                    id="guardar-btn"
-                    style={{ display: "none" }}
-                  >
-                    Guardar
-                  </Button>
+                <div className="form-container">
+                  <div className="form-group d-flex align-items-end">
+                    <Button
+                      variant="custom"
+                      id="agregar-btn"
+                      onClick={handleCreateHorario}
+                    >
+                      Crear Horario
+                    </Button>
+                    <Button
+                      variant="custom"
+                      id="guardar-btn"
+                      style={{ display: "none" }}
+                    >
+                      Guardar
+                    </Button>
+                  </div>
                 </div>
               </div>
             </Form>
@@ -440,42 +470,6 @@ function Horarios() {
           </div>
         </div>
       </div>
-      <Modal show={showModal} onHide={handleModalClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Agregar Docente</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Cédula</Form.Label>
-              <div className="d-flex ">
-                <Form.Control type="text" name="cedula" />
-                <Button variant="custom" className="mt-2">
-                  Buscar
-                </Button>
-              </div>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control type="text" name="nombre" />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Apellido</Form.Label>
-              <Form.Control type="text" name="apellido" />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Teléfono</Form.Label>
-              <Form.Control type="text" name="telefono" />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleModalClose}>
-            Cancelar
-          </Button>
-          <Button variant="custom">Asignar</Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }

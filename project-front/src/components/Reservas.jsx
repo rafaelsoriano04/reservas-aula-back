@@ -41,7 +41,7 @@ const LabReservations = () => {
 
   const [bloques, setBloques] = useState([]);
   const [horarios, setHorarios] = useState([]);
-  const [reservations, setReservations] = useState([]);
+  const [reservas, setReservas] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
@@ -84,6 +84,20 @@ const LabReservations = () => {
       setHorarios([]);
     }
   };
+
+  const getReservas = async () => {
+    //Crear metodo get que obtenga por fecha, solo enviar una fecha y que el back
+    //devuelva solo las fechas de esa semana
+    //crear metodo para llenar en la tabla con las reservas obtenidas}
+    //posiblmente agregar al array de horarios dependiendo si vale o no
+    
+    const url = `http:=//http://localhost:8080/reserva/${selectedAulaLab}`;
+    try {
+      
+    } catch (error) {
+      
+    }
+  }
 
   const fetchHorarios = async () => {
     const formattedDate = formatDate(new Date()); // Asegúrate de enviar la fecha correcta según tu lógica de negocio
@@ -141,15 +155,15 @@ const LabReservations = () => {
     }
   };
 
-  const handleBloqueChange = (event) => {
+  const handleBloqueChange = event => {
     setSelectedBloque(event.target.value);
   };
 
-  const handleTipoChange = (event) => {
+  const handleTipoChange = event => {
     setSelectedTipo(event.target.value);
   };
 
-  const handleAulaLabChange = (event) => {
+  const handleAulaLabChange = event => {
     setSelectedAulaLab(event.target.value);
   };
 
@@ -159,6 +173,7 @@ const LabReservations = () => {
     }
 
     const horario = horarios.find(
+      h => h.dia === dia && h.hora === hora.split("-")[0],
       h => h.dia === dia && h.hora === hora.split("-")[0]
     );
 
@@ -203,16 +218,16 @@ const LabReservations = () => {
     "18-19",
     "19-20",
   ];
-  const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
-  const getMonday = (d) => {
+  const getMonday = d => {
     d = new Date(d);
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
   };
 
-  const formatDate = (date) => {
+  const formatDate = date => {
     const d = new Date(date);
     let month = "" + (d.getMonth() + 1);
     let day = "" + d.getDate();
@@ -240,8 +255,8 @@ const LabReservations = () => {
     setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[4])}`);
   };
 
-  const changeWeek = (change) => {
-    setCurrentWeek((prev) => prev + change);
+  const changeWeek = change => {
+    setCurrentWeek(prev => prev + change);
   };
 
   const handleCellClick = (event, dia, hora) => {
@@ -275,14 +290,15 @@ const LabReservations = () => {
 
     if (text === "Disponible") {
       setSelectedDate(selectedDay);
-      setNewReservation((prev) => ({ ...prev, hora }));
+      setNewReservation(prev => ({ ...prev, hora }));
       setShowAddModal(true);
     } else if (text.startsWith("Reservado")) {
       const info = event.target.getAttribute("data-info").split(", ");
       setReservationDetails({
         encargado: info[0].split(": ")[1],
         asunto: info[1].split(": ")[1],
-        descripcion: event.target.textContent.split(" - ")[1] || "Descripción aquí",
+        descripcion:
+          event.target.textContent.split(" - ")[1] || "Descripción aquí",
         hora,
         fecha: formatDate(selectedDay),
         editable: false,
@@ -307,7 +323,7 @@ const LabReservations = () => {
 
   const saveReservation = () => {
     const formattedDate = formatDate(selectedDate);
-    setReservations((prev) => [
+    setReservations(prev => [
       ...prev,
       {
         dia: selectedCell.dia,
@@ -335,9 +351,9 @@ const LabReservations = () => {
 
   const deleteReservation = () => {
     const formattedDate = formatDate(selectedDate);
-    setReservations((prev) =>
+    setReservations(prev =>
       prev.filter(
-        (res) =>
+        res =>
           res.dia !== selectedCell.dia ||
           res.hora !== selectedCell.hora ||
           res.fecha !== formattedDate
@@ -349,14 +365,16 @@ const LabReservations = () => {
 
   const handleAddReservation = () => {
     if (selectedCell) {
-      setNewReservation((prev) => ({ ...prev, hora: selectedCell.hora }));
+      setNewReservation(prev => ({ ...prev, hora: selectedCell.hora }));
       setShowAddModal(true);
     }
   };
 
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
+        selectedDate.setDate(selectedDate.getDate() + 1);
         const formattedDate = selectedDate.toISOString().split('T')[0];
+        console.log(formattedDate);
 
         let savedResponsible = responsible;
 
@@ -431,16 +449,18 @@ const LabReservations = () => {
   
   
 
-  const handleResponsibleChange = (event) => {
+  const handleResponsibleChange = event => {
     const { name, value } = event.target;
-    setResponsible((prev) => ({ ...prev, [name]: value }));
+    setResponsible(prev => ({ ...prev, [name]: value }));
   };
 
   const searchResponsible = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/person/${responsible.cedula}`);
+      const response = await axios.get(
+        `http://localhost:8080/person/${responsible.cedula}`
+      );
       setResponsible(response.data);
-      setNewReservation((prev) => ({
+      setNewReservation(prev => ({
         ...prev,
         encargado: `${response.data.nombre} ${response.data.apellido}`,
       }));
@@ -471,7 +491,7 @@ const LabReservations = () => {
             value={selectedBloque}
             onChange={handleBloqueChange}
           >
-            {bloques.map((bloque) => (
+            {bloques.map(bloque => (
               <option key={bloque.id} value={bloque.id}>
                 {bloque.nombre}
               </option>
@@ -676,7 +696,11 @@ const LabReservations = () => {
                   value={responsible.cedula}
                   onChange={handleResponsibleChange}
                 />
-                <button className="btn btn-secondary" type="button" onClick={searchResponsible}>
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={searchResponsible}
+                >
                   Buscar
                 </button>
               </div>
@@ -765,8 +789,8 @@ const LabReservations = () => {
                 className="form-control"
                 id="newAsunto"
                 value={newReservation.asunto}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
+                onChange={e =>
+                  setNewReservation(prev => ({
                     ...prev,
                     asunto: e.target.value,
                   }))
@@ -782,8 +806,8 @@ const LabReservations = () => {
                 className="form-control"
                 id="newDescripcion"
                 value={newReservation.descripcion}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
+                onChange={e =>
+                  setNewReservation(prev => ({
                     ...prev,
                     descripcion: e.target.value,
                   }))
@@ -815,16 +839,24 @@ const LabReservations = () => {
       </Modal>
 
       {/* Modal para confirmación de eliminación */}
-      <Modal show={showConfirmDelete} onHide={() => setShowConfirmDelete(false)}>
+      <Modal
+        show={showConfirmDelete}
+        onHide={() => setShowConfirmDelete(false)}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Eliminación</Modal.Title>
         </Modal.Header>
-        <Modal.Body>¿Estás seguro de que deseas eliminar esta reserva?</Modal.Body>
+        <Modal.Body>
+          ¿Estás seguro de que deseas eliminar esta reserva?
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={deleteReservation}>
             Eliminar
           </Button>
-          <Button variant="secondary" onClick={() => setShowConfirmDelete(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConfirmDelete(false)}
+          >
             Cancelar
           </Button>
         </Modal.Footer>
