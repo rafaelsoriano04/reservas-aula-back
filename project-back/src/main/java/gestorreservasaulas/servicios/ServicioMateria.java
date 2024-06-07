@@ -12,6 +12,5 @@ public interface ServicioMateria {
     List<MateriaDto> findTodos();
     void eliminarMateria(Long id);
     Materia buscarMateria(Long id) throws NotFoundException;
-
-
+    
 }
