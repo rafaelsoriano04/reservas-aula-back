@@ -202,6 +202,21 @@ function Horarios() {
     );
     return horario ? `${horario.nombre}` : "";
   };
+ 
+
+  const handleDocumentClick = (e) => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setSelectedCell(null);
+      setShowContextMenu(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
 
   const horas = [
     "7-8",
