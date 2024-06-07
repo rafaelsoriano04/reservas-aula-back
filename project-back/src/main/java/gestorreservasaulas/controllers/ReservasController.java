@@ -34,7 +34,7 @@ public class ReservasController {
     @GetMapping("/semana")
     public List<ReservaDto> getReservations(
             @RequestParam Date fecha,
-            @RequestParam Long idEspacio) {
-        return servicioReservas.getReservasPorFecha(fecha, idEspacio);
+            @RequestParam Long id_espacio) throws NotFoundException {
+        return servicioReservas.getReservasPorFecha(fecha, id_espacio);
     }
 }

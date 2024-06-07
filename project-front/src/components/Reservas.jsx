@@ -86,18 +86,29 @@ const LabReservations = () => {
   };
 
   const getReservas = async () => {
-    //Crear metodo get que obtenga por fecha, solo enviar una fecha y que el back
-    //devuelva solo las fechas de esa semana
-    //crear metodo para llenar en la tabla con las reservas obtenidas}
-    //posiblmente agregar al array de horarios dependiendo si vale o no
-    
-    const url = `http:=//http://localhost:8080/reserva/${selectedAulaLab}`;
-    try {
-      
-    } catch (error) {
-      
+    // Asegurarse de que selectedAulaLab y weekDates[0] (lunes de la semana actual) estén definidos
+    if (!selectedAulaLab || weekDates.length === 0) {
+        console.error("Aula/Laboratorio o fecha no seleccionados");
+        return;
     }
-  }
+
+    const formattedDate = formatDate(weekDates[0]); // Formato de fecha debe ser aceptado por tu backend
+    const url = `http://localhost:8080/semana?fecha=${formattedDate}&idEspacio=${selectedAulaLab}`;
+
+    try {
+        const response = await axios.get(url);
+        console.log("Reservas obtenidas:", response.data);
+        setReservas(response.data); // Suponiendo que la respuesta es una lista de reservas
+    } catch (error) {
+        console.error("Error al obtener reservas:", error);
+        Swal.fire("Error", "No se pudieron obtener las reservas.", "error");
+    }
+};
+
+useEffect(() => {
+    getReservas();
+}, [weekDates, selectedAulaLab]); // Dispara getReservas cuando cambie la semana o el aula/laboratorio seleccionado
+
 
   const fetchHorarios = async () => {
     const formattedDate = formatDate(new Date()); // Asegúrate de enviar la fecha correcta según tu lógica de negocio
