@@ -18,7 +18,7 @@ function Horarios() {
   const [selectedDia, setSelectedDia] = useState("Lunes");
   const [selectedMateria, setSelectedMateria] = useState();
   const [selectedDocente, setSelectedDocente] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({

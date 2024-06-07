@@ -32,4 +32,5 @@ public class MateriaController
     public void delete(@PathVariable Long id) throws NotFoundException {
         servicioMateria.eliminarMateria(id);
     }
+    
 }

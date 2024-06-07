@@ -35,4 +35,10 @@ public class PersonaController {
     public PersonaDto getByCedula(@PathVariable String cedula) throws NotFoundException {
         return servicioPersona.buscar(cedula);
     }
+
+    @GetMapping("/docente")
+    public List<PersonaDto> getAll() {
+        return servicioPersona.listarDocentes();
+    }
+
 }

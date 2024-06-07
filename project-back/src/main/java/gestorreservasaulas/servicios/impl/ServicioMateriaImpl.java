@@ -5,6 +5,7 @@ import gestorreservasaulas.entidades.Materia;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RespositorioMateria;
+import gestorreservasaulas.servicios.ServicioHorario;
 import gestorreservasaulas.servicios.ServicioMateria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class ServicioMateriaImpl implements ServicioMateria {
     private RespositorioMateria repositorioMateria;
 
     private final ModelMapper modelMapper;
-
+    
     @Autowired
     public ServicioMateriaImpl() {
         this.modelMapper = new ModelMapper();
@@ -38,8 +39,10 @@ public class ServicioMateriaImpl implements ServicioMateria {
 
     @Override
     public void eliminarMateria(Long id) {
-        repositorioMateria.deleteById(id);
+          repositorioMateria.deleteById(id);
     }
+    
+    
 
     @Override
     public Materia buscarMateria(Long id) throws NotFoundException {
