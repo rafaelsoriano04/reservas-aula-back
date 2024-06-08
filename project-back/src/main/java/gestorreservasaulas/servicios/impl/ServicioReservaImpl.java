@@ -106,21 +106,12 @@ public class ServicioReservaImpl implements ServicioReserva {
 
     @Override
     public ReservaDto actualizarReserva(Long id, ReservaDto reservaDto) throws NotFoundException {
-        Reserva reservaExistente = repositorioReserva.findById(id)
-                .orElseThrow(() -> new NotFoundException("Reserva no encontrada"));
-
-        reservaExistente.setHora(reservaDto.getHora());
-        reservaExistente.setFecha(reservaDto.getFecha());
-
-        if (reservaDto.getId_espacio() != null) {
-            reservaExistente.setEspacio(servicioEspacio.findById(reservaDto.getId_espacio()));
-        }
-        if (reservaDto.getId_persona() != null) {
-            reservaExistente.setPersona(servicioPersona.findById(reservaDto.getId_persona()));
-        }
-
-        return reservaToDto(repositorioReserva.save(reservaExistente));
+        Reserva reserva = repositorioReserva.findById(id).orElseThrow(() -> new NotFoundException("Reserva no encontrada"));
+        reserva.setAsunto(reservaDto.getAsunto());
+        reserva.setDescripcion(reservaDto.getDescripcion());
+        return reservaToDto(repositorioReserva.save(reserva));
     }
+
 
     @Override
     public void eliminarReserva(Long id) throws NotFoundException {

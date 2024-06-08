@@ -22,6 +22,7 @@ const LabReservations = () => {
     fecha: "",
     tipo: "",
     editable: false,
+    id: null,
   });
   const [newReservation, setNewReservation] = useState({
     encargado: "",
@@ -39,7 +40,6 @@ const LabReservations = () => {
   const [isExistingResponsible, setIsExistingResponsible] = useState(false);
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
 
-  // Combos bloques reservas aula
   const [bloques, setBloques] = useState([]);
   const [aulasLabs, setAulasLabs] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState(1);
@@ -116,10 +116,10 @@ const LabReservations = () => {
       //Aqui se debe controlar que se llene de acuerdo al tipo
       let filteredData = [];
       if (selectedTipo == "Aula") {
-        filteredData = response.data.filter(item => item.tipo === "Aula");
+        filteredData = response.data.filter((item) => item.tipo === "Aula");
       } else {
         filteredData = response.data.filter(
-          item => item.tipo === "Laboratorio"
+          (item) => item.tipo === "Laboratorio"
         );
       }
       setAulasLabs(filteredData);
@@ -142,45 +142,53 @@ const LabReservations = () => {
     }
   };
 
-  const handleCedulaChange = event => {
+  const handleCedulaChange = (event) => {
     const value = event.target.value;
     if (/^\d*$/.test(value) && value.length <= 10) {
-      setResponsible(prev => ({ ...prev, cedula: value }));
+      setResponsible((prev) => ({ ...prev, cedula: value }));
     }
   };
 
-  const handleNombreChange = event => {
+  const handleNombreChange = (event) => {
     const value = event.target.value;
     if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible(prev => ({ ...prev, nombre: value }));
+      setResponsible((prev) => ({ ...prev, nombre: value }));
     }
   };
 
-  const handleApellidoChange = event => {
+  const handleApellidoChange = (event) => {
     const value = event.target.value;
     if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible(prev => ({ ...prev, apellido: value }));
+      setResponsible((prev) => ({ ...prev, apellido: value }));
     }
   };
-  const handleAsuntoChange = event => {
+  const handleAsuntoChange = (event) => {
     const value = event.target.value;
     if (value.length <= 30) {
-      setNewReservation(prev => ({
+      setReservationDetails((prev) => ({
         ...prev,
         asunto: value,
       }));
     }
   };
 
-  const handleBloqueChange = event => {
+  const handleDescripcionChange = (event) => {
+    const value = event.target.value;
+    setReservationDetails((prev) => ({
+      ...prev,
+      descripcion: value,
+    }));
+  };
+
+  const handleBloqueChange = (event) => {
     setSelectedBloque(event.target.value);
   };
 
-  const handleTipoChange = event => {
+  const handleTipoChange = (event) => {
     setSelectedTipo(event.target.value);
   };
 
-  const handleAulaLabChange = event => {
+  const handleAulaLabChange = (event) => {
     setSelectedAulaLab(event.target.value);
   };
 
@@ -190,12 +198,9 @@ const LabReservations = () => {
     }
 
     const horario = horarios.find(
-      h => h.dia === dia && h.hora === hora.split("-")[0],
-      h => h.dia === dia && h.hora === hora.split("-")[0]
+      (h) => h.dia === dia && h.hora === hora.split("-")[0]
     );
 
-    // Lunes
-    // const reserva = .find(h => h.fecha === fecha && h.hora === hora);
     let index;
     switch (dia) {
       case "Lunes":
@@ -217,14 +222,14 @@ const LabReservations = () => {
 
     const fecha = formatDate(weekDates[index]);
     const reserva = reservas.find(
-      reserva => reserva.fecha === fecha && reserva.hora === hora.split("-")[0]
+      (reserva) => reserva.fecha === fecha && reserva.hora === hora.split("-")[0]
     );
 
     if (reserva) {
       return (
         <td
           style={{ backgroundColor: "#ffcccc", cursor: "pointer" }}
-          onClick={e => handleCellClick(e, dia, hora)}
+          onClick={(e) => handleCellClick(e, dia, hora)}
         >
           Reservado - {reserva.asunto}
         </td>
@@ -235,7 +240,7 @@ const LabReservations = () => {
       return (
         <td
           style={{ backgroundColor: "#d3ffd3", cursor: "pointer" }}
-          onClick={e => handleCellClick(e, dia, hora)}
+          onClick={(e) => handleCellClick(e, dia, hora)}
         >
           Disponible
         </td>
@@ -250,7 +255,7 @@ const LabReservations = () => {
     return (
       <td
         style={{ backgroundColor: colorFondo, cursor: "pointer" }}
-        onClick={e => handleCellClick(e, dia, hora)}
+        onClick={(e) => handleCellClick(e, dia, hora)}
         data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
       >
         {textoCelda}
@@ -275,14 +280,14 @@ const LabReservations = () => {
   ];
   const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
-  const getMonday = d => {
+  const getMonday = (d) => {
     d = new Date(d);
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
   };
 
-  const formatDate = date => {
+  const formatDate = (date) => {
     const d = new Date(date);
     let month = "" + (d.getMonth() + 1);
     let day = "" + d.getDate();
@@ -311,8 +316,8 @@ const LabReservations = () => {
     setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[4])}`);
   };
 
-  const changeWeek = change => {
-    setCurrentWeek(prev => prev + change);
+  const changeWeek = (change) => {
+    setCurrentWeek((prev) => prev + change);
   };
 
   const handleCellClick = (event, dia, hora) => {
@@ -325,7 +330,8 @@ const LabReservations = () => {
     const formattedDate = formatDate(selectedDay);
     const horaInicio = hora.split("-")[0];
     const reserva = reservas.find(
-      reserva => reserva.fecha === formattedDate && reserva.hora === horaInicio
+      (reserva) =>
+        reserva.fecha === formattedDate && reserva.hora === horaInicio
     );
 
     if (reserva) {
@@ -387,22 +393,15 @@ const LabReservations = () => {
   };
 
   const enableEditing = () => {
-    document.getElementById("encargado").disabled = false;
-    document.getElementById("asunto").disabled = false;
-    document.getElementById("descripcion").disabled = false;
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = "Guardar";
-    saveBtn.classList.add("btn", "btn-success");
-    saveBtn.onclick = saveReservation;
-    saveBtn.id = "saveBtn";
-    const footer = document.querySelector(".modal-footer");
-    footer.insertBefore(saveBtn, footer.firstChild);
-    document.querySelector(".btn-primary").style.display = "none";
+    setReservationDetails((prev) => ({
+      ...prev,
+      editable: true,
+    }));
   };
 
   const saveReservation = () => {
     const formattedDate = formatDate(selectedDate);
-    setReservations(prev => [
+    setReservations((prev) => [
       ...prev,
       {
         dia: selectedCell.dia,
@@ -433,15 +432,14 @@ const LabReservations = () => {
       handleDeleteReservation(reservationDetails.id);
     }
   };
-  
-  
+
   const handleAddReservation = () => {
     if (selectedCell) {
-      setNewReservation(prev => ({ ...prev, hora: selectedCell.hora }));
+      setNewReservation((prev) => ({ ...prev, hora: selectedCell.hora }));
       setShowAddModal(true);
     }
   };
-  
+
   const handleDeleteReservation = async (reservationId) => {
     try {
       await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
@@ -450,9 +448,11 @@ const LabReservations = () => {
         text: "La reserva ha sido eliminada exitosamente",
         icon: "success",
       });
-  
+
       // Actualiza el estado de reservas después de eliminar
-      setReservas((prev) => prev.filter((reserva) => reserva.id !== reservationId));
+      setReservas((prev) =>
+        prev.filter((reserva) => reserva.id !== reservationId)
+      );
       setShowConfirmDelete(false);
       setShowModal(false);
     } catch (error) {
@@ -463,7 +463,48 @@ const LabReservations = () => {
       });
     }
   };
-  
+
+  const updateReservation = async () => {
+    const updatedReservation = {
+      id: reservationDetails.id,
+      asunto: reservationDetails.asunto,
+      descripcion:
+        reservationDetails.descripcion || "Sin descripción proporcionada",
+    };
+
+    try {
+      await axios.put(
+        `http://localhost:8080/reservas/${reservationDetails.id}`,
+        updatedReservation
+      );
+      Swal.fire({
+        title: "Actualizado",
+        text: "La reserva ha sido actualizada exitosamente",
+        icon: "success",
+      });
+
+      // Actualiza la lista de reservas localmente
+      setReservas((prev) =>
+        prev.map((reserva) =>
+          reserva.id === reservationDetails.id
+            ? {
+                ...reserva,
+                asunto: reservationDetails.asunto,
+                descripcion: reservationDetails.descripcion || "Sin descripción proporcionada",
+              }
+            : reserva
+        )
+      );
+
+      setShowModal(false);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `Hubo un error al actualizar la reserva: ${error.response?.data?.message || error.message}`,
+        icon: "error",
+      });
+    }
+  };
 
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
@@ -485,7 +526,7 @@ const LabReservations = () => {
           });
           savedResponsible = response.data;
           setResponsible(savedResponsible);
-          setNewReservation(prev => ({
+          setNewReservation((prev) => ({
             ...prev,
             encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
           }));
@@ -503,7 +544,7 @@ const LabReservations = () => {
         hora: selectedCell.hora.split("-")[0],
         fecha: formattedDate,
         asunto: newReservation.asunto,
-        descripcion: newReservation.descripcion,
+        descripcion: newReservation.descripcion || "Sin descripción proporcionada",
         id_persona: savedResponsible.id,
         id_espacio: selectedAulaLab,
       };
@@ -525,7 +566,7 @@ const LabReservations = () => {
             reservado: true,
           },
         ];
-        
+
         setHorarios(newHorarios);
         setShowAddModal(false);
         setNewReservation({
@@ -554,9 +595,9 @@ const LabReservations = () => {
     }
   };
 
-  const handleResponsibleChange = event => {
+  const handleResponsibleChange = (event) => {
     const { name, value } = event.target;
-    setResponsible(prev => ({ ...prev, [name]: value }));
+    setResponsible((prev) => ({ ...prev, [name]: value }));
   };
 
   const searchResponsible = async () => {
@@ -565,7 +606,7 @@ const LabReservations = () => {
         `http://localhost:8080/person/${responsible.cedula}`
       );
       setResponsible(response.data);
-      setNewReservation(prev => ({
+      setNewReservation((prev) => ({
         ...prev,
         encargado: `${response.data.nombre} ${response.data.apellido}`,
       }));
@@ -596,7 +637,7 @@ const LabReservations = () => {
             value={selectedBloque}
             onChange={handleBloqueChange}
           >
-            {bloques.map(bloque => (
+            {bloques.map((bloque) => (
               <option key={bloque.id} value={bloque.id}>
                 {bloque.nombre}
               </option>
@@ -623,7 +664,7 @@ const LabReservations = () => {
             value={selectedAulaLab}
             onChange={handleAulaLabChange}
           >
-            {aulasLabs.map(aulaLab => (
+            {aulasLabs.map((aulaLab) => (
               <option key={aulaLab.id} value={aulaLab.id}>
                 {aulaLab.nombre}
               </option>
@@ -655,10 +696,10 @@ const LabReservations = () => {
           </tr>
         </thead>
         <tbody>
-          {horas.map(hora => (
+          {horas.map((hora) => (
             <tr key={hora}>
               <td>{hora}</td>
-              {dias.map(dia => (
+              {dias.map((dia) => (
                 <React.Fragment key={`${dia}-${hora}`}>
                   {renderTableCell(dia, hora)}
                 </React.Fragment>
@@ -723,10 +764,12 @@ const LabReservations = () => {
               </label>
               <input
                 type="text"
+                maxLength={30}
                 className="form-control"
                 id="asunto"
                 value={reservationDetails.asunto}
-                
+                onChange={(e) => setReservationDetails({ ...reservationDetails, asunto: e.target.value })}
+                disabled={!reservationDetails.editable}
               />
             </div>
             <div className="mb-3">
@@ -734,10 +777,12 @@ const LabReservations = () => {
                 Descripción
               </label>
               <textarea
+                maxLength={150}
                 className="form-control"
                 id="descripcion"
                 value={reservationDetails.descripcion}
-                
+                onChange={(e) => setReservationDetails({ ...reservationDetails, descripcion: e.target.value })}
+                disabled={!reservationDetails.editable}
               />
             </div>
             <div className="mb-3">
@@ -755,9 +800,15 @@ const LabReservations = () => {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={enableEditing}>
-            Modificar
-          </Button>
+          {!reservationDetails.editable ? (
+            <Button variant="primary" onClick={enableEditing}>
+              Modificar
+            </Button>
+          ) : (
+            <Button variant="success" onClick={updateReservation}>
+              Guardar
+            </Button>
+          )}
           <Button variant="danger" onClick={confirmDelete}>
             Eliminar
           </Button>
@@ -797,7 +848,7 @@ const LabReservations = () => {
                   id="cedula"
                   name="cedula"
                   value={responsible.cedula}
-                  onChange={handleCedulaChange} // Usa la función de control aquí
+                  onChange={handleCedulaChange}
                 />
                 <button
                   className="btn btn-secondary"
@@ -834,7 +885,7 @@ const LabReservations = () => {
                     id="nombre"
                     name="nombre"
                     value={responsible.nombre}
-                    onChange={handleNombreChange} // Usa la función de control aquí
+                    onChange={handleNombreChange}
                   />
                 </div>
                 <div className="mb-3">
@@ -847,7 +898,7 @@ const LabReservations = () => {
                     id="apellido"
                     name="apellido"
                     value={responsible.apellido}
-                    onChange={handleApellidoChange} // Usa la función de control aquí
+                    onChange={handleApellidoChange}
                   />
                 </div>
                 <div className="mb-3">
@@ -892,7 +943,12 @@ const LabReservations = () => {
                 className="form-control"
                 id="newAsunto"
                 value={newReservation.asunto}
-                onChange={handleAsuntoChange} // Usa la función de control aquí
+                onChange={(e) =>
+                  setNewReservation((prev) => ({
+                    ...prev,
+                    asunto: e.target.value,
+                  }))
+                }
               />
             </div>
             <div className="mb-3">
@@ -903,8 +959,8 @@ const LabReservations = () => {
                 className="form-control"
                 id="newDescripcion"
                 value={newReservation.descripcion}
-                onChange={e =>
-                  setNewReservation(prev => ({
+                onChange={(e) =>
+                  setNewReservation((prev) => ({
                     ...prev,
                     descripcion: e.target.value,
                   }))
