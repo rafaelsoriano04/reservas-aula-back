@@ -14,7 +14,11 @@ import gestorreservasaulas.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 
@@ -52,7 +56,9 @@ public class ServicioReservaImpl implements ServicioReserva {
 
         if (lista != null) {
             for (HorarioDto horario : lista) {
-                if (horario.getDia().equalsIgnoreCase(diaReserva) &&
+                // Asegúrate de que 'horario', 'horario.getDia()' y 'horario.getHora()' no sean nulos antes de usarlos
+                if (horario != null && horario.getDia() != null && horario.getHora() != null &&
+                        horario.getDia().equalsIgnoreCase(diaReserva) &&
                         horario.getHora().equals(reservaDto.getHora())) {
                     throw new NotFoundException("Horario Existente");
                 }
@@ -62,21 +68,40 @@ public class ServicioReservaImpl implements ServicioReserva {
         return reservaToDto(repositorioReserva.save(dtoToReserva(reservaDto)));
     }
 
+    @Override
+    public List<ReservaDto> getByWeek(Date fecha, Long id_espacio) throws NotFoundException {
+        Date[] weekDates = getMondayAndFriday(fecha);
+        Espacio espacio = servicioEspacio.findById(id_espacio);
+        //Mapear de Reserva a ReservaDto
+
+        List<Reserva> reservas = repositorioReserva.encontrarSemana(espacio, weekDates[0], weekDates[1]);
+        List<ReservaDto> reservasdto = new ArrayList<>();
+        for (Reserva reserva : reservas) {
+            ReservaDto dto = new ReservaDto();
+            dto.setId(reserva.getId());
+            dto.setHora(reserva.getHora());
+            dto.setFecha(reserva.getFecha());
+            dto.setId_espacio(reserva.getEspacio().getId());
+            dto.setId_persona(reserva.getPersona().getId());
+            dto.setAsunto(reserva.getAsunto());
+            reservasdto.add(dto);
+        }
+        return reservasdto;
+    }
+
     private Reserva dtoToReserva(ReservaDto reservadto) throws NotFoundException {
         Reserva reserva = new Reserva();
         reserva.setId(reservadto.getId());
         reserva.setHora(reservadto.getHora());
         reserva.setFecha(reservadto.getFecha());
-
+        reserva.setAsunto(reservadto.getAsunto());
 
         if (reservadto.getId_espacio() != null) {
             reserva.setEspacio(servicioEspacio.findById(reservadto.getId_espacio()));
         }
-
         if (reservadto.getId_persona() != null) {
             reserva.setPersona(servicioPersona.findById(reservadto.getId_persona()));
         }
-
         return reserva;
     }
 
@@ -88,6 +113,7 @@ public class ServicioReservaImpl implements ServicioReserva {
         reservadto.setId(reserva.getId());
         reservadto.setHora(reserva.getHora());
         reservadto.setFecha(reserva.getFecha());
+        reservadto.setAsunto(reserva.getAsunto());
 
         // Asigna id_aula solo si la relación Aula no es nula
         if (reserva.getEspacio() != null) {
@@ -100,6 +126,21 @@ public class ServicioReservaImpl implements ServicioReserva {
         }
 
         return reservadto;
+    }
+
+    public static Date[] getMondayAndFriday(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        // Calcular el lunes
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        Date monday = new Date(calendar.getTimeInMillis());
+
+        // Calcular el viernes
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        Date friday = new Date(calendar.getTimeInMillis());
+
+        return new Date[]{monday, friday};
     }
 
 }
