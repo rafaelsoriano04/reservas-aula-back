@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,18 +65,17 @@ public class ServicioReservaImpl implements ServicioReserva {
             }
         }
 
-
         return reservaToDto(repositorioReserva.save(dtoToReserva(reservaDto)));
     }
 
     @Override
-    public List<ReservaDto> getReservasPorFecha(Date fecha, Long id_espacio) throws NotFoundException {
+    public List<ReservaDto> getByWeek(Date fecha, Long id_espacio) throws NotFoundException {
         Date[] weekDates = getMondayAndFriday(fecha);
         Espacio espacio = servicioEspacio.findById(id_espacio);
         //Mapear de Reserva a ReservaDto
 
-        List<Reserva> reservas =  repositorioReserva.encontrarSemana(espacio, weekDates[0], weekDates[1]);
-        List<ReservaDto> reservasdto = List.of();
+        List<Reserva> reservas = repositorioReserva.encontrarSemana(espacio, weekDates[0], weekDates[1]);
+        List<ReservaDto> reservasdto = new ArrayList<>();
         for (Reserva reserva : reservas) {
             ReservaDto dto = new ReservaDto();
             dto.setId(reserva.getId());
@@ -89,23 +89,18 @@ public class ServicioReservaImpl implements ServicioReserva {
         return reservasdto;
     }
 
-
-
     private Reserva dtoToReserva(ReservaDto reservadto) throws NotFoundException {
         Reserva reserva = new Reserva();
         reserva.setId(reservadto.getId());
         reserva.setHora(reservadto.getHora());
         reserva.setFecha(reservadto.getFecha());
 
-
         if (reservadto.getId_espacio() != null) {
             reserva.setEspacio(servicioEspacio.findById(reservadto.getId_espacio()));
         }
-
         if (reservadto.getId_persona() != null) {
             reserva.setPersona(servicioPersona.findById(reservadto.getId_persona()));
         }
-
         return reserva;
     }
 
