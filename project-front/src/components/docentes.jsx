@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import "../styles/docentes.css";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -11,12 +11,32 @@ function Docentes() {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [formData, setFormData] = useState({  id: '', nombre: '', cedula: '', apellido: '',telefono:''});
   const [isEditing, setIsEditing] = useState(false);
+  const [cancel, setCancel] = useState(false);
+  const [cedulaError, setCedulaError] = useState("");
+  const [telefonoError, setTelefonoError] = useState("");
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
   const crearDocente = async () => {
     try {
+      const cedula = /^\d{10}$/;
+            if (!cedula.test(formData.cedula)) {
+                setCedulaError("La cédula ingresada no es válida.");
+                return;
+            }
+            const telefono = /^\d{10}$/;
+            if (!telefono.test(formData.telefono)) {
+              setTelefonoError("El teléfono ingresado no es válido.");
+              return;
+            }
+      
+            const cedulaExistente = docentes.find(docente => docente.cedula === formData.cedula);
+            if (cedulaExistente) {
+                setCedulaError("La cédula ya está registrada.");
+                return;
+            }
+            
       let docente = {
         cedula: formData.cedula,
         nombre: formData.nombre,
@@ -55,9 +75,26 @@ function Docentes() {
     }
   };
 
-  const eliminarDocentes= async (id) => {
-    const url = `http://localhost:8080/person/docente${id}`
-        try {
+  const limpiar = async () => {
+    setIsEditing(false);
+    setCancel(true);
+    setFormData({ id: '', nombre: '', cedula: '', apellido: '',telefono:'' }); 
+  }
+  
+
+  const eliminarDocentes = async (id) => {
+    const url = `http://localhost:8080/person/${id}`;
+    try {
+        const confirmacion = await Swal.fire({
+            title: '¿Está seguro?',
+            text: 'Esta acción eliminará el docente. ¿Desea continuar?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+        });
+
+        if (confirmacion.isConfirmed) {
             const response = await axios.delete(url);
             getDocentes();
             Swal.fire({
@@ -66,17 +103,36 @@ function Docentes() {
                 icon: "success",
                 confirmButtonText: 'OK'
             });
-        } catch (error) {
-            Swal.fire({
-                title: "Error",
-                text: "No se pudo eliminar el docente. Por favor, intente de nuevo.",
-                icon: "error",
-                confirmButtonText: 'OK'
-            });
         }
-  }
+    } catch (error) {
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo eliminar el docente. Es posible que este asociado a un horario.",
+            icon: "error",
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
   const editarDocente = async (id) => {
+    const cedula = /^\d{10}$/;
+    if (!cedula.test(formData.cedula)) {
+        setCedulaError("La cédula ingresada no es válida.");
+        return;
+    }
+    const telefono = /^\d{10}$/;
+    if (!telefono.test(formData.telefono)) {
+      setTelefonoError("El teléfono ingresado no es válido. Debe tener 10 dígitos.");
+      return;
+    }
+
+    const cedulaExistente = docentes.find(docente => docente.cedula === formData.cedula && docente.id !== formData.id);
+    if (cedulaExistente) {
+      setCedulaError("La cédula ya está registrada.");
+      return;
+    }
     const url = `http://localhost:8080/person`;
+
     let docente = {
       id: formData.id,
       cedula: formData.cedula,
@@ -151,12 +207,20 @@ const handleRowClick = (e, docente) => {
           <Form id="form-reservas">
             <div className="row">
               <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="cedula">Cédula:</Form.Label>
-                  <Form.Control type="text" id="cedula" className="form-control" name="cedula" value={formData.cedula}  
-                                    onChange={e => setFormData({ ...formData, cedula: e.target.value })}  />
-
-                </Form.Group>
+              <Form.Group className="form-group">
+                            <Form.Label htmlFor="cedula">Cédula:</Form.Label>
+                            <Form.Control type="text" id="cedula" className="form-control" name="cedula" value={formData.cedula}
+                                onChange={e => {
+                                  let cedulaValue = e.target.value;
+                                  cedulaValue = cedulaValue.replace(/\D/g, ''); 
+                                  cedulaValue = cedulaValue.slice(0, 10); 
+                                  setFormData({ ...formData, cedula: cedulaValue });
+                                  setCedulaError(""); 
+                                }}
+                                maxLength={10}
+                                 />
+                            {cedulaError && <Alert variant="danger">{cedulaError}</Alert>} 
+                        </Form.Group>
               </div>
               <div className="col-md-4">
                 <Form.Group className="form-group">
@@ -179,19 +243,35 @@ const handleRowClick = (e, docente) => {
       <Form.Group className="form-group">
         <Form.Label htmlFor="telefono">Teléfono:</Form.Label>
         <Form.Control type="text" id="telefono" className="form-control" name="telefono" value={formData.telefono}  
-                      onChange={e => setFormData({ ...formData, telefono: e.target.value })} />
+                       onChange={(e) => {
+                        let telefonoValue = e.target.value;
+                        telefonoValue = telefonoValue.replace(/\D/g, ''); 
+                        telefonoValue = telefonoValue.slice(0, 10); 
+                        setFormData({ ...formData, telefono: telefonoValue });
+                        setTelefonoError("");
+                    }}
+                    maxLength={10}
+                />
+                {telefonoError && <Alert variant="danger">{telefonoError}</Alert>}
       </Form.Group>
     </div>
             </div>
             <div className="button-group mt-4 text-center">
+            
             {!isEditing ? (
                             <Button type="button" className="btn btn-custom" onClick={crearDocente}  >
                                 Crear
                             </Button>
-                        ) : (
-                            <Button type="button" className="btn btn-custom" id="guardar-btn"onClick={editarDocente} >
-                                Guardar
-                            </Button>
+                        ) : 
+                          (
+                            <>
+                                <Button type="button" className="btn btn-custom" id="guardar-btn" onClick={editarDocente}>
+                                    Guardar
+                                </Button>
+                                <Button type="button" className="btn btn-danger ml-2" onClick={limpiar}>
+                                    Cancelar
+                                </Button>
+                            </>
                         )}
             </div>
           </Form>
@@ -246,11 +326,9 @@ const handleRowClick = (e, docente) => {
 }}>
   Editar
 </Button>
-
-                        <Button variant="custom" id="eliminar-btn" onClick={() => eliminarDocentes
-                          (selectedRow)}>
-                            Eliminar
-                        </Button>
+<Button variant="custom" id="eliminar-btn" onClick={() => eliminarDocentes(selectedRow)}>
+  Eliminar
+</Button>
           </div>
         </div>
       </div>

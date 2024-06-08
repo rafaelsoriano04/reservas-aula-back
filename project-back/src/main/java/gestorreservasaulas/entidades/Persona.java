@@ -26,7 +26,7 @@ public class Persona {
     String telefono;
     String tipo;
     
-    @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "persona", orphanRemoval = true)
     private List<Reserva> listaHorarios = new ArrayList<>();
     
 }

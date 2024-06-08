@@ -17,4 +17,5 @@ public interface ServicioPersona {
     boolean existePorCedula(String cedula);
      List<PersonaDto> listarDocentes();
 
+    void eliminarPersona(Long id) throws ConflictException;
 }

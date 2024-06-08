@@ -70,6 +70,17 @@ public class ServicioPersonaImpl implements ServicioPersona {
     }
 
     @Override
+    public void eliminarPersona(Long id)  throws ConflictException{
+        try{
+            repositorioPersona.deleteById(id);
+        }catch (Exception e){
+            throw new ConflictException("Persona Asociada a Horario");
+        }
+
+    }
+
+
+    @Override
     public boolean existePorCedula(String cedula) {
         return repositorioPersona.existsByCedula(cedula);
     }

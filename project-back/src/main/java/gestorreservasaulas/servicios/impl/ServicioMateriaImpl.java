@@ -38,8 +38,13 @@ public class ServicioMateriaImpl implements ServicioMateria {
     }
 
     @Override
-    public void eliminarMateria(Long id) {
-          repositorioMateria.deleteById(id);
+    public void eliminarMateria(Long id) throws ConflictException {
+        try{
+            repositorioMateria.deleteById(id);
+        }catch (Exception e){
+            throw new ConflictException("Materia Asociada a Horario");
+        }
+
     }
     
     

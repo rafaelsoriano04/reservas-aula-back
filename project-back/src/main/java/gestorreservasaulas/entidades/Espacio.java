@@ -29,10 +29,10 @@ public class Espacio {
     @JoinColumn(name = "id_bloque")
     private Bloque bloque;
 
-    @OneToMany(mappedBy = "espacio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "espacio",orphanRemoval = true)
     private List<Reserva> listaReserva;
 
-    @OneToMany(mappedBy = "espacio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "espacio",orphanRemoval = true)
     private List<Horario> listaHorario= new ArrayList<>();
 
 

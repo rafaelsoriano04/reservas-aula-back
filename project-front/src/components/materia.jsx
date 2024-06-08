@@ -11,7 +11,7 @@ function Materias() {
     const [materias, setMateria] = useState([]);
     const [formData, setFormData] = useState({  id: '', nombre: '' });
     const [isEditing, setIsEditing] = useState(false);
-
+    const [cancel, setCancel] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({
         top: 0,
         left: 0,
@@ -27,28 +27,44 @@ function Materias() {
         }
       };
       
-    const eliminarMateria = async (id) =>{
-        console.log("ID a eliminar:", id);
-        const url = `http://localhost:8080/materia/${id}`
+      const eliminarMateria = async (id) => {
+        const url = `http://localhost:8080/materia/${id}`;
         try {
-            const response = await axios.delete(url);
-            getMaterias();
-            Swal.fire({
-                title: "Eliminado",
-                text: "La materia ha sido eliminada correctamente",
-                icon: "success",
-                confirmButtonText: 'OK'
+           
+            const confirmacion = await Swal.fire({
+                title: '¿Está seguro?',
+                text: "Esta acción eliminará la materia. ¿Desea continuar?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
             });
+
+            if (confirmacion.isConfirmed) {
+                const response = await axios.delete(url);
+                getMaterias();
+                Swal.fire({
+                    title: "Eliminado",
+                    text: "La materia ha sido eliminada correctamente",
+                    icon: "success",
+                    confirmButtonText: 'OK'
+                });
+            }
         } catch (error) {
             Swal.fire({
                 title: "Error",
-                text: "No se pudo eliminar la materia. Por favor, intente de nuevo.",
+                text: "No se pudo eliminar la materia. Es posible que la materia esté asociada a un horario.",
                 icon: "error",
                 confirmButtonText: 'OK'
             });
         }
-    
     }
+    const limpiar = () => {
+        setIsEditing(false);
+        setCancel(true);
+        setFormData({ id: '', nombre: '' });
+    };
+
 
     const guardarMateria = async () =>{
         const url = `http://localhost:8080/materia`
@@ -84,7 +100,9 @@ function Materias() {
         setShowContextMenu(true);
         console.log(selectedRow);
         
+
     };
+    
 
     const handleDocumentClick = (e) => {
         if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
@@ -106,6 +124,7 @@ function Materias() {
           if (response.status === 200) {
             getMaterias();  
             setIsEditing(false); 
+            setCancel(false);
             setFormData({ id: '', nombre: '' }); 
             Swal.fire({
                 title: "Modificado",
@@ -163,9 +182,14 @@ function Materias() {
                                 Crear
                             </Button>
                         ) : (
-                            <Button type="button" className="btn btn-custom" id="guardar-btn" onClick={() => editarMateria(selectedRow)}>
-                                Guardar
-                            </Button>
+                            <>
+                                <Button type="button" className="btn btn-custom" id="guardar-btn" onClick={() => editarMateria(selectedRow)}>
+                                    Guardar
+                                </Button>
+                                <Button type="button" className="btn btn-danger ml-2" onClick={limpiar}>
+                                    Cancelar
+                                </Button>
+                            </>
                         )}
                     </div>
 

@@ -57,39 +57,55 @@ public class ServicioEspacioImpl implements ServicioEspacio {
 
     @Override
     public EspacioDto updateById(Long id, EspacioDto espacioDto) throws NotFoundException, ConflictException {
-        Espacio espacio = repositorioEspacio.findById(id)
-                .orElseThrow(() ->new NotFoundException("Espacio not found"));
+        Espacio espacioExistente = repositorioEspacio.findById(id)
+                .orElseThrow(() -> new NotFoundException("Espacio not found"));
 
-        if (espacioDto.getNombre() != null) {
+        // Actualiza campos simples si no son nulos y han cambiado
+        if (espacioDto.getNombre() != null && !espacioDto.getNombre().equals(espacioExistente.getNombre())) {
             if (repositorioEspacio.findByNombre(espacioDto.getNombre()).isPresent()) {
-                throw new ConflictException("El aula ya existe");
+                throw new ConflictException("El nombre del espacio ya existe");
             }
-            espacio.setNombre(espacioDto.getNombre());
+            espacioExistente.setNombre(espacioDto.getNombre());
         }
         if (espacioDto.getCapacidad() != null) {
-            espacio.setCapacidad(espacioDto.getCapacidad());
+            espacioExistente.setCapacidad(espacioDto.getCapacidad());
         }
         if (espacioDto.getPiso() != null) {
-            espacio.setPiso(espacioDto.getPiso());
+            espacioExistente.setPiso(espacioDto.getPiso());
         }
         if (espacioDto.getTipo() != null) {
-            espacio.setTipo(espacioDto.getTipo());
+            espacioExistente.setTipo(espacioDto.getTipo());
         }
 
-        // Si no encuentra el bloque el metodo .obtenerBloque lanza exception
-        espacio.setBloque(servicioBloque.obtenerBloque(espacioDto.getId_bloque()));
+        // Actualiza el bloque, asegurándose de que el nuevo bloque existe
+        if (espacioDto.getId_bloque() != null && !espacioDto.getId_bloque().equals(espacioExistente.getBloque().getId())) {
+            Bloque nuevoBloque = servicioBloque.obtenerBloque(espacioDto.getId_bloque());
+            espacioExistente.setBloque(nuevoBloque);
+        }
 
-        return espacioToDto(repositorioEspacio.save(espacio));
+
+        Espacio espacioGuardado = repositorioEspacio.save(espacioExistente);
+        return espacioToDto(espacioGuardado);
     }
 
     @Override
-    public void deleteById(Long id) throws NotFoundException {
-        if (repositorioEspacio.existsById(id)) {
-            repositorioEspacio.deleteById(id);
-        } else {
-            throw new NotFoundException("Aula not found");
+    public void deleteById(Long id) throws NotFoundException, ConflictException {
+        Espacio espacio = repositorioEspacio.findById(id)
+                .orElseThrow(() -> new NotFoundException("Espacio not found"));
+
+        // Comprueba si hay horarios asociados
+        if (!espacio.getListaHorario().isEmpty()) {
+            throw new ConflictException("No se puede eliminar el espacio porque tiene horarios asociados.");
         }
+
+        // Comprueba si hay reservas asociadas
+        if (!espacio.getListaReserva().isEmpty()) {
+            throw new ConflictException("No se puede eliminar el espacio porque tiene reservas asociadas.");
+        }
+
+        repositorioEspacio.deleteById(id);
     }
+
 
     private Espacio dtoToEspacio(EspacioDto espacioDto) throws NotFoundException {
         Espacio espacio = modelMapper.map(espacioDto, Espacio.class);

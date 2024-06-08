@@ -41,4 +41,9 @@ public class PersonaController {
         return servicioPersona.listarDocentes();
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) throws ConflictException  {
+        servicioPersona.eliminarPersona(id);
+    }
+
 }
