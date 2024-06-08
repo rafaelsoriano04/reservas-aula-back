@@ -17,4 +17,5 @@ public interface RepositorioHorario extends JpaRepository<Horario, Long> {
     @Modifying
     @Query("DELETE FROM Horario h WHERE h.id = :id_horario")
     int deleteHorario(@Param("id_horario") Long idHorario);
+
 }

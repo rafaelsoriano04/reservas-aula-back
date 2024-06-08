@@ -1,9 +1,199 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Alert} from 'react-bootstrap';
 import "../styles/AulaLabs.css";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 function AuLabs() {
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [bloques, setBloques] = useState([]);
+  const [selectedBloque, setSelectedBloque] = useState('1');
+  const [selectedTipo, setSelectedTipo] = useState("Aula");
+  const [aulas, setAulas] = useState([]);
+  const [nombreError,setNombreError] = useState("");
+  const [capacidadError,setCapacidadError] = useState("");
+  const [laboratorios, setLaboratorios] = useState([]);
+  const [cancel, setCancel] = useState(false);
+  const [aulasLabsToShow, setAulasLabsToShow] = useState([]);
+  const [formData, setFormData]= useState({  id_bloque: '1', tipo: 'Aula', piso: '1', nombre: '',capacidad:'', id:''});
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    getBloques();
+    fetchAulasLabs();
+  }, []);
+
+  useEffect(() => {
+    fetchAulasLabs();
+  }, [selectedBloque]);
+
+  useEffect(() => {
+    setAulasLabsToShow(selectedTipo === "Aula" ? aulas : laboratorios);
+  }, [selectedTipo, aulas, laboratorios]);
+
+  const getBloques = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/bloque");
+      setBloques(response.data);
+    } catch (error) {
+      console.error("Error loading blocks:", error.response?.data?.message);
+    }
+  };
+
+  const crearEspacio = async() =>{
+    try {
+      let espacio = {
+         id_bloque: selectedBloque,
+          tipo: selectedTipo,
+           piso: formData.piso,
+            nombre: formData.nombre,
+            capacidad: formData.capacidad
+      }
+      if (espacio.nombre === "") {
+        setNombreError("Ingrese un nombre");
+        return;
+      }
+      if (espacio.capacidad === "") {
+        setCapacidadError("Ingrese la capacidad");
+        return;
+      }
+      console.log(espacio)
+      const response = await axios.post(`http://localhost:8080/espacio`, espacio);
+      fetchAulasLabs();
+            Swal.fire({
+                title: "Guardado",
+                text: "El espacio se guardo",
+                icon: "success",
+                confirmButtonText: 'OK'
+            });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo guardar, vuelva a interntarlo mas tarde",
+        icon: "error",
+        confirmButtonText: 'OK'
+    });
+    }
+  }
+  const limpiar = async () => {
+    setIsEditing(false);
+    setCancel(true);
+    setFormData({  nombre: '',capacidad: '', id: ''});
+  }
+  const editarespacio= async () => {
+
+    let espacio = {
+      id_bloque: selectedBloque,
+          tipo: selectedTipo,
+           piso: formData.piso,
+          nombre: formData.nombre,
+          capacidad: formData.capacidad,
+     };
+     console.log(espacio);
+     
+     try {
+      const response = await axios.put(`http://localhost:8080/espacio/${formData.id}`, espacio)
+      if (response.status === 200) {
+        fetchAulasLabs();
+        setIsEditing(false); 
+        setFormData({nombre: '',capacidad: '', id: '', piso: '1'}); 
+        Swal.fire({
+            title: "Modificado",
+            text: "El espacio ha sido modificada correctamente",
+            icon: "success",
+            confirmButtonText: 'OK'
+        }); 
+      }
+    } catch (error) {
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo modificar el espacio. Por favor, intente de nuevo.",
+            icon: "error",
+            confirmButtonText: 'OK'
+        });
+    }
+  }
+
+  const eliminarEspacio = async () => {
+    if (selectedRow) { // Asegúrate de que hay un ID seleccionado
+      const url = `http://localhost:8080/espacio/${selectedRow}`; // Uso correcto del ID seleccionado
+      try {
+        const confirmacion = await Swal.fire({
+          title: '¿Está seguro?',
+          text: 'Esta acción eliminará el espacio seleccionado. ¿Desea continuar?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar',
+        });
+        if (confirmacion.isConfirmed) {
+          const response = await axios.delete(url);
+          fetchAulasLabs();
+          Swal.fire({
+            title: "Eliminado",
+            text: "El espacio ha sido eliminado correctamente",
+            icon: "success",
+            confirmButtonText: 'OK'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo eliminar, es posible que exista una reserva o un horario relacionado a este espacio",
+          icon: "error",
+          confirmButtonText: 'OK'
+        });
+      }
+    }
+  };
+  
+  const fetchAulasLabs = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/espacio/bloque/${selectedBloque}`);
+      setAulas(response.data.filter(item => item.tipo === "Aula"));
+      setLaboratorios(response.data.filter(item => item.tipo === "Laboratorio"));
+    } catch (error) {
+      console.error("Error fetching spaces:", error.response?.data?.message);
+      setAulas([]);
+      setLaboratorios([]);
+    }
+  };
+
+  const handleBloqueChange = event => {
+    setSelectedBloque(event.target.value);
+  };
+
+  const handleTipoChange = event => {
+    setSelectedTipo(event.target.value);
+  };
+  const handleRowClick = (e, aulasLabs) => {
+    e.stopPropagation();  
+    setSelectedRow(aulasLabs.id);
+    setContextMenuPosition({ top: e.pageY, left: e.pageX });
+    setShowContextMenu(true);
+    console.log(selectedRow);
+    
+  };
+  const handleDocumentClick = (e) => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setSelectedRow(null);
+      setShowContextMenu(false);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+
   return (
     <div className="container-fluid">
       <div className="content">
@@ -16,81 +206,130 @@ function AuLabs() {
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="bloque">Bloque:</Form.Label>
-                  <Form.Control as="select" id="bloque" className="form-control">
-                    <option selected>Bloque 1</option>
-                    <option>Bloque 2</option>
-                    <option>Bloque 3</option>
+                  <Form.Control as="select" id="bloque" className="form-control" value={selectedBloque}
+                    onChange={handleBloqueChange}>
+                    {bloques.map(bloque => (
+                      <option key={bloque.id} value={bloque.id}>
+                        {bloque.nombre}
+                      </option>
+                    ))}
                   </Form.Control>
                 </Form.Group>
               </div>
               <div className="col-md-6">
                 <Form.Group className="form-group">
-                  <Form.Label htmlFor="aula">Aulas-Laboratorios:</Form.Label>
-                  <Form.Control as="select" id="aula" className="form-control">
-                    <option selected>Aulas</option>
-                    <option>Laboratorios</option>
+                  <Form.Label htmlFor="tipo">Tipo:</Form.Label>
+                  <Form.Control
+                    as="select"
+                    id="tipo"
+                    className="form-control"
+                    value={selectedTipo}
+                    onChange={handleTipoChange}
+                  >
+                    <option value="Aula">Aula</option>
+                    <option value="Laboratorio">Laboratorio</option>
                   </Form.Control>
                 </Form.Group>
-              </div>
+                </div>
             </div>
             <div className="row">
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                  <Form.Control type="text" id="nombre" className="form-control" name="nombre" />
+                  <Form.Control type="text" id="nombre" className="form-control" name="nombre"  value={formData.nombre}
+                    onChange={e =>{setFormData({ ...formData, nombre: e.target.value }); setNombreError("") ;}
+                    } 
+                    />
+                    {nombreError && <Alert variant="danger">{nombreError}</Alert>} 
                 </Form.Group>
               </div>
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="piso">Piso:</Form.Label>
-                  <Form.Control as="select" id="piso" className="form-control" name="piso">
+                  <Form.Control as="select" id="piso" className="form-control" name="piso" value={formData.piso}
+                    onChange={e => setFormData({ ...formData, piso: e.target.value })}>
                     <option value="1">Piso 1</option>
                     <option value="2">Piso 2</option>
                     <option value="3">Piso 3</option>
+                    <option value="4">Piso 4</option>
+                    <option value="5">Piso 5</option>
                   </Form.Control>
                 </Form.Group>
               </div>
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="capacidad">Capacidad:</Form.Label>
-                  <Form.Control type="number" id="capacidad" className="form-control" name="capacidad" min="1" max="100" />
+                  <Form.Control type="number" id="capacidad" className="form-control" name="capacidad" min="1" max="100" value={formData.capacidad}
+                    onChange={e => {setFormData({ ...formData, capacidad: e.target.value }); setCapacidadError("")}} />
+                     {capacidadError && <Alert variant="danger">{capacidadError}</Alert>} 
                 </Form.Group>
               </div>
             </div>
             <div className="button-group mt-4 text-center">
-              <Button type="button" className="btn btn-custom">Crear</Button>
-              <Button type="button" className="btn btn-custom" id="guardar-btn" style={{ display: 'none' }}>
-                Guardar
-              </Button>
+            
+            {!isEditing ? (
+                            <Button type="button" className="btn btn-custom" onClick={crearEspacio} >
+                                Crear
+                            </Button>
+                        ) : 
+                          (
+                            <>
+                                <Button type="button" className="btn btn-custom" id="guardar-btn"  onClick={() => editarespacio()}>
+                                    Guardar
+                                </Button>
+                                <Button type="button" className="btn btn-danger ml-2" onClick={limpiar}>
+                                    Cancelar
+                                </Button>
+                            </>
+                        )}
             </div>
           </Form>
           <table className="table table-bordered mt-4">
             <thead>
               <tr>
-                <th>id</th>
                 <th>Nombre</th>
                 <th>Piso</th>
                 <th>Capacidad</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Audiovisuales</td>
-                <td>1</td>
-                <td>48</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Computación</td>
-                <td>2</td>
-                <td>30</td>
-              </tr>
+              {aulasLabsToShow.map(aulaLab => (
+                <tr key={aulaLab.id} onClick={(e) => handleRowClick(e, aulaLab)}>
+                  <td>{aulaLab.nombre}</td>
+                  <td>{aulaLab.piso}</td>
+                  <td>{aulaLab.capacidad}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
-          <div className="context-menu" style={{ display: 'none' }}>
-            <button type="button">Editar</button>
-            <button type="button">Eliminar</button>
+          <div
+            className="context-menu"
+            style={{
+              display: showContextMenu && selectedRow !== null ? "block" : "none",
+              top: contextMenuPosition.top,
+              left: contextMenuPosition.left,
+            }}
+          >
+           <Button variant="custom" id="editar-btn" onClick={() => {
+  const selectedAulaLab = aulasLabsToShow.find(d => d.id === selectedRow); 
+  if (selectedAulaLab) {
+    setFormData({
+      id_bloque: selectedAulaLab.id_bloque,
+      tipo: selectedAulaLab.tipo,
+      piso: selectedAulaLab.piso,
+      nombre: selectedAulaLab.nombre,
+      capacidad: selectedAulaLab.capacidad,
+      id: selectedAulaLab.id  
+    });
+    setIsEditing(true); 
+    setShowContextMenu(false);  
+  }
+}}>
+  Editar
+</Button>
+<Button variant="custom" id="eliminar-btn"  onClick={() => eliminarEspacio()}>
+  Eliminar
+</Button>
           </div>
         </div>
       </div>

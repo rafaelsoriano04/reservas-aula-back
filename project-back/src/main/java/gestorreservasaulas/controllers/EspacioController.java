@@ -33,7 +33,7 @@ public class EspacioController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) throws NotFoundException {
+    public void deleteById(@PathVariable Long id) throws NotFoundException , ConflictException{
         servicioEspacio.deleteById(id);
     }
 }

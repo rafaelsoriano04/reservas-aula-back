@@ -10,6 +10,7 @@ import java.util.List;
 public interface ServicioMateria {
     MateriaDto save(MateriaDto materiaDto) throws ConflictException;
     List<MateriaDto> findTodos();
-    void eliminarMateria(Long id);
+    void eliminarMateria(Long id) throws ConflictException;
     Materia buscarMateria(Long id) throws NotFoundException;
+    
 }

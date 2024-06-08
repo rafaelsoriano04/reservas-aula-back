@@ -84,6 +84,8 @@ public class ServicioHorarioImpl implements ServicioHorario {
         // stream().map() es como un for, que simplifica y se llama directo al metodo por cada item de la lista
         return listaHorarios.stream().map(this::horarioToDto).collect(Collectors.toList());
     }
+    
+    
 
     @Override
     @Transactional

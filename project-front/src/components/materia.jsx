@@ -2,20 +2,107 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button } from 'react-bootstrap';
 import "../styles/materias.css";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 function Materias() {
     const [selectedRow, setSelectedRow] = useState(null);
     const [showContextMenu, setShowContextMenu] = useState(false);
+    const [materias, setMateria] = useState([]);
+    const [formData, setFormData] = useState({  id: '', nombre: '' });
+    const [isEditing, setIsEditing] = useState(false);
+    const [cancel, setCancel] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({
         top: 0,
         left: 0,
     });
 
-    const handleRowClick = (e, rowIndex) => {
-        setSelectedRow(rowIndex);
+    const getMaterias = async () => {
+        const url = `http://localhost:8080/materia/todos`;
+        try {
+          const response = await axios.get(url);
+          setMateria(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+          setMateria([]); // Limpia los datos si la petición falla
+        }
+      };
+      
+      const eliminarMateria = async (id) => {
+        const url = `http://localhost:8080/materia/${id}`;
+        try {
+           
+            const confirmacion = await Swal.fire({
+                title: '¿Está seguro?',
+                text: "Esta acción eliminará la materia. ¿Desea continuar?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+            });
+
+            if (confirmacion.isConfirmed) {
+                const response = await axios.delete(url);
+                getMaterias();
+                Swal.fire({
+                    title: "Eliminado",
+                    text: "La materia ha sido eliminada correctamente",
+                    icon: "success",
+                    confirmButtonText: 'OK'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo eliminar la materia. Es posible que la materia esté asociada a un horario.",
+                icon: "error",
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+    const limpiar = () => {
+        setIsEditing(false);
+        setCancel(true);
+        setFormData({ id: '', nombre: '' });
+    };
+
+
+    const guardarMateria = async () =>{
+        const url = `http://localhost:8080/materia`
+        try {
+            let materia = {
+                
+                nombre: formData.nombre  
+            };
+            console.log(materia)
+            const response = await axios.post(url, materia);
+            getMaterias();
+            setFormData({ id: '', nombre: '' }); 
+            Swal.fire({
+                title: "Guardado",
+                text: "La materia se guardo",
+                icon: "success",
+                confirmButtonText: 'OK'
+            });
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo guardar, verifique e intentelo de nuevo.",
+                icon: "error",
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+   
+      const handleRowClick = (e, materia) => {
+        e.stopPropagation();  
+        setSelectedRow(materia.id);
         setContextMenuPosition({ top: e.pageY, left: e.pageX });
         setShowContextMenu(true);
+        console.log(selectedRow);
+        
+
     };
+    
 
     const handleDocumentClick = (e) => {
         if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
@@ -23,13 +110,49 @@ function Materias() {
             setShowContextMenu(false);
         }
     };
+    
+    const editarMateria = async (id) => {
+       const url = `http://localhost:8080/materia`
+        try {
+            let materia = {
+                id: formData.id,  
+                nombre: formData.nombre  
+            };
+            console.log(materia)
 
+          const response = await axios.post(url, materia);
+          if (response.status === 200) {
+            getMaterias();  
+            setIsEditing(false); 
+            setCancel(false);
+            setFormData({ id: '', nombre: '' }); 
+            Swal.fire({
+                title: "Modificado",
+                text: "La materia ha sido modificada correctamente",
+                icon: "success",
+                confirmButtonText: 'OK'
+            }); 
+          }
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo modificar la materia. Por favor, intente de nuevo.",
+                icon: "error",
+                confirmButtonText: 'OK'
+            });
+        }
+      };
     useEffect(() => {
         document.addEventListener("click", handleDocumentClick);
         return () => {
             document.removeEventListener("click", handleDocumentClick);
         };
     }, []);
+    useEffect(() => {
+        getMaterias();
+      }, []);
+
+    
 
     return (
         <div className="container-fluid">
@@ -41,35 +164,52 @@ function Materias() {
                     <Form id="form-reservas">
                         <div className="row">
                             <div className="col-md-4">
+                            <Form.Group className="form-group">
+                
+                
+            </Form.Group>
                                 <Form.Group className="form-group">
                                     <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                                    <Form.Control type="text" id="nombre" className="form-control" name="nombre" />
+                                    <Form.Control type="text" id="nombre" className="form-control" name="nombre" value={formData.nombre}  
+                                    onChange={e => setFormData({ ...formData, nombre: e.target.value })}  />
+
                                 </Form.Group>
                             </div>
-                        </div>
-                        <div className="button-group mt-4 text-center">
-                            <Button type="button" className="btn btn-custom">Crear</Button>
-                            <Button type="button" className="btn btn-custom" id="guardar-btn" style={{ display: 'none' }}>
-                                Guardar
+                            </div>
+                                            <div className="button-group mt-4 text-center">
+                        {!isEditing ? (
+                            <Button type="button" className="btn btn-custom" onClick={()=> guardarMateria()} >
+                                Crear
                             </Button>
-                        </div>
+                        ) : (
+                            <>
+                                <Button type="button" className="btn btn-custom" id="guardar-btn" onClick={() => editarMateria(selectedRow)}>
+                                    Guardar
+                                </Button>
+                                <Button type="button" className="btn btn-danger ml-2" onClick={limpiar}>
+                                    Cancelar
+                                </Button>
+                            </>
+                        )}
+                    </div>
+
                     </Form>
                     <table className="table table-bordered mt-4">
                         <thead>
-                            <tr>
-                                <th>id</th>
+                        <tr>
+                                
                                 <th>Nombre</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr onClick={(e) => handleRowClick(e, 1)} className={isSelectedRow(1) ? 'selected' : ''}>
-                                <td>1</td>
-                                <td>Algebra</td>
-                            </tr>
-                            <tr onClick={(e) => handleRowClick(e, 2)} className={isSelectedRow(2) ? 'selected' : ''}>
-                                <td>2</td>
-                                <td>Visual</td>
-                            </tr>
+                                {materias.map(materia => (
+                                <tr key={materia.id} onClick={(e) => handleRowClick(e, materia)}>
+                                
+                                <td>{materia.nombre}
+                                   
+                                </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                     <div
@@ -81,10 +221,21 @@ function Materias() {
                             left: contextMenuPosition.left,
                         }}
                     >
-                        <Button variant="custom" id="editar-btn">
-                            Editar
+                       <Button variant="custom" id="editar-btn" onClick={() => {
+                        const selectedMateria = materias.find(m => m.id === selectedRow);
+                        if (selectedMateria) {
+                            setFormData({
+                                id: selectedMateria.id,
+                                nombre: selectedMateria.nombre
+                            });
+                           
+                            setShowContextMenu(false);  // Cierra el menú contextual
+                            setIsEditing(true); 
+                        }
+                        }}>
+                        Editar
                         </Button>
-                        <Button variant="custom" id="eliminar-btn">
+                        <Button variant="custom" id="eliminar-btn" onClick={() => eliminarMateria(selectedRow)}>
                             Eliminar
                         </Button>
                     </div>
@@ -92,10 +243,6 @@ function Materias() {
             </div>
         </div>
     );
-
-    function isSelectedRow(rowIndex) {
-        return selectedRow === rowIndex;
-    }
 }
 
 export default Materias;

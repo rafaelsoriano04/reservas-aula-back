@@ -5,6 +5,8 @@ import gestorreservasaulas.entidades.Persona;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 
+import java.util.List;
+
 public interface ServicioPersona {
     Persona findById(Long id) throws NotFoundException;
 
@@ -13,4 +15,7 @@ public interface ServicioPersona {
     PersonaDto guardar(PersonaDto persona) throws NotFoundException;
 
     boolean existePorCedula(String cedula);
+     List<PersonaDto> listarDocentes();
+
+    void eliminarPersona(Long id) throws ConflictException;
 }

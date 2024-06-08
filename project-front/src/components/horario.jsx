@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Modal } from "react-bootstrap";
+
 import "../styles/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -18,14 +19,14 @@ function Horarios() {
   const [selectedDia, setSelectedDia] = useState("Lunes");
   const [selectedMateria, setSelectedMateria] = useState();
   const [selectedDocente, setSelectedDocente] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
-
+ 
   const handleCellClick = (e, rowIndex, cellIndex) => {
     setSelectedCell({ rowIndex, cellIndex });
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
@@ -89,6 +90,8 @@ function Horarios() {
       console.log(message);
     }
   };
+
+  
 
   const getBloques = async () => {
     try {
@@ -421,50 +424,32 @@ function Horarios() {
                 </tr>
               </thead>
               <tbody>
-                {horas.map((hora, rowIndex) => (
-                  <tr
-                    key={hora}
-                    style={
-                      hora === "13-14"
-                        ? { backgroundColor: "#ffcccb", textAlign: "center" }
-                        : {}
-                    }
-                  >
-                    <td style={hora === "13-14" ? { textAlign: "center" } : {}}>
-                      {hora}
-                    </td>
-                    {dias.map((dia, cellIndex) => (
-                      <React.Fragment key={`${dia}-${hora}`}>
-                        {hora === "13-14" ? (
-                          <td
-                            style={{
-                              backgroundColor: "#ffcccb",
-                              textAlign: "center",
-                            }}
-                          >
-                            Receso
-                          </td>
-                        ) : (
-                          <td
-                            onClick={e =>
-                              handleCellClick(e, rowIndex, cellIndex)
-                            }
-                            className={
-                              selectedCell &&
-                              selectedCell.rowIndex === rowIndex &&
-                              selectedCell.cellIndex === cellIndex
-                                ? "selected"
-                                : ""
-                            }
-                          >
-                            {renderTableCell(dia, hora)}
-                          </td>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
+  {horas.map((hora, rowIndex) => (
+    <tr key={hora}>
+      {/* Renderiza la celda de la hora con el color de fondo si es hora de receso */}
+      <td style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}>
+        {hora}
+      </td>
+      {dias.map((dia, cellIndex) => (
+        <td
+          key={`${dia}-${hora}`}
+          style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
+          onClick={e => hora !== "13-14" && handleCellClick(e, rowIndex, cellIndex)}
+          className={
+            selectedCell &&
+            selectedCell.rowIndex === rowIndex &&
+            selectedCell.cellIndex === cellIndex
+              ? "selected"
+              : ""
+          }
+        >
+          {hora === "13-14" ? "Receso" : renderTableCell(dia, hora)}
+        </td>
+      ))}
+    </tr>
+  ))}
+</tbody>
+
             </table>
             <div
               className="context-menu"

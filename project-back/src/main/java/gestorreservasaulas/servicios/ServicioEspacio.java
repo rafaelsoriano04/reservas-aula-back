@@ -15,5 +15,5 @@ public interface ServicioEspacio {
 
     EspacioDto updateById(Long id, EspacioDto espacioDto) throws NotFoundException, ConflictException;
 
-    void deleteById(Long id) throws NotFoundException;
+    void deleteById(Long id) throws NotFoundException, ConflictException;
 }

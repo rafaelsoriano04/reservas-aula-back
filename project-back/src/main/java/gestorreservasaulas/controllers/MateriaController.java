@@ -29,7 +29,9 @@ public class MateriaController
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) throws NotFoundException {
+    public void delete(@PathVariable Long id) throws ConflictException {
         servicioMateria.eliminarMateria(id);
     }
+
+   
 }
