@@ -120,7 +120,7 @@ body, html, #root, .app-container {
     vertical-align: middle;
   }
   #agregar-btn, #guardar-btn {
-    margin-top: 20px;
+    margin-top: 0px;
 }
 .mt-2 {
     margin-left: 10px; 

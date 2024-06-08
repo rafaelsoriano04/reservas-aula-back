@@ -22,6 +22,6 @@ public class Materia {
     @Column(unique = true)
     private String nombre;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "materia")
+    @OneToMany( mappedBy = "materia")
     List<Horario> listaHorario;
 }

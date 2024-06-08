@@ -24,4 +24,5 @@ public interface ServicioHorario {
     List<HorarioDto> obtenerHorariosPorEspecial(Long id);
 
     boolean eliminarHorario(Long id);
+   
 }

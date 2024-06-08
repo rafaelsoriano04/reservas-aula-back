@@ -10,6 +10,8 @@ import gestorreservasaulas.servicios.ServicioPersona;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ServicioPersonaImpl implements ServicioPersona {
@@ -53,6 +55,30 @@ public class ServicioPersonaImpl implements ServicioPersona {
         }
 
     }
+
+    @Override
+    public List<PersonaDto> listarDocentes() {
+
+        List<Persona> docentes = repositorioPersona.findAll();
+        List<PersonaDto> nuevaLista= new ArrayList<>();
+        for (Persona persona: docentes) {
+            if (persona.getTipo().equals("Docente")){
+                nuevaLista.add(personToDto(persona));
+            }
+        }
+            return nuevaLista;
+    }
+
+    @Override
+    public void eliminarPersona(Long id)  throws ConflictException{
+        try{
+            repositorioPersona.deleteById(id);
+        }catch (Exception e){
+            throw new ConflictException("Persona Asociada a Horario");
+        }
+
+    }
+
 
     @Override
     public boolean existePorCedula(String cedula) {
