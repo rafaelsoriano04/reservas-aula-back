@@ -330,13 +330,14 @@ const LabReservations = () => {
 
     if (reserva) {
       setReservationDetails({
-        encargado: reserva.encargado,
+        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
         asunto: reserva.asunto,
         descripcion: reserva.descripcion || "Descripción aquí",
         hora: hora,
         fecha: formattedDate,
-        tipo: reserva.tipo || "N/A",
+        tipo: reserva.persona.tipo || "N/A",
         editable: false,
+        id: reserva.id,
       });
       setShowModal(true);
     } else {
@@ -428,25 +429,41 @@ const LabReservations = () => {
   };
 
   const deleteReservation = () => {
-    const formattedDate = formatDate(selectedDate);
-    setReservations(prev =>
-      prev.filter(
-        res =>
-          res.dia !== selectedCell.dia ||
-          res.hora !== selectedCell.hora ||
-          res.fecha !== formattedDate
-      )
-    );
-    setShowConfirmDelete(false);
-    setShowModal(false);
+    if (reservationDetails.id) {
+      handleDeleteReservation(reservationDetails.id);
+    }
   };
-
+  
+  
   const handleAddReservation = () => {
     if (selectedCell) {
       setNewReservation(prev => ({ ...prev, hora: selectedCell.hora }));
       setShowAddModal(true);
     }
   };
+  
+  const handleDeleteReservation = async (reservationId) => {
+    try {
+      await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
+      Swal.fire({
+        title: "Eliminado",
+        text: "La reserva ha sido eliminada exitosamente",
+        icon: "success",
+      });
+  
+      // Actualiza el estado de reservas después de eliminar
+      setReservas((prev) => prev.filter((reserva) => reserva.id !== reservationId));
+      setShowConfirmDelete(false);
+      setShowModal(false);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `Hubo un error al eliminar la reserva: ${error.response?.data?.message || error.message}`,
+        icon: "error",
+      });
+    }
+  };
+  
 
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
@@ -461,6 +478,11 @@ const LabReservations = () => {
             "http://localhost:8080/person",
             responsible
           );
+          Swal.fire({
+            title: "Reserva Guardada",
+            text: "La reserva se ha guardado exitosamente",
+            icon: "success",
+          });
           savedResponsible = response.data;
           setResponsible(savedResponsible);
           setNewReservation(prev => ({
@@ -480,9 +502,12 @@ const LabReservations = () => {
       const reserva = {
         hora: selectedCell.hora.split("-")[0],
         fecha: formattedDate,
+        asunto: newReservation.asunto,
+        descripcion: newReservation.descripcion,
         id_persona: savedResponsible.id,
         id_espacio: selectedAulaLab,
       };
+      console.log(reserva);
 
       try {
         const response = await axios.post(
@@ -500,7 +525,7 @@ const LabReservations = () => {
             reservado: true,
           },
         ];
-
+        
         setHorarios(newHorarios);
         setShowAddModal(false);
         setNewReservation({
@@ -701,7 +726,7 @@ const LabReservations = () => {
                 className="form-control"
                 id="asunto"
                 value={reservationDetails.asunto}
-                disabled
+                
               />
             </div>
             <div className="mb-3">
@@ -712,7 +737,7 @@ const LabReservations = () => {
                 className="form-control"
                 id="descripcion"
                 value={reservationDetails.descripcion}
-                disabled
+                
               />
             </div>
             <div className="mb-3">
