@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Reserva.css";
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
 import Swal from "sweetalert2";
 
@@ -39,13 +39,17 @@ const LabReservations = () => {
   const [isExistingResponsible, setIsExistingResponsible] = useState(false);
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
 
+  // Combos bloques reservas aula
   const [bloques, setBloques] = useState([]);
-  const [horarios, setHorarios] = useState([]);
-  const [reservas, setReservas] = useState([]);
-  const [selectedBloque, setSelectedBloque] = useState(1);
   const [aulasLabs, setAulasLabs] = useState([]);
+  const [selectedBloque, setSelectedBloque] = useState(1);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
   const [selectedAulaLab, setSelectedAulaLab] = useState();
+
+  const [horarios, setHorarios] = useState([]);
+  const [reservas, setReservas] = useState([]);
+
+  const [monday, setMonday] = useState();
 
   useEffect(() => {
     getBloques();
@@ -64,6 +68,12 @@ const LabReservations = () => {
   }, [selectedAulaLab, weekDates]);
 
   useEffect(() => {
+    if (aulasLabs.length > 0) {
+      setSelectedAulaLab(aulasLabs[0].id);
+    }
+  }, [aulasLabs]);
+
+  useEffect(() => {
     updateWeekRange();
   }, [currentWeek]);
 
@@ -72,58 +82,21 @@ const LabReservations = () => {
       selectedTipo === "Laboratorio"
         ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
         : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
-    console.log(url);
-
     try {
       const response = await axios.get(url);
-      console.log(response.data);
       setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      const { message } = error.response.data;
-      console.log(message);
-      setHorarios([]);
+      setHorarios([]); // Limpia los datos si la petición falla
+    }
+    const formattedDate = monday.toISOString().split("T")[0];
+    const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
+    try {
+      const response = await axios.get(url2);
+      setReservas(response.data);
+    } catch (error) {
+      setHorarios([]); // Limpia los datos si la petición falla
     }
   };
-
-  const getReservas = async () => {
-    // Asegurarse de que selectedAulaLab y weekDates[0] (lunes de la semana actual) estén definidos
-    if (!selectedAulaLab || weekDates.length === 0) {
-        console.error("Aula/Laboratorio o fecha no seleccionados");
-        return;
-    }
-
-    const formattedDate = formatDate(weekDates[0]); // Formato de fecha debe ser aceptado por tu backend
-    const url = `http://localhost:8080/semana?fecha=${formattedDate}&idEspacio=${selectedAulaLab}`;
-
-    try {
-        const response = await axios.get(url);
-        console.log("Reservas obtenidas:", response.data);
-        setReservas(response.data); // Suponiendo que la respuesta es una lista de reservas
-    } catch (error) {
-        console.error("Error al obtener reservas:", error);
-        Swal.fire("Error", "No se pudieron obtener las reservas.", "error");
-    }
-};
-
-useEffect(() => {
-    getReservas();
-}, [weekDates, selectedAulaLab]); // Dispara getReservas cuando cambie la semana o el aula/laboratorio seleccionado
-
-
-  const fetchHorarios = async () => {
-    const formattedDate = formatDate(new Date()); // Asegúrate de enviar la fecha correcta según tu lógica de negocio
-    const url = `http://localhost:8080/reservas/espacio/${selectedAulaLab}/fecha/${formattedDate}`;
-
-    try {
-        const response = await axios.get(url);
-        const fetchedHorarios = response.data; // Suponiendo que la respuesta es una lista de objetos de reserva
-        setHorarios(fetchedHorarios);
-    } catch (error) {
-        console.error("Error al recuperar horarios y reservas:", error);
-        Swal.fire("Error", "No se pudieron cargar los horarios y reservas.", "error");
-    }
-};
-
 
   const getBloques = async () => {
     try {
@@ -140,11 +113,14 @@ useEffect(() => {
 
     try {
       const response = await axios.get(url);
+      //Aqui se debe controlar que se llene de acuerdo al tipo
       let filteredData = [];
-      if (selectedTipo === "Aula") {
+      if (selectedTipo == "Aula") {
         filteredData = response.data.filter(item => item.tipo === "Aula");
       } else {
-        filteredData = response.data.filter(item => item.tipo === "Laboratorio");
+        filteredData = response.data.filter(
+          item => item.tipo === "Laboratorio"
+        );
       }
       setAulasLabs(filteredData);
     } catch (error) {
@@ -162,7 +138,37 @@ useEffect(() => {
           icon: "error",
         });
       }
-      setAulasLabs([]);
+      setAulasLabs([]); // Limpia los datos si la petición falla
+    }
+  };
+
+  const handleCedulaChange = event => {
+    const value = event.target.value;
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setResponsible(prev => ({ ...prev, cedula: value }));
+    }
+  };
+
+  const handleNombreChange = event => {
+    const value = event.target.value;
+    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
+      setResponsible(prev => ({ ...prev, nombre: value }));
+    }
+  };
+
+  const handleApellidoChange = event => {
+    const value = event.target.value;
+    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
+      setResponsible(prev => ({ ...prev, apellido: value }));
+    }
+  };
+  const handleAsuntoChange = event => {
+    const value = event.target.value;
+    if (value.length <= 30) {
+      setNewReservation(prev => ({
+        ...prev,
+        asunto: value,
+      }));
     }
   };
 
@@ -188,11 +194,48 @@ useEffect(() => {
       h => h.dia === dia && h.hora === hora.split("-")[0]
     );
 
+    // Lunes
+    // const reserva = .find(h => h.fecha === fecha && h.hora === hora);
+    let index;
+    switch (dia) {
+      case "Lunes":
+        index = 0;
+        break;
+      case "Martes":
+        index = 1;
+        break;
+      case "Miercoles":
+        index = 2;
+        break;
+      case "Jueves":
+        index = 3;
+        break;
+      case "Viernes":
+        index = 4;
+        break;
+    }
+
+    const fecha = formatDate(weekDates[index]);
+    const reserva = reservas.find(
+      reserva => reserva.fecha === fecha && reserva.hora === hora.split("-")[0]
+    );
+
+    if (reserva) {
+      return (
+        <td
+          style={{ backgroundColor: "#ffcccc", cursor: "pointer" }}
+          onClick={e => handleCellClick(e, dia, hora)}
+        >
+          Reservado - {reserva.asunto}
+        </td>
+      );
+    }
+
     if (!horario) {
       return (
         <td
           style={{ backgroundColor: "#d3ffd3", cursor: "pointer" }}
-          onClick={(e) => handleCellClick(e, dia, hora)}
+          onClick={e => handleCellClick(e, dia, hora)}
         >
           Disponible
         </td>
@@ -200,13 +243,14 @@ useEffect(() => {
     }
 
     const colorFondo = horario.reservado ? "#ffcccc" : "#cce7ff";
-    const textoCelda = horario.reservado ? `Reservado - ${horario.asunto}` : horario.nombre;
-
+    const textoCelda = horario.reservado
+      ? `Reservado - ${horario.asunto}`
+      : horario.nombre;
 
     return (
       <td
         style={{ backgroundColor: colorFondo, cursor: "pointer" }}
-        onClick={(e) => handleCellClick(e, dia, hora)}
+        onClick={e => handleCellClick(e, dia, hora)}
         data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
       >
         {textoCelda}
@@ -247,7 +291,7 @@ useEffect(() => {
     if (month.length < 2) month = "0" + month;
     if (day.length < 2) day = "0" + day;
 
-    return [day, month, year].join("-");
+    return [year, month, day].join("-");
   };
 
   const updateWeekRange = () => {
@@ -263,6 +307,7 @@ useEffect(() => {
       }
     }
     setWeekDates(dates);
+    setMonday(monday);
     setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[4])}`);
   };
 
@@ -274,47 +319,69 @@ useEffect(() => {
     const text = event.target.textContent.trim();
     setSelectedCell({ dia, hora });
 
-    const selectedDay = weekDates[dias.indexOf(dia)];
+    const index = dias.indexOf(dia);
+    const selectedDay = weekDates[index];
 
-    const now = new Date();
-    if (selectedDay < now.setHours(0, 0, 0, 0)) {
-      Swal.fire({
-        title: "Fecha inválida",
-        text: "No puedes reservar una fecha que ya ha pasado.",
-        icon: "error",
+    const formattedDate = formatDate(selectedDay);
+    const horaInicio = hora.split("-")[0];
+    const reserva = reservas.find(
+      reserva => reserva.fecha === formattedDate && reserva.hora === horaInicio
+    );
+
+    if (reserva) {
+      setReservationDetails({
+        encargado: reserva.encargado,
+        asunto: reserva.asunto,
+        descripcion: reserva.descripcion || "Descripción aquí",
+        hora: hora,
+        fecha: formattedDate,
+        tipo: reserva.tipo || "N/A",
+        editable: false,
       });
-      return;
-    }
-
-    if (selectedDay.toDateString() === new Date().toDateString()) {
-      const currentTime = new Date();
-      const [startHour] = hora.split("-").map(Number);
-      if (currentTime.getHours() >= startHour) {
+      setShowModal(true);
+    } else {
+      const now = new Date();
+      if (selectedDay < now.setHours(0, 0, 0, 0)) {
         Swal.fire({
-          title: "Hora inválida",
-          text: "No puedes reservar una hora que ya ha pasado.",
+          title: "Fecha inválida",
+          text: "No puedes reservar una fecha que ya ha pasado.",
           icon: "error",
         });
         return;
       }
-    }
 
-    if (text === "Disponible") {
-      setSelectedDate(selectedDay);
-      setNewReservation(prev => ({ ...prev, hora }));
-      setShowAddModal(true);
-    } else if (text.startsWith("Reservado")) {
-      const info = event.target.getAttribute("data-info").split(", ");
-      setReservationDetails({
-        encargado: info[0].split(": ")[1],
-        asunto: info[1].split(": ")[1],
-        descripcion:
-          event.target.textContent.split(" - ")[1] || "Descripción aquí",
-        hora,
-        fecha: formatDate(selectedDay),
-        editable: false,
-      });
-      setShowModal(true);
+      if (selectedDay.toDateString() === new Date().toDateString()) {
+        const currentTime = new Date();
+        const [startHour] = hora.split("-").map(Number);
+        if (currentTime.getHours() >= startHour) {
+          Swal.fire({
+            title: "Hora inválida",
+            text: "No puedes reservar una hora que ya ha pasado.",
+            icon: "error",
+          });
+          return;
+        }
+      }
+
+      if (text === "Disponible") {
+        setSelectedDate(selectedDay);
+        setNewReservation({
+          encargado: "",
+          asunto: "",
+          descripcion: "",
+          hora: horaInicio,
+        });
+        setResponsible({
+          cedula: "",
+          nombre: "",
+          apellido: "",
+          telefono: "",
+          tipo: "",
+        });
+        setIsExistingResponsible(false);
+        setShowAdditionalFields(false);
+        setShowAddModal(true);
+      }
     }
   };
 
@@ -383,82 +450,84 @@ useEffect(() => {
 
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
-        selectedDate.setDate(selectedDate.getDate() + 1);
-        const formattedDate = selectedDate.toISOString().split('T')[0];
-        console.log(formattedDate);
+      selectedDate.setDate(selectedDate.getDate() + 1);
+      const formattedDate = selectedDate.toISOString().split("T")[0];
 
-        let savedResponsible = responsible;
+      let savedResponsible = responsible;
 
-        if (!isExistingResponsible) {
-            try {
-                const response = await axios.post("http://localhost:8080/person", responsible);
-                savedResponsible = response.data;
-                setResponsible(savedResponsible);
-                setNewReservation((prev) => ({
-                    ...prev,
-                    encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
-                }));
-            } catch (error) {
-                Swal.fire({
-                    title: "Error",
-                    text: `Hubo un error al guardar el nuevo responsable: ${error.response?.data?.message || error.message}`,
-                    icon: "error",
-                });
-                return;
-            }
-        }
-
-        const reserva = {
-            hora: selectedCell.hora.split("-")[0],
-            fecha: formattedDate,
-            id_persona: savedResponsible.id,
-            id_espacio: selectedAulaLab,
-        };
-
+      if (!isExistingResponsible) {
         try {
-            const response = await axios.post("http://localhost:8080/reservas", reserva);
-            const newHorarios = [
-                ...horarios,
-                {
-                    dia: selectedCell.dia,
-                    hora: selectedCell.hora.split("-")[0],
-                    encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
-                    asunto: newReservation.asunto,
-                    nombre: `Reservado - ${newReservation.asunto}`,
-                    reservado: true,
-                },
-            ];
-
-            setHorarios(newHorarios);
-            setShowAddModal(false);
-            setNewReservation({
-                encargado: "",
-                asunto: "",
-                descripcion: "",
-                hora: "",
-            });
-            setResponsible({
-                cedula: "",
-                nombre: "",
-                apellido: "",
-                telefono: "",
-                tipo: "",
-            });
-            setIsExistingResponsible(false);
-            setShowAdditionalFields(false);
+          const response = await axios.post(
+            "http://localhost:8080/person",
+            responsible
+          );
+          savedResponsible = response.data;
+          setResponsible(savedResponsible);
+          setNewReservation(prev => ({
+            ...prev,
+            encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
+          }));
         } catch (error) {
-            console.error('Error al guardar la reserva:', error.response);
-            Swal.fire({
-                title: "Error",
-                text: `Hubo un error al guardar la reserva: ${error.response?.data?.message || error.message}`,
-                icon: "error",
-            });
+          Swal.fire({
+            title: "Error",
+            text: `Hubo un error al guardar el nuevo responsable: ${error.response?.data?.message || error.message}`,
+            icon: "error",
+          });
+          return;
         }
-    }
-};
+      }
 
-  
-  
+      const reserva = {
+        hora: selectedCell.hora.split("-")[0],
+        fecha: formattedDate,
+        id_persona: savedResponsible.id,
+        id_espacio: selectedAulaLab,
+      };
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/reservas",
+          reserva
+        );
+        const newHorarios = [
+          ...horarios,
+          {
+            dia: selectedCell.dia,
+            hora: selectedCell.hora.split("-")[0],
+            encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
+            asunto: newReservation.asunto,
+            nombre: `Reservado - ${newReservation.asunto}`,
+            reservado: true,
+          },
+        ];
+
+        setHorarios(newHorarios);
+        setShowAddModal(false);
+        setNewReservation({
+          encargado: "",
+          asunto: "",
+          descripcion: "",
+          hora: "",
+        });
+        setResponsible({
+          cedula: "",
+          nombre: "",
+          apellido: "",
+          telefono: "",
+          tipo: "",
+        });
+        setIsExistingResponsible(false);
+        setShowAdditionalFields(false);
+      } catch (error) {
+        console.error("Error al guardar la reserva:", error.response);
+        Swal.fire({
+          title: "Error",
+          text: `Hubo un error al guardar la reserva: ${error.response?.data?.message || error.message}`,
+          icon: "error",
+        });
+      }
+    }
+  };
 
   const handleResponsibleChange = event => {
     const { name, value } = event.target;
@@ -529,8 +598,7 @@ useEffect(() => {
             value={selectedAulaLab}
             onChange={handleAulaLabChange}
           >
-            <option value="">Seleccione una opción</option>
-            {aulasLabs.map((aulaLab) => (
+            {aulasLabs.map(aulaLab => (
               <option key={aulaLab.id} value={aulaLab.id}>
                 {aulaLab.nombre}
               </option>
@@ -640,8 +708,7 @@ useEffect(() => {
               <label htmlFor="descripcion" className="form-label">
                 Descripción
               </label>
-              <input
-                type="text"
+              <textarea
                 className="form-control"
                 id="descripcion"
                 value={reservationDetails.descripcion}
@@ -705,7 +772,7 @@ useEffect(() => {
                   id="cedula"
                   name="cedula"
                   value={responsible.cedula}
-                  onChange={handleResponsibleChange}
+                  onChange={handleCedulaChange} // Usa la función de control aquí
                 />
                 <button
                   className="btn btn-secondary"
@@ -742,7 +809,7 @@ useEffect(() => {
                     id="nombre"
                     name="nombre"
                     value={responsible.nombre}
-                    onChange={handleResponsibleChange}
+                    onChange={handleNombreChange} // Usa la función de control aquí
                   />
                 </div>
                 <div className="mb-3">
@@ -755,7 +822,7 @@ useEffect(() => {
                     id="apellido"
                     name="apellido"
                     value={responsible.apellido}
-                    onChange={handleResponsibleChange}
+                    onChange={handleApellidoChange} // Usa la función de control aquí
                   />
                 </div>
                 <div className="mb-3">
@@ -800,20 +867,14 @@ useEffect(() => {
                 className="form-control"
                 id="newAsunto"
                 value={newReservation.asunto}
-                onChange={e =>
-                  setNewReservation(prev => ({
-                    ...prev,
-                    asunto: e.target.value,
-                  }))
-                }
+                onChange={handleAsuntoChange} // Usa la función de control aquí
               />
             </div>
             <div className="mb-3">
               <label htmlFor="newDescripcion" className="form-label">
                 Descripción
               </label>
-              <input
-                type="text"
+              <textarea
                 className="form-control"
                 id="newDescripcion"
                 value={newReservation.descripcion}

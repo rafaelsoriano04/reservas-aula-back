@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 
 import "../styles/horario.css";
 import axios from "axios";
@@ -19,14 +19,14 @@ function Horarios() {
   const [selectedDia, setSelectedDia] = useState("Lunes");
   const [selectedMateria, setSelectedMateria] = useState();
   const [selectedDocente, setSelectedDocente] = useState("");
-  
+
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
- 
+
   const handleCellClick = (e, rowIndex, cellIndex) => {
     setSelectedCell({ rowIndex, cellIndex });
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
@@ -90,8 +90,6 @@ function Horarios() {
       console.log(message);
     }
   };
-
-  
 
   const getBloques = async () => {
     try {
@@ -205,9 +203,8 @@ function Horarios() {
     );
     return horario ? `${horario.nombre}` : "";
   };
- 
 
-  const handleDocumentClick = (e) => {
+  const handleDocumentClick = e => {
     if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
       setSelectedCell(null);
       setShowContextMenu(false);
@@ -424,32 +421,49 @@ function Horarios() {
                 </tr>
               </thead>
               <tbody>
-  {horas.map((hora, rowIndex) => (
-    <tr key={hora}>
-      {/* Renderiza la celda de la hora con el color de fondo si es hora de receso */}
-      <td style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}>
-        {hora}
-      </td>
-      {dias.map((dia, cellIndex) => (
-        <td
-          key={`${dia}-${hora}`}
-          style={hora === "13-14" ? { backgroundColor: "#ffcccb", textAlign: "center" } : {}}
-          onClick={e => hora !== "13-14" && handleCellClick(e, rowIndex, cellIndex)}
-          className={
-            selectedCell &&
-            selectedCell.rowIndex === rowIndex &&
-            selectedCell.cellIndex === cellIndex
-              ? "selected"
-              : ""
-          }
-        >
-          {hora === "13-14" ? "Receso" : renderTableCell(dia, hora)}
-        </td>
-      ))}
-    </tr>
-  ))}
-</tbody>
-
+                {horas.map((hora, rowIndex) => (
+                  <tr key={hora}>
+                    {/* Renderiza la celda de la hora con el color de fondo si es hora de receso */}
+                    <td
+                      style={
+                        hora === "13-14"
+                          ? { backgroundColor: "#ffcccb", textAlign: "center" }
+                          : {}
+                      }
+                    >
+                      {hora}
+                    </td>
+                    {dias.map((dia, cellIndex) => (
+                      <td
+                        key={`${dia}-${hora}`}
+                        style={
+                          hora === "13-14"
+                            ? {
+                                backgroundColor: "#ffcccb",
+                                textAlign: "center",
+                              }
+                            : {}
+                        }
+                        onClick={e =>
+                          hora !== "13-14" &&
+                          handleCellClick(e, rowIndex, cellIndex)
+                        }
+                        className={
+                          selectedCell &&
+                          selectedCell.rowIndex === rowIndex &&
+                          selectedCell.cellIndex === cellIndex
+                            ? "selected"
+                            : ""
+                        }
+                      >
+                        {hora === "13-14"
+                          ? "Receso"
+                          : renderTableCell(dia, hora)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
             </table>
             <div
               className="context-menu"

@@ -20,6 +20,7 @@ public class Reserva {
     private Long id;
     private String hora;
     private Date fecha;
+    private String asunto;
     @ManyToOne
     @JoinColumn(name = "id_persona")
     private Persona persona;

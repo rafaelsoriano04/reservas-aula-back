@@ -83,9 +83,9 @@ public class ServicioReservaImpl implements ServicioReserva {
             dto.setFecha(reserva.getFecha());
             dto.setId_espacio(reserva.getEspacio().getId());
             dto.setId_persona(reserva.getPersona().getId());
+            dto.setAsunto(reserva.getAsunto());
             reservasdto.add(dto);
         }
-
         return reservasdto;
     }
 
@@ -94,6 +94,7 @@ public class ServicioReservaImpl implements ServicioReserva {
         reserva.setId(reservadto.getId());
         reserva.setHora(reservadto.getHora());
         reserva.setFecha(reservadto.getFecha());
+        reserva.setAsunto(reservadto.getAsunto());
 
         if (reservadto.getId_espacio() != null) {
             reserva.setEspacio(servicioEspacio.findById(reservadto.getId_espacio()));
@@ -112,6 +113,7 @@ public class ServicioReservaImpl implements ServicioReserva {
         reservadto.setId(reserva.getId());
         reservadto.setHora(reserva.getHora());
         reservadto.setFecha(reserva.getFecha());
+        reservadto.setAsunto(reserva.getAsunto());
 
         // Asigna id_aula solo si la relación Aula no es nula
         if (reserva.getEspacio() != null) {

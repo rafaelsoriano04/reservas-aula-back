@@ -22,7 +22,7 @@ public class ReservasController {
         return servicioReservas.crearReserva(reservaDto);
     }
 
-    @GetMapping("/semana")
+    @GetMapping()
     public List<ReservaDto> getByWeek(
             @RequestParam Date fecha,
             @RequestParam Long id_espacio) throws NotFoundException {

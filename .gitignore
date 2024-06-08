@@ -27,8 +27,9 @@
 /project-front/*.ipr
 
 # NetBeans
+build/
 /project-back/nbproject/private/
-/project-back/build/
+/project-back/
 /project-back/nbbuild/
 /project-back/dist/
 /project-back/nbdist/
