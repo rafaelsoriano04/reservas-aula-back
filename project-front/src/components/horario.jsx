@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Modal } from "react-bootstrap";
-
+import Select from 'react-select';
 import "../styles/horario.css";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 function Horarios() {
   // Variables reactivas
   const [bloques, setBloques] = useState([]);
+  const [docentes, setDocente] = useState([]);
   const [horarios, setHorarios] = useState([]);
   const [materias, setMaterias] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState(1);
@@ -19,14 +20,103 @@ function Horarios() {
   const [selectedDia, setSelectedDia] = useState("Lunes");
   const [selectedMateria, setSelectedMateria] = useState();
   const [selectedDocente, setSelectedDocente] = useState("");
-  
+  const [selectedHorario, setSelectedHorario] = useState("");
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
  
+  const handleEditClick = () => {
+    if (selectedCell) {
+      const diaIndex = (selectedCell.cellIndex - 1 + 1) % dias.length;  
+  
+      const horario = horarios.find(h =>
+        h.dia === dias[diaIndex] &&
+        h.hora.startsWith(selectedCell.rowIndex + 7 + "")  
+      );
+  
+      if (horario) {
+        setSelectedDia(horario.dia);
+        setSelectedHora(horario.hora); 
+        setSelectedMateria(horario.id_materia);
+        const docente = docentes.find(d => d.value === horario.id_persona);  
+        setSelectedDocente(docente);  
+        setSelectedAulaLab(horario.id_espacio);
+        setIsEditing(true); 
+      }
+      setShowContextMenu(false);
+    }
+    setShowContextMenu(false);
+  };
+  
+  const handleSaveChanges = async () => {
+    
+    const horarioExiste = horarios.some(
+      horario =>
+        horario.dia === selectedDia &&
+        horario.hora === selectedHora.split("-")[0] &&
+        horario.id !== selectedHorario  
+    );
+  
+    const url = `http://localhost:8080/horario/${selectedHorario}`;  
+  
+    const nada = selectedDocente.value;
+    const horarioActualizado = {
+      dia: selectedDia,
+      hora: selectedHora.split("-")[0],
+      id_materia: selectedMateria,
+      id_persona: nada,
+      id_espacio: selectedAulaLab,
+    };
+  
+    
+  
+    try {
+      if (horarioExiste) {
+        Swal.fire({
+          title: "Error",
+          text: "Ya existe un horario en el mismo día y hora",
+          icon: "error",
+        });
+        return;
+      }
+  
+      const response = await axios.post(url, horarioActualizado);  
+  
+      Swal.fire({
+        title: "Éxito",
+        text: "Horario actualizado correctamente",
+        icon: "success",
+      });
+  
+      getHorarios(); 
+      setIsEditing(false);  
+  
+    } catch (error) {
+      console.error("Error al actualizar el horario:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo actualizar el horario",
+        icon: "error",
+      });
+    }
+  };
+  
+  
+  const handleCancelEdit = () => {
+    setSelectedHora('7-8');
+  setSelectedDia('Lunes');
+  setSelectedMateria('');  
+  setSelectedDocente(''); 
+    setIsEditing(false); 
+    setShowContextMenu(false);
+    
+  };
+  
   const handleCellClick = (e, rowIndex, cellIndex) => {
     setSelectedCell({ rowIndex, cellIndex });
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
@@ -91,8 +181,77 @@ function Horarios() {
     }
   };
 
-  
+  const eliminarHorario = async (id) =>{
+    
+    const url = `http://localhost:8080/horario/${id}`;
+    try {
+      const confirmacion = await Swal.fire({
+        title: '¿Está seguro?',
+        text: "Esta acción eliminará el horario. ¿Desea continuar?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+    });
 
+    if (confirmacion.isConfirmed) {
+        const response = await axios.delete(url);
+        getHorarios();
+        Swal.fire({
+            title: "Eliminado",
+            text: "El horario se ha sido eliminada correctamente",
+            icon: "success",
+            confirmButtonText: 'OK'
+        });
+    }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo eliminar el horario, intentelo de nuevo mas tarde.",
+        icon: "error",
+        confirmButtonText: 'OK'
+    });
+    }
+
+  }
+  const handleDeleteClick = () =>{
+    if (selectedCell) {
+      const diaIndex = (selectedCell.cellIndex - 1 + 1) % dias.length;  
+  
+      const horario = horarios.find(h =>
+        h.dia === dias[diaIndex] &&
+        h.hora.startsWith(selectedCell.rowIndex + 7 + "")  
+      );
+  
+      if (horario) {
+        
+        eliminarHorario(horario.id);
+      }
+    }
+  }
+  
+  const getDocentes = async () => {
+    const url = `http://localhost:8080/person/docente`;
+    try {
+      const response = await axios.get(url);
+      const docentesOptions = response.data.map(docente => ({
+        value: docente.id, 
+        label: `${docente.nombre} ${docente.apellido}`
+      }));
+      setDocente(docentesOptions);
+    } catch (error) {
+      console.error('Error al cargar los docentes:', error);
+      setDocente([]); 
+    }
+  };
+  useEffect(() => {
+    getDocentes(); 
+  }, []);
+
+  const handleDocenteChange = (selectedOption) => {
+    setSelectedDocente(selectedOption);
+  };
+  
   const getBloques = async () => {
     try {
       const resp = await axios.get("http://localhost:8080/bloque");
@@ -102,6 +261,9 @@ function Horarios() {
       console.log(message);
     }
   };
+  useEffect(() => {
+    getDocentes();
+  }, []);
 
   const handleBloqueChange = event => {
     setSelectedBloque(event.target.value);
@@ -116,17 +278,31 @@ function Horarios() {
     setSelectedAulaLab(event.target.value);
   };
 
-  const handleDocenteChange = event => {
-    setSelectedDocente(event.target.value);
-  };
+  
 
   const handleCreateHorario = async () => {
+
+    const horarioExiste = horarios.some(
+      horario =>
+        horario.dia === selectedDia &&
+        horario.hora === selectedHora.split("-")[0]
+    );
+    const nada = selectedDocente.value;
+    
+    const url = "http://localhost:8080/horario";
+    const nuevoHorario = {
+      dia: selectedDia,
+      hora: selectedHora.split("-")[0],
+      id_materia: selectedMateria,
+      id_persona: nada,
+      id_espacio: selectedAulaLab,
+     
+    
+    };
+    console.log(nuevoHorario);
+
     try {
-      const horarioExiste = horarios.some(
-        horario =>
-          horario.dia === selectedDia &&
-          horario.hora === selectedHora.split("-")[0]
-      );
+      
       if (horarioExiste) {
         Swal.fire({
           title: "Error",
@@ -136,18 +312,7 @@ function Horarios() {
         return;
       }
 
-      const idPersona = document.getElementById("docente").value;
-      const url = "http://localhost:8080/horario";
-      const nuevoHorario = {
-        dia: selectedDia,
-        hora: selectedHora.split("-")[0],
-        id_materia: selectedMateria,
-        id_persona: idPersona,
-        id_espacio: selectedAulaLab,
-      };
-
-      console.log(nuevoHorario);
-
+      
       await axios.post(url, nuevoHorario);
 
       Swal.fire({
@@ -180,7 +345,7 @@ function Horarios() {
   useEffect(() => {
     if (selectedAulaLab) {
       getHorarios();
-      console.log("a");
+      
     }
   }, [selectedAulaLab]);
 
@@ -380,36 +545,44 @@ function Horarios() {
                       ))}
                     </Form.Control>
                   </Form.Group>
-                  <div className="form-group docente-container">
+                  <div className="form-group docente-container me-2">
                     <Form.Label htmlFor="docente">Docente</Form.Label>
-                    <input
-                      type="text"
-                      id="docente"
-                      placeholder="Ingrese un numero de cedula"
-                      className="form-control"
-                      onChange={handleDocenteChange}
+                    <Select
                       value={selectedDocente}
+                      onChange={handleDocenteChange}
+                      options={docentes}
+                      placeholder="Seleccione un docente"
+                      isClearable={true}
+                      isSearchable={true}
                     />
+                        {docentes.map(docente => (
+                      <option key={docente.id} value={docente.id}>
+                        {docente.nombre}
+                      </option>
+                    ))}
+                
                   </div>
                 </div>
                 <div className="form-container">
-                  <div className="form-group d-flex align-items-end">
-                    <Button
-                      variant="custom"
-                      id="agregar-btn"
-                      onClick={handleCreateHorario}
-                    >
-                      Crear Horario
+                <div className="button-group mt-4 text-center">
+                  {isEditing ? (
+                    <>
+                      <Button variant="custom" id="save-btn" onClick={handleSaveChanges}>
+                        Guardar
+                      </Button>
+                      <Button variant="custom" id="cancel-btn" onClick={handleCancelEdit} className="ml-2">
+                        Cancelar
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="custom" id="create-btn" onClick={handleCreateHorario}>
+                      Crear 
                     </Button>
-                    <Button
-                      variant="custom"
-                      id="guardar-btn"
-                      style={{ display: "none" }}
-                    >
-                      Guardar
-                    </Button>
-                  </div>
+                  )}
                 </div>
+
+                </div>
+                
               </div>
             </Form>
             <table className="table table-bordered mt-4 table-centered">
@@ -460,10 +633,10 @@ function Horarios() {
                 left: contextMenuPosition.left,
               }}
             >
-              <Button variant="custom" id="editar-btn">
+              <Button variant="custom" id="editar-btn" onClick={handleEditClick}>
                 Editar
               </Button>
-              <Button variant="custom" id="eliminar-btn">
+              <Button variant="custom" id="eliminar-btn"  onClick={handleDeleteClick}>
                 Eliminar
               </Button>
             </div>
