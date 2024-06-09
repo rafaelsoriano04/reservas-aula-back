@@ -12,4 +12,8 @@ public interface ServicioReserva {
     ReservaDto crearReserva(ReservaDto reserva) throws NotFoundException;
 
     List<ReservaDto> getByWeek(Date fecha, Long id_espacio) throws NotFoundException ;
+
+    ReservaDto actualizarReserva(Long id, ReservaDto reservaDto) throws NotFoundException;
+
+    void eliminarReserva(Long id) throws NotFoundException;
 }

@@ -21,6 +21,7 @@ public class Reserva {
     private String hora;
     private Date fecha;
     private String asunto;
+    private String descripcion;
     @ManyToOne
     @JoinColumn(name = "id_persona")
     private Persona persona;

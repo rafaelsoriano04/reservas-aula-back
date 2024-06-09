@@ -1,6 +1,7 @@
 package gestorreservasaulas.servicios.impl;
 
 import gestorreservasaulas.dtos.HorarioDto;
+import gestorreservasaulas.dtos.PersonaDto;
 import gestorreservasaulas.dtos.ReservaDto;
 import gestorreservasaulas.entidades.*;
 import gestorreservasaulas.exceptions.ConflictException;
@@ -81,12 +82,42 @@ public class ServicioReservaImpl implements ServicioReserva {
             dto.setId(reserva.getId());
             dto.setHora(reserva.getHora());
             dto.setFecha(reserva.getFecha());
+            dto.setAsunto(reserva.getAsunto());
+            dto.setDescripcion(reserva.getDescripcion());
             dto.setId_espacio(reserva.getEspacio().getId());
             dto.setId_persona(reserva.getPersona().getId());
             dto.setAsunto(reserva.getAsunto());
+
+            // Mapear información completa de la persona
+            Persona persona = reserva.getPersona();
+            PersonaDto personaDto = new PersonaDto();
+            personaDto.setId(persona.getId());
+            personaDto.setCedula(persona.getCedula());
+            personaDto.setNombre(persona.getNombre());
+            personaDto.setApellido(persona.getApellido());
+            personaDto.setTelefono(persona.getTelefono());
+            personaDto.setTipo(persona.getTipo());
+
+            dto.setPersona(personaDto);
             reservasdto.add(dto);
         }
         return reservasdto;
+    }
+
+    @Override
+    public ReservaDto actualizarReserva(Long id, ReservaDto reservaDto) throws NotFoundException {
+        Reserva reserva = repositorioReserva.findById(id).orElseThrow(() -> new NotFoundException("Reserva no encontrada"));
+        reserva.setAsunto(reservaDto.getAsunto());
+        reserva.setDescripcion(reservaDto.getDescripcion());
+        return reservaToDto(repositorioReserva.save(reserva));
+    }
+
+
+    @Override
+    public void eliminarReserva(Long id) throws NotFoundException {
+        Reserva reserva = repositorioReserva.findById(id)
+                .orElseThrow(() -> new NotFoundException("Reserva no encontrada"));
+        repositorioReserva.deleteById(id);
     }
 
     private Reserva dtoToReserva(ReservaDto reservadto) throws NotFoundException {
@@ -95,6 +126,7 @@ public class ServicioReservaImpl implements ServicioReserva {
         reserva.setHora(reservadto.getHora());
         reserva.setFecha(reservadto.getFecha());
         reserva.setAsunto(reservadto.getAsunto());
+        reserva.setDescripcion(reservadto.getDescripcion());
 
         if (reservadto.getId_espacio() != null) {
             reserva.setEspacio(servicioEspacio.findById(reservadto.getId_espacio()));
@@ -114,6 +146,7 @@ public class ServicioReservaImpl implements ServicioReserva {
         reservadto.setHora(reserva.getHora());
         reservadto.setFecha(reserva.getFecha());
         reservadto.setAsunto(reserva.getAsunto());
+        reservadto.setDescripcion(reserva.getDescripcion());
 
         // Asigna id_aula solo si la relación Aula no es nula
         if (reserva.getEspacio() != null) {
