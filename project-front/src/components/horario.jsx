@@ -322,6 +322,7 @@ function Horarios() {
       });
 
       getHorarios();
+      handleCancelEdit();
     } catch (error) {
       Swal.fire({
         title: "Error",

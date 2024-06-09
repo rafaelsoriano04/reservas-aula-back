@@ -128,61 +128,65 @@ function Docentes() {
     }
   };
 
-  const handleSaveChanges = async () => {
-    const horarioExiste = horarios.some(
-      horario =>
-        horario.dia === selectedDia &&
-        horario.hora === selectedHora.split("-")[0] &&
-        horario.id !== selectedHorario
-    );
-
-    if (horarioExiste) {
-      Swal.fire({
-        title: "Error",
-        text: "Ya existe un horario en el mismo día y hora",
-        icon: "error",
-      });
+  const editarDocente = async id => {
+    const cedula = /^\d{10}$/;
+    if (!cedula.test(formData.cedula)) {
+      setCedulaError("La cédula ingresada no es válida.");
+      return;
+    }
+    const telefono = /^\d{10}$/;
+    if (!telefono.test(formData.telefono)) {
+      setTelefonoError(
+        "El teléfono ingresado no es válido. Debe tener 10 dígitos."
+      );
       return;
     }
 
-    const url = `http://localhost:8080/horario`;
+    const cedulaExistente = docentes.find(
+      docente =>
+        docente.cedula === formData.cedula && docente.id !== formData.id
+    );
+    if (cedulaExistente) {
+      setCedulaError("La cédula ya está registrada.");
+      return;
+    }
+    const url = `http://localhost:8080/person`;
 
-    const nada = selectedDocente.value;
-    const horarioActualizado = {
-      id: selectedHorario,
-      dia: selectedDia,
-      hora: selectedHora.split("-")[0],
-      id_materia: selectedMateria,
-      id_persona: nada,
-      id_espacio: selectedAulaLab,
+    let docente = {
+      id: formData.id,
+      cedula: formData.cedula,
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      telefono: formData.telefono,
+      direccion: "",
+      tipo: "Docente",
     };
-
-    console.log("Horario a actualizar:", horarioActualizado);
-    console.log("URL:", url);
-
+    console.log(docente);
     try {
-      const response = await axios.post(url, horarioActualizado, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        getHorarios();
+      const response = await axios.post(url, docente);
+      if (response.status === 200) {
+        getDocentes();
         setIsEditing(false);
-        setSelectedCell(null);
+        setFormData({
+          id: "",
+          nombre: "",
+          cedula: "",
+          apellido: "",
+          telefono: "",
+        });
         Swal.fire({
-          title: "Éxito",
-          text: "Horario actualizado correctamente",
+          title: "Modificado",
+          text: "El docente ha sido modificada correctamente",
           icon: "success",
+          confirmButtonText: "OK",
         });
       }
     } catch (error) {
-      console.error("Error al actualizar el horario:", error);
       Swal.fire({
         title: "Error",
-        text: "No se pudo actualizar el horario. Por favor, intente de nuevo.",
+        text: "No se pudo modificar el docente. Por favor, intente de nuevo.",
         icon: "error",
+        confirmButtonText: "OK",
       });
     }
   };
