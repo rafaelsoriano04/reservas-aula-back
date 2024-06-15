@@ -1,3 +1,6 @@
+node_module
+build
+
 # Node.js dependencies for frontend
 .gradle/
 /project-front/node_modules/
@@ -27,7 +30,7 @@
 /project-front/*.ipr
 
 # NetBeans
-build/
+build
 /project-back/nbproject/private/
 /project-back/
 /project-back/nbbuild/
@@ -43,6 +46,7 @@ build/
 /project-front/nbdist/
 /project-front/.nb-gradle/
 /project-front/.DS_Store
+/project-front/node_modules
 
 # VSCode
 /project-back/.vscode/
