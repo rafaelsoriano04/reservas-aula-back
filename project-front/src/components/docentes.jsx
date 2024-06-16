@@ -24,27 +24,19 @@ function Docentes() {
     top: 0,
     left: 0,
   });
+
+  const generarCodigoCedula = () => {
+    const inicialNombre = formData.nombre.charAt(0).toUpperCase();
+    const inicialApellido = formData.apellido
+    const numeroAleatorio = Math.floor(Math.random() * 100); 
+    return `DC${numeroAleatorio}-${inicialNombre}${inicialApellido}`;
+  };
+
+
   const crearDocente = async () => {
-    try {
-      const cedula = /^\d{10}$/;
-      if (!cedula.test(formData.cedula)) {
-        setCedulaError("La cédula ingresada no es válida.");
-        return;
-      }
-      const telefono = /^\d{10}$/;
-      if (!telefono.test(formData.telefono)) {
-        setTelefonoError("El teléfono ingresado no es válido.");
-        return;
-      }
-
-      const cedulaExistente = docentes.find(
-        docente => docente.cedula === formData.cedula
-      );
-      if (cedulaExistente) {
-        setCedulaError("La cédula ya está registrada.");
-        return;
-      }
-
+    
+    formData.cedula = generarCodigoCedula();
+    console.log (formData.cedula);
       let docente = {
         cedula: formData.cedula,
         nombre: formData.nombre,
@@ -71,13 +63,7 @@ function Docentes() {
         icon: "success",
         confirmButtonText: "OK",
       });
-    } catch (error) {
-      Swal.fire({
-        title: "No encontrado",
-        text: "Verifique que no existe e intentelo de nuevo",
-        icon: "info",
-      });
-    }
+  
   };
 
   const getDocentes = async () => {
@@ -129,29 +115,8 @@ function Docentes() {
   };
 
   const editarDocente = async id => {
-    const cedula = /^\d{10}$/;
-    if (!cedula.test(formData.cedula)) {
-      setCedulaError("La cédula ingresada no es válida.");
-      return;
-    }
-    const telefono = /^\d{10}$/;
-    if (!telefono.test(formData.telefono)) {
-      setTelefonoError(
-        "El teléfono ingresado no es válido. Debe tener 10 dígitos."
-      );
-      return;
-    }
-
-    const cedulaExistente = docentes.find(
-      docente =>
-        docente.cedula === formData.cedula && docente.id !== formData.id
-    );
-    if (cedulaExistente) {
-      setCedulaError("La cédula ya está registrada.");
-      return;
-    }
+    
     const url = `http://localhost:8080/person`;
-
     let docente = {
       id: formData.id,
       cedula: formData.cedula,
@@ -161,7 +126,6 @@ function Docentes() {
       direccion: "",
       tipo: "Docente",
     };
-    console.log(docente);
     try {
       const response = await axios.post(url, docente);
       if (response.status === 200) {
@@ -226,27 +190,7 @@ function Docentes() {
         <div className="mt-4">
           <Form id="form-reservas">
             <div className="row">
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="cedula">Cédula:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="cedula"
-                    className="form-control"
-                    name="cedula"
-                    value={formData.cedula}
-                    onChange={e => {
-                      let cedulaValue = e.target.value;
-                      cedulaValue = cedulaValue.replace(/\D/g, "");
-                      cedulaValue = cedulaValue.slice(0, 10);
-                      setFormData({ ...formData, cedula: cedulaValue });
-                      setCedulaError("");
-                    }}
-                    maxLength={10}
-                  />
-                  {cedulaError && <Alert variant="danger">{cedulaError}</Alert>}
-                </Form.Group>
-              </div>
+             
               <div className="col-md-4">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="nombre">Nombre:</Form.Label>
@@ -279,27 +223,20 @@ function Docentes() {
               </div>
               <div className="col-md-4">
                 <Form.Group className="form-group">
-                  <Form.Label htmlFor="telefono">Teléfono:</Form.Label>
+                  <Form.Label htmlFor="apellido">Telefono:</Form.Label>
                   <Form.Control
                     type="text"
                     id="telefono"
                     className="form-control"
                     name="telefono"
                     value={formData.telefono}
-                    onChange={e => {
-                      let telefonoValue = e.target.value;
-                      telefonoValue = telefonoValue.replace(/\D/g, "");
-                      telefonoValue = telefonoValue.slice(0, 10);
-                      setFormData({ ...formData, telefono: telefonoValue });
-                      setTelefonoError("");
-                    }}
-                    maxLength={10}
+                    onChange={e =>
+                      setFormData({ ...formData, telefono: e.target.value })
+                    }
                   />
-                  {telefonoError && (
-                    <Alert variant="danger">{telefonoError}</Alert>
-                  )}
                 </Form.Group>
               </div>
+             
             </div>
             <div className="button-group mt-4 text-center">
               {!isEditing ? (
@@ -334,10 +271,9 @@ function Docentes() {
           <table className="table table-bordered mt-4">
             <thead>
               <tr>
-                <th>Cédula</th>
+                <th>Código</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>Teléfono</th>
               </tr>
             </thead>
             <tbody>
@@ -346,7 +282,6 @@ function Docentes() {
                   <td>{docente.cedula}</td>
                   <td>{docente.nombre}</td>
                   <td>{docente.apellido}</td>
-                  <td>{docente.telefono}</td>
                 </tr>
               ))}
             </tbody>
