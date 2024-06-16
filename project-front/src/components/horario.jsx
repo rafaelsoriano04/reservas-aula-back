@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import Select from "react-select";
 import "../styles/horario.css";
 import axios from "axios";
-import Swal from "sweetalert2";
+import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Horarios() {
-  // Variables reactivas
+  // Variables
   const [bloques, setBloques] = useState([]);
   const [docentes, setDocente] = useState([]);
   const [horarios, setHorarios] = useState([]);
@@ -24,313 +24,31 @@ function Horarios() {
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
+  const horas = [
+    "7-8",
+    "8-9",
+    "9-10",
+    "10-11",
+    "11-12",
+    "12-13",
+    "13-14",
+    "14-15",
+    "15-16",
+    "16-17",
+    "17-18",
+    "18-19",
+    "19-20",
+  ];
+  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
-  const handleSaveChanges = async () => {
-    const horarioExiste = horarios.some(
-      horario =>
-        horario.dia === selectedDia &&
-        horario.hora === selectedHora.split("-")[0] &&
-        horario.id !== selectedHorario
-    );
-
-    if (horarioExiste) {
-      Swal.fire({
-        title: "Error",
-        text: "Ya existe un horario en el mismo día y hora",
-        icon: "error",
-      });
-      return;
-    }
-
-    const url = `http://localhost:8080/horario`; // URL para crear o actualizar horario
-
-    const nada = selectedDocente.value;
-    const horarioActualizado = {
-      id: selectedHorario, // Incluye el ID para que el backend pueda identificar si debe crear o actualizar
-      dia: selectedDia,
-      hora: selectedHora.split("-")[0],
-      id_materia: selectedMateria,
-      id_persona: nada,
-      id_espacio: selectedAulaLab,
-    };
-
-    console.log("Horario a actualizar:", horarioActualizado);
-    console.log("URL:", url);
-
-    try {
-      const response = await axios.post(url, horarioActualizado, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        getHorarios();
-        handleCancelEdit();
-        setIsEditing(false);
-        setSelectedCell(null);
-        Swal.fire({
-          title: "Éxito",
-          text: "Horario actualizado correctamente",
-          icon: "success",
-        });
-      }
-    } catch (error) {
-      console.error("Error al actualizar el horario:", error);
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo actualizar el horario. Por favor, intente de nuevo.",
-        icon: "error",
-      });
-    }
-  };
-
-  const handleEditClick = () => {
-    if (selectedCell) {
-      const diaIndex = (selectedCell.cellIndex - 1 + 1) % dias.length;
-
-      const horario = horarios.find(
-        h =>
-          h.dia === dias[diaIndex] &&
-          h.hora.startsWith(selectedCell.rowIndex + 7 + "")
-      );
-
-      if (horario) {
-        setSelectedDia(horario.dia);
-        setSelectedHora(horario.hora + "-" + (parseInt(horario.hora) + 1)); // Ajuste para establecer la hora correctamente
-        setSelectedMateria(horario.id_materia);
-        const docente = docentes.find(d => d.value === horario.id_persona);
-        setSelectedDocente(docente);
-        setSelectedAulaLab(horario.id_espacio);
-        setSelectedHorario(horario.id); // Establece el ID del horario para la edición
-        console.log("Horario seleccionado para editar:", horario); // Debugging
-        setIsEditing(true);
-      }
-      setShowContextMenu(false);
-    }
-    setShowContextMenu(false);
-  };
-
-  const handleCancelEdit = () => {
-    setSelectedHora("7-8");
-    setSelectedDia("Lunes");
-    setSelectedMateria("");
-    setSelectedDocente("");
-    setIsEditing(false);
-    setShowContextMenu(false);
-  };
-
-  const handleCellClick = (e, rowIndex, cellIndex) => {
-    setSelectedCell({ rowIndex, cellIndex });
-    setContextMenuPosition({ top: e.pageY, left: e.pageX });
-    setShowContextMenu(true);
-    console.log(`Celda seleccionada: fila ${rowIndex}, columna ${cellIndex}`);
-  };
-
-  const fetchAulasLabs = async () => {
-    const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
-
-    try {
-      const response = await axios.get(url);
-      //Aqui se debe controlar que se llene de acuerdo al tipo
-      let filteredData = [];
-      if (selectedTipo == "Aula") {
-        filteredData = response.data.filter(item => item.tipo === "Aula");
-      } else {
-        filteredData = response.data.filter(
-          item => item.tipo === "Laboratorio"
-        );
-      }
-      setAulasLabs(filteredData);
-    } catch (error) {
-      const { message } = error.response.data;
-      if (message === "No hay espacios en este bloque") {
-        Swal.fire({
-          title: "Oops...",
-          html: `<i>${message}</i>`,
-          icon: "error",
-        });
-      } else {
-        Swal.fire({
-          title: "Oops...",
-          html: `<i>Error al conectar con el servidor</i>`,
-          icon: "error",
-        });
-      }
-      setAulasLabs([]); // Limpia los datos si la petición falla
-    }
-  };
-
-  const getHorarios = async () => {
-    const url =
-      selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
-    try {
-      const response = await axios.get(url);
-      setHorarios(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      setHorarios([]); // Limpia los datos si la petición falla
-    }
-  };
-
-  const getMaterias = async () => {
-    const url = "http://localhost:8080/materia/todos";
-    try {
-      const respuesta = await axios.get(url);
-      setMaterias(respuesta.data);
-    } catch (error) {
-      const { message } = error.response.data;
-      console.log(message);
-    }
-  };
-
-  const eliminarHorario = async id => {
-    const url = `http://localhost:8080/horario/${id}`;
-    try {
-      const confirmacion = await Swal.fire({
-        title: "¿Está seguro?",
-        text: "Esta acción eliminará el horario. ¿Desea continuar?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-      });
-
-      if (confirmacion.isConfirmed) {
-        const response = await axios.delete(url);
-        getHorarios();
-        Swal.fire({
-          title: "Eliminado",
-          text: "El horario se ha sido eliminada correctamente",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo eliminar el horario, intentelo de nuevo mas tarde.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  };
-  const handleDeleteClick = () => {
-    if (selectedCell) {
-      const diaIndex = (selectedCell.cellIndex - 1 + 1) % dias.length;
-
-      const horario = horarios.find(
-        h =>
-          h.dia === dias[diaIndex] &&
-          h.hora.startsWith(selectedCell.rowIndex + 7 + "")
-      );
-
-      if (horario) {
-        eliminarHorario(horario.id);
-      }
-    }
-  };
-
-  const getDocentes = async () => {
-    const url = `http://localhost:8080/person/docente`;
-    try {
-      const response = await axios.get(url);
-      const docentesOptions = response.data.map(docente => ({
-        value: docente.id,
-        label: `${docente.nombre} ${docente.apellido}`,
-      }));
-      setDocente(docentesOptions);
-    } catch (error) {
-      console.error("Error al cargar los docentes:", error);
-      setDocente([]);
-    }
-  };
+  // useEffects
   useEffect(() => {
     getDocentes();
   }, []);
-
-  const handleDocenteChange = selectedOption => {
-    setSelectedDocente(selectedOption);
-  };
-
-  const getBloques = async () => {
-    try {
-      const resp = await axios.get("http://localhost:8080/bloque");
-      setBloques(resp.data);
-    } catch (error) {
-      const { message } = error.response.data;
-      console.log(message);
-    }
-  };
-  useEffect(() => {
-    getDocentes();
-  }, []);
-
-  const handleBloqueChange = event => {
-    setSelectedBloque(event.target.value);
-  };
-
-  const handleTipoChange = event => {
-    setSelectedTipo(event.target.value);
-    console.log(selectedTipo);
-  };
-
-  const handleAulaLabChange = event => {
-    setSelectedAulaLab(event.target.value);
-  };
-
-  const handleCreateHorario = async () => {
-    const horarioExiste = horarios.some(
-      horario =>
-        horario.dia === selectedDia &&
-        horario.hora === selectedHora.split("-")[0]
-    );
-    const nada = selectedDocente.value;
-
-    const url = "http://localhost:8080/horario";
-    const nuevoHorario = {
-      dia: selectedDia,
-      hora: selectedHora.split("-")[0],
-      id_materia: selectedMateria,
-      id_persona: nada,
-      id_espacio: selectedAulaLab,
-    };
-    console.log(nuevoHorario);
-
-    try {
-      if (horarioExiste) {
-        Swal.fire({
-          title: "Error",
-          text: "Ya existe un horario en el mismo día y hora",
-          icon: "error",
-        });
-        return;
-      }
-
-      await axios.post(url, nuevoHorario);
-
-      Swal.fire({
-        title: "Éxito",
-        text: "Horario creado correctamente",
-        icon: "success",
-      });
-
-      getHorarios();
-      handleCancelEdit();
-    } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo crear el horario",
-        icon: "error",
-      });
-    }
-  };
 
   useEffect(() => {
     getMaterias();
@@ -361,6 +79,102 @@ function Horarios() {
     }
   }, [materias]);
 
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  // Funciones
+  const fetchAulasLabs = async () => {
+    const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
+
+    try {
+      const response = await axios.get(url);
+      //Aqui se debe controlar que se llene de acuerdo al tipo
+      let filteredData = [];
+      if (selectedTipo == "Aula") {
+        filteredData = response.data.filter(item => item.tipo === "Aula");
+      } else {
+        filteredData = response.data.filter(
+          item => item.tipo === "Laboratorio"
+        );
+      }
+      setAulasLabs(filteredData);
+    } catch (error) {
+      const { message } = error.response.data;
+      if (message === "No hay espacios en este bloque") {
+        oops(message);
+      } else {
+        oops("Error al cargar espacios");
+      }
+      setAulasLabs([]); // Limpia los datos si la petición falla
+    }
+  };
+
+  const getHorarios = async () => {
+    const url =
+      selectedTipo === "Laboratorio"
+        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
+        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    try {
+      const response = await axios.get(url);
+      setHorarios(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      oops("Error al cargar horarios.");
+      setHorarios([]); // Limpia los datos si la petición falla
+    }
+  };
+
+  const getMaterias = async () => {
+    const url = "http://localhost:8080/materia/todos";
+    try {
+      const respuesta = await axios.get(url);
+      setMaterias(respuesta.data);
+    } catch (error) {
+      oops("Error al cargar materias.");
+    }
+  };
+
+  const eliminarHorario = async id => {
+    const url = `http://localhost:8080/horario/${id}`;
+    const isConfirmed = await deleteConfirmation();
+    try {
+      if (isConfirmed) {
+        await axios.delete(url);
+        getHorarios();
+        ok("Registro eliminado exitosamente.");
+      }
+    } catch (error) {
+      oops("No se pudo eliminar el registro. Por favor, inténtelo de nuevo.");
+    }
+  };
+
+  const getDocentes = async () => {
+    const url = `http://localhost:8080/person/docente`;
+    try {
+      const response = await axios.get(url);
+      const docentesOptions = response.data.map(docente => ({
+        value: docente.id,
+        label: `${docente.nombre} ${docente.apellido}`,
+      }));
+      setDocente(docentesOptions);
+    } catch (error) {
+      oops("Error al cargar docentes.");
+      setDocente([]);
+    }
+  };
+
+  const getBloques = async () => {
+    try {
+      const resp = await axios.get("http://localhost:8080/bloque");
+      setBloques(resp.data);
+    } catch (error) {
+      oops("Error al cargar bloques.");
+    }
+  };
+
   const renderTableCell = (dia, hora) => {
     if (hora === "13-14") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
@@ -371,6 +185,7 @@ function Horarios() {
     return horario ? `${horario.nombre}` : "";
   };
 
+  // Handlers
   const handleDocumentClick = e => {
     if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
       setSelectedCell(null);
@@ -378,30 +193,157 @@ function Horarios() {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("click", handleDocumentClick);
-    return () => {
-      document.removeEventListener("click", handleDocumentClick);
+  const handleDocenteChange = selectedOption => {
+    setSelectedDocente(selectedOption);
+  };
+
+  const handleBloqueChange = event => {
+    setSelectedBloque(event.target.value);
+  };
+
+  const handleTipoChange = event => {
+    setSelectedTipo(event.target.value);
+  };
+
+  const handleAulaLabChange = event => {
+    setSelectedAulaLab(event.target.value);
+  };
+
+  const handleDeleteClick = () => {
+    if (selectedCell) {
+      const diaIndex = (selectedCell.cellIndex - 1 + 1) % dias.length;
+
+      const horario = horarios.find(
+        h =>
+          h.dia === dias[diaIndex] &&
+          h.hora.startsWith(selectedCell.rowIndex + 7 + "")
+      );
+
+      if (horario) {
+        eliminarHorario(horario.id);
+      }
+    }
+  };
+
+  const handleCreateHorario = async () => {
+    const horarioExiste = horarios.some(
+      horario =>
+        horario.dia === selectedDia &&
+        horario.hora === selectedHora.split("-")[0]
+    );
+    const nada = selectedDocente.value;
+
+    const url = "http://localhost:8080/horario";
+    const nuevoHorario = {
+      dia: selectedDia,
+      hora: selectedHora.split("-")[0],
+      id_materia: selectedMateria,
+      id_persona: nada,
+      id_espacio: selectedAulaLab,
     };
-  }, []);
 
-  const horas = [
-    "7-8",
-    "8-9",
-    "9-10",
-    "10-11",
-    "11-12",
-    "12-13",
-    "13-14",
-    "14-15",
-    "15-16",
-    "16-17",
-    "17-18",
-    "18-19",
-    "19-20",
-  ];
-  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+    try {
+      if (horarioExiste) {
+        oops("Ya existe un horario en el mismo día y hora");
+        return;
+      }
 
+      await axios.post(url, nuevoHorario);
+
+      ok("Registro guardado exitosamente.");
+
+      getHorarios();
+      handleCancelEdit();
+    } catch (error) {
+      oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    const horarioExiste = horarios.some(
+      horario =>
+        horario.dia === selectedDia &&
+        horario.hora === selectedHora.split("-")[0] &&
+        horario.id !== selectedHorario
+    );
+
+    if (horarioExiste) {
+      oops("Ya existe un horario en el mismo día y hora");
+      return;
+    }
+
+    const url = `http://localhost:8080/horario`; // URL para crear o actualizar horario
+
+    const nada = selectedDocente.value;
+    const horarioActualizado = {
+      id: selectedHorario, // Incluye el ID para que el backend pueda identificar si debe crear o actualizar
+      dia: selectedDia,
+      hora: selectedHora.split("-")[0],
+      id_materia: selectedMateria,
+      id_persona: nada,
+      id_espacio: selectedAulaLab,
+    };
+
+    try {
+      const response = await axios.post(url, horarioActualizado, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        getHorarios();
+        handleCancelEdit();
+        setIsEditing(false);
+        setSelectedCell(null);
+        ok("Registro actualizado exitosamente.");
+      }
+    } catch (error) {
+      oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
+    }
+  };
+
+  const handleEditClick = () => {
+    if (selectedCell) {
+      const diaIndex = (selectedCell.cellIndex - 1 + 1) % dias.length;
+
+      const horario = horarios.find(
+        h =>
+          h.dia === dias[diaIndex] &&
+          h.hora.startsWith(selectedCell.rowIndex + 7 + "")
+      );
+
+      if (horario) {
+        setSelectedDia(horario.dia);
+        setSelectedHora(horario.hora + "-" + (parseInt(horario.hora) + 1)); // Ajuste para establecer la hora correctamente
+        setSelectedMateria(horario.id_materia);
+        const docente = docentes.find(d => d.value === horario.id_persona);
+        setSelectedDocente(docente);
+        setSelectedAulaLab(horario.id_espacio);
+        setSelectedHorario(horario.id); // Establece el ID del horario para la edición
+        setIsEditing(true);
+      }
+      setShowContextMenu(false);
+    }
+    setShowContextMenu(false);
+  };
+
+  const handleCancelEdit = () => {
+    setSelectedHora("7-8");
+    setSelectedDia("Lunes");
+    setSelectedMateria("");
+    setSelectedDocente("");
+    setIsEditing(false);
+    setShowContextMenu(false);
+  };
+
+  const handleCellClick = (e, rowIndex, cellIndex) => {
+    setSelectedCell({ rowIndex, cellIndex });
+    setContextMenuPosition({ top: e.pageY, left: e.pageX });
+    setShowContextMenu(true);
+  };
+
+  // Render
   return (
     <div className="container">
       <div className="container mt-4">
