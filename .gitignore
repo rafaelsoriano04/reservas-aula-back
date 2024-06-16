@@ -1,5 +1,6 @@
 node_module
 build
+package-lock.json
 
 # Node.js dependencies for frontend
 .gradle/

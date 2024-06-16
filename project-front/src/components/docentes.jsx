@@ -3,9 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/docentes.css";
 import axios from "axios";
-import Swal from "sweetalert2";
+import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Docentes() {
+  // Variables
   const [selectedRow, setSelectedRow] = useState(null);
   const [docentes, setDocente] = useState([]);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -33,6 +34,19 @@ function Docentes() {
   };
 
 
+  // useEffects
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    getDocentes();
+  }, []);
+
+  // Funciones
   const crearDocente = async () => {
     
     formData.cedula = generarCodigoCedula();
@@ -45,10 +59,7 @@ function Docentes() {
         direccion: "",
         tipo: "Docente",
       };
-      const response = await axios.post(
-        `http://localhost:8080/person`,
-        docente
-      );
+      await axios.post(`http://localhost:8080/person`, docente);
       getDocentes();
       setFormData({
         id: "",
@@ -72,6 +83,7 @@ function Docentes() {
       const response = await axios.get(url);
       setDocente(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
+      oops("No se pudo cargar los docentes. Por favor, inténtelo de nuevo.");
       setDocente([]); // Limpia los datos si la petición falla
     }
   };
@@ -84,33 +96,17 @@ function Docentes() {
 
   const eliminarDocentes = async id => {
     const url = `http://localhost:8080/person/${id}`;
+    const isConfirmed = await deleteConfirmation();
     try {
-      const confirmacion = await Swal.fire({
-        title: "¿Está seguro?",
-        text: "Esta acción eliminará el docente. ¿Desea continuar?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-      });
-
-      if (confirmacion.isConfirmed) {
-        const response = await axios.delete(url);
+      if (isConfirmed) {
+        await axios.delete(url);
         getDocentes();
-        Swal.fire({
-          title: "Eliminado",
-          text: "El docente ha sido eliminado correctamente",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+        ok("Registro eliminado exitosamente.");
       }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo eliminar el docente. Es posible que este asociado a un horario.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      oops(
+        "No se pudo eliminar el registro. Es posible que este asociado a un horario."
+      );
     }
   };
 
@@ -138,29 +134,19 @@ function Docentes() {
           apellido: "",
           telefono: "",
         });
-        Swal.fire({
-          title: "Modificado",
-          text: "El docente ha sido modificada correctamente",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+        ok("Registro actualizado exitosamente.");
       }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo modificar el docente. Por favor, intente de nuevo.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
     }
   };
 
+  // Handlers
   const handleRowClick = (e, docente) => {
     e.stopPropagation();
     setSelectedRow(docente.id);
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
     setShowContextMenu(true);
-    console.log(selectedRow);
   };
 
   const handleDocumentClick = e => {
@@ -170,17 +156,7 @@ function Docentes() {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("click", handleDocumentClick);
-    return () => {
-      document.removeEventListener("click", handleDocumentClick);
-    };
-  }, []);
-
-  useEffect(() => {
-    getDocentes();
-  }, []);
-
+  // Interfaz
   return (
     <div className="container-fluid">
       <div className="content">
