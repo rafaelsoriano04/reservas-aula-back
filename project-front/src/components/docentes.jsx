@@ -68,12 +68,7 @@ function Docentes() {
         apellido: "",
         telefono: "",
       });
-      Swal.fire({
-        title: "Guardado",
-        text: "El Docente se guardo",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
+      ok("Registro guardado exitosamente.");
   
   };
 
