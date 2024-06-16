@@ -2,22 +2,17 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/login.css";
 import axios from "axios";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { oops } from "../utils/Alerts";
 
 function Login() {
+  // Variables
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [mensajeError, setMensajeError] = useState("");
   const navigate = useNavigate();
-  const handleUsernameChange = e => {
-    setUsername(e.target.value);
-  };
 
-  const handlePasswordChange = e => {
-    setPassword(e.target.value);
-  };
-
+  // Funciones
   const validarLogin = async e => {
     e.preventDefault();
 
@@ -30,13 +25,7 @@ function Login() {
           password,
         });
         if (resp.data) {
-          Swal.fire({
-            title: "Bienvenido...",
-            html: "<i>Inicio de sesión exitoso</i>",
-            icon: "success",
-          });
           setMensajeError("");
-          //Llamar al Componente Menu
           navigate("/menu");
         }
       } catch (error) {
@@ -45,23 +34,25 @@ function Login() {
           if (message == "Credenciales inválidas") {
             setMensajeError(message);
           } else {
-            Swal.fire({
-              title: "Oops...",
-              html: "<i>Error al conectar con el servidor</i>",
-              icon: "error",
-            });
+            oops("Error al conectar con el servidor.");
           }
         } else {
-          Swal.fire({
-            title: "Oops...",
-            html: "<i>Error al conectar con el servidor</i>",
-            icon: "error",
-          });
+          oops("Error al conectar con el servidor.");
         }
       }
     }
   };
 
+  // Handlers
+  const handleUsernameChange = e => {
+    setUsername(e.target.value);
+  };
+
+  const handlePasswordChange = e => {
+    setPassword(e.target.value);
+  };
+
+  // Render
   return (
     <div className="container-fluid">
       <div className="login-container">

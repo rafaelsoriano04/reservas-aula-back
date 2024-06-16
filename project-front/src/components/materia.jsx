@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button } from "react-bootstrap";
 import "../styles/materias.css";
 import axios from "axios";
-import Swal from "sweetalert2";
+import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Materias() {
   const [selectedRow, setSelectedRow] = useState(null);
@@ -17,47 +17,45 @@ function Materias() {
     left: 0,
   });
 
+  // useEffects
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    getMaterias();
+  }, []);
+
   const getMaterias = async () => {
     const url = `http://localhost:8080/materia/todos`;
     try {
       const response = await axios.get(url);
       setMateria(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
+      oops("Error al cargar materias.");
       setMateria([]); // Limpia los datos si la petición falla
     }
   };
 
   const eliminarMateria = async id => {
     const url = `http://localhost:8080/materia/${id}`;
+    const isConfirmed = await deleteConfirmation();
     try {
-      const confirmacion = await Swal.fire({
-        title: "¿Está seguro?",
-        text: "Esta acción eliminará la materia. ¿Desea continuar?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-      });
-
-      if (confirmacion.isConfirmed) {
-        const response = await axios.delete(url);
+      if (isConfirmed) {
+        await axios.delete(url);
         getMaterias();
-        Swal.fire({
-          title: "Eliminado",
-          text: "La materia ha sido eliminada correctamente",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+        ok("Registro eliminado exitosamente.");
       }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo eliminar la materia. Es posible que la materia esté asociada a un horario.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      oops(
+        "No se pudo eliminar el registro. Es posible que este asociado a un horario."
+      );
     }
   };
+
   const limpiar = () => {
     setIsEditing(false);
     setCancel(true);
@@ -70,42 +68,16 @@ function Materias() {
       let materia = {
         nombre: formData.nombre,
       };
-      console.log(materia);
-      const response = await axios.post(url, materia);
+      await axios.post(url, materia);
       getMaterias();
       setFormData({ id: "", nombre: "" });
-      Swal.fire({
-        title: "Guardado",
-        text: "La materia se guardo",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
+      ok("Registro guardado exitosamente.");
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo guardar, verifique e intentelo de nuevo.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
     }
   };
 
-  const handleRowClick = (e, materia) => {
-    e.stopPropagation();
-    setSelectedRow(materia.id);
-    setContextMenuPosition({ top: e.pageY, left: e.pageX });
-    setShowContextMenu(true);
-    console.log(selectedRow);
-  };
-
-  const handleDocumentClick = e => {
-    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
-      setSelectedRow(null);
-      setShowContextMenu(false);
-    }
-  };
-
-  const editarMateria = async id => {
+  const editarMateria = async () => {
     const url = `http://localhost:8080/materia`;
     try {
       let materia = {
@@ -120,32 +92,29 @@ function Materias() {
         setIsEditing(false);
         setCancel(false);
         setFormData({ id: "", nombre: "" });
-        Swal.fire({
-          title: "Modificado",
-          text: "La materia ha sido modificada correctamente",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+        ok("Registro actualizado exitosamente.");
       }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo modificar la materia. Por favor, intente de nuevo.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
     }
   };
-  useEffect(() => {
-    document.addEventListener("click", handleDocumentClick);
-    return () => {
-      document.removeEventListener("click", handleDocumentClick);
-    };
-  }, []);
-  useEffect(() => {
-    getMaterias();
-  }, []);
 
+  // Handlers
+  const handleRowClick = (e, materia) => {
+    e.stopPropagation();
+    setSelectedRow(materia.id);
+    setContextMenuPosition({ top: e.pageY, left: e.pageX });
+    setShowContextMenu(true);
+  };
+
+  const handleDocumentClick = e => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setSelectedRow(null);
+      setShowContextMenu(false);
+    }
+  };
+
+  // Render
   return (
     <div className="container-fluid">
       <div className="content">
