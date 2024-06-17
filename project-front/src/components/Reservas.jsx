@@ -45,7 +45,7 @@ const LabReservations = () => {
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
   const [selectedAulaLab, setSelectedAulaLab] = useState();
-
+  
   const [horarios, setHorarios] = useState([]);
   const [reservas, setReservas] = useState([]);
 
@@ -655,7 +655,7 @@ const LabReservations = () => {
   return (
     <div className="container mt-3">
       <div className="header text-center">
-        <h2>RESERVAS DE LABORATORIO</h2>
+        <h2>SISTEMA DE GESTIÓN DE RESERVAS </h2>
       </div>
       <div className="row">
         <div className="col-md-4">
