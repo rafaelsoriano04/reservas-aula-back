@@ -515,7 +515,7 @@ const LabReservations = () => {
 
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
-      selectedDate.setDate(selectedDate.getDate() + 1);
+    
       const formattedDate = selectedDate.toISOString().split("T")[0];
 
       let savedResponsible = responsible;
@@ -633,7 +633,7 @@ const LabReservations = () => {
   return (
     <div className="container mt-3">
       <div className="header text-center">
-        <h2>RESERVAS DE LABORATORIO</h2>
+        <h2>RSISTEMA DE GESTIÓN DE RESERVAS</h2>
       </div>
       <div className="row">
         <div className="col-md-4">
@@ -678,17 +678,23 @@ const LabReservations = () => {
             ))}
           </select>
         </div>
-        <div className="col-md-4 nav-buttons">
-          <button className="btn" onClick={() => changeWeek(-1)}>
-            &lt;&lt;
-          </button>
-          <span id="weekRange" className="week-display">
-            {weekRange}
-          </span>
-          <button className="btn" onClick={() => changeWeek(1)}>
-            &gt;&gt;
-          </button>
-        </div>
+        <div className="row justify-content-center align-items-center mt-3">
+  <div className="col-auto">
+    <button className="btn mx-2" onClick={() => changeWeek(-1)}>
+      &lt;&lt;
+    </button>
+  </div>
+  <div className="col-auto mx-2">
+    <span id="weekRange" className="week-display">
+      {weekRange}
+    </span>
+  </div>
+  <div className="col-auto">
+    <button className="btn mx-2" onClick={() => changeWeek(1)}>
+      &gt;&gt;
+    </button>
+  </div>
+</div>
       </div>
 
       <table className="table table-bordered mt-4 table-centered">
