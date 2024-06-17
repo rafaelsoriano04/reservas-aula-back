@@ -48,9 +48,25 @@ const LabReservations = () => {
   
   const [horarios, setHorarios] = useState([]);
   const [reservas, setReservas] = useState([]);
-
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
   const [monday, setMonday] = useState();
 
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  const handleDocumentClick = e => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setShowContextMenu(false);
+    }
+  };
   useEffect(() => {
     getBloques();
   }, []);
@@ -355,17 +371,37 @@ const LabReservations = () => {
     );
   
     if (reserva) {
-      setReservationDetails({
-        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
-        asunto: reserva.asunto,
-        descripcion: reserva.descripcion || "Descripción aquí",
-        hora: hora,
-        fecha: formatDisplayDate(formattedDate), // Use formatDisplayDate for UI
-        tipo: reserva.persona.tipo || "N/A",
-        editable: false,
-        id: reserva.id,
-      });
-      setShowModal(true);
+      const now = new Date();
+      if (selectedDay > now.setHours(0, 0, 0, 0) || (selectedDay.toDateString() === new Date().toDateString() && parseInt(horaInicio) > now.getHours())) {
+        // Muestra el menú contextual
+        setReservationDetails({
+          encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+          asunto: reserva.asunto,
+          descripcion: reserva.descripcion || "Descripción aquí",
+          hora: hora,
+          fecha: formatDisplayDate(formattedDate), // Use formatDisplayDate for UI
+          tipo: reserva.persona.tipo || "N/A",
+          editable: false,
+          id: reserva.id,
+        });
+        setContextMenuPosition({ top: event.pageY, left: event.pageX });
+        setShowContextMenu(true);
+        return;
+      } else {
+        // Mostrar los detalles de la reserva si es pasada o actual
+        setReservationDetails({
+          encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+          asunto: reserva.asunto,
+          descripcion: reserva.descripcion || "Descripción aquí",
+          hora: hora,
+          fecha: formatDisplayDate(formattedDate), // Use formatDisplayDate for UI
+          tipo: reserva.persona.tipo || "N/A",
+          editable: false,
+          id: reserva.id,
+        });
+        setShowModal(true);
+        return;
+      }
     } else {
       const now = new Date();
       if (selectedDay < now.setHours(0, 0, 0, 0)) {
@@ -411,6 +447,7 @@ const LabReservations = () => {
       }
     }
   };
+  
   
   
 
@@ -739,11 +776,47 @@ const LabReservations = () => {
         </tbody>
       </table>
 
-      <div id="context-menu" className="context-menu">
-        <button className="btn btn-sm" onClick={handleAddReservation}>
-          Reservar
-        </button>
+      <div
+        className="context-menu"
+        id="context-menu"
+        style={{
+          display: showContextMenu ? "block" : "none",
+          top: contextMenuPosition.top,
+          left: contextMenuPosition.left,
+        }}
+      >
+        <Button
+          variant="custom"
+          id="ver-btn"
+          onClick={() => {
+            setShowModal(true);
+            setShowContextMenu(false);
+          }}
+        >
+          Ver
+        </Button>
+        <Button
+          variant="custom"
+          id="editar-btn"
+          onClick={() => {
+            enableEditing();
+            setShowContextMenu(false);
+          }}
+        >
+          Editar
+        </Button>
+        <Button
+          variant="custom"
+          id="eliminar-btn"
+          onClick={() => {
+            confirmDelete();
+            setShowContextMenu(false);
+          }}
+        >
+          Eliminar
+        </Button>
       </div>
+
 
       {/* Modal para detalles de reserva */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
