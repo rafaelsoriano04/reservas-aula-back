@@ -51,7 +51,7 @@ function Horarios() {
     const endFormatted = `${end.padStart(2, "0")}:00`;
     return `${startFormatted} - ${endFormatted}`;
   };
-  
+
   // useEffects
   useEffect(() => {
     getDocentes();
@@ -182,26 +182,26 @@ function Horarios() {
     }
   };
 
- const renderTableCell = (dia, hora) => {
-  const formattedHora = formatHora(hora);
-  if (hora === "13-14") {
-    return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
-  }
+  const renderTableCell = (dia, hora) => {
+    const formattedHora = formatHora(hora);
+    if (hora === "13-14") {
+      return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
+    }
 
-  const horaInicio = hora.split("-")[0];
-  const horario = horarios.find(h => h.dia === dia && h.hora === horaInicio);
+    const horaInicio = hora.split("-")[0];
+    const horario = horarios.find(h => h.dia === dia && h.hora === horaInicio);
 
-  if (horario) {
-    const [materia, profesor] = horario.nombre.split(" - ");
-    return (
-      <>
-        {materia} - <strong>{profesor}</strong>
-      </>
-    );
-  }
+    if (horario) {
+      const [materia, profesor] = horario.nombre.split(" - ");
+      return (
+        <>
+          {materia} - <strong>{profesor}</strong>
+        </>
+      );
+    }
 
-  return "";
-};
+    return "";
+  };
 
 
 
@@ -451,7 +451,7 @@ function Horarios() {
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="dia">Día:</Form.Label>
                     <Form.Select
-                      
+
                       id="dia"
                       className="form-control"
                       value={selectedDia}
@@ -467,23 +467,23 @@ function Horarios() {
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="hora">Hora:</Form.Label>
                     <Form.Select
-                     
+
                       id="hora"
                       className="form-control"
                       value={selectedHora}
                       onChange={e => setSelectedHora(e.target.value)}
                     >
-                       {horas.map(hora => (
-      <option key={hora} value={hora}>
-        {formatHora(hora)}
-      </option>
-    ))}
+                      {horas.map(hora => (
+                        <option key={hora} value={hora}>
+                          {formatHora(hora)}
+                        </option>
+                      ))}
                     </Form.Select>
                   </Form.Group>
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="materia">Materia:</Form.Label>
                     <Form.Select
-                      
+
                       id="materia"
                       className="form-control"
                       value={selectedMateria}
@@ -576,7 +576,7 @@ function Horarios() {
                       }
                     >
                       {formatHora(hora)}
-                      
+
                     </td>
                     {dias.map((dia, cellIndex) => (
                       <td
