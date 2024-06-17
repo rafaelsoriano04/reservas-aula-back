@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button } from "react-bootstrap";
 import "../styles/materias.css";
@@ -9,13 +9,21 @@ function Materias() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [materias, setMateria] = useState([]);
-  const [formData, setFormData] = useState({ id: "", nombre: "" });
+  const [formData, setFormData] = useState({ id: "", nombre: "", carrera: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [cancel, setCancel] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
+  const [carreras] = useState([
+    { nombre: "Ingeniería en Software" },
+    { nombre: "Ingeniería Industrial" },
+    { nombre: "Ingeniería en Automatización y Robotica" },
+  ]);
+  const carreraRef = useRef(null);
+
+  const [selectedCarrera, setSelectedCarrera] = useState("");
 
   // useEffects
   useEffect(() => {
@@ -59,18 +67,26 @@ function Materias() {
   const limpiar = () => {
     setIsEditing(false);
     setCancel(true);
-    setFormData({ id: "", nombre: "" });
+    setFormData({ id: "", nombre: "", carrera: "" });
+    setSelectedCarrera(""); // Limpiar selección de carrera
   };
 
   const guardarMateria = async () => {
+    if (selectedCarrera === "") {
+      carreraRef.current.focus();
+      return;
+    }
+
     const url = `http://localhost:8080/materia`;
     try {
       let materia = {
         nombre: formData.nombre,
+        carrera: selectedCarrera
       };
       await axios.post(url, materia);
       getMaterias();
-      setFormData({ id: "", nombre: "" });
+      setFormData({ id: "", nombre: "", carrera: "" });
+      setSelectedCarrera(""); // Limpiar selección de carrera
       ok("Registro guardado exitosamente.");
     } catch (error) {
       oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
@@ -79,19 +95,23 @@ function Materias() {
 
   const editarMateria = async () => {
     const url = `http://localhost:8080/materia`;
+    if (selectedCarrera == '') {
+      carreraRef.current.focus();
+      return;
+    }
     try {
       let materia = {
         id: formData.id,
         nombre: formData.nombre,
+        carrera: selectedCarrera
       };
-      console.log(materia);
-
       const response = await axios.post(url, materia);
       if (response.status === 200) {
         getMaterias();
         setIsEditing(false);
         setCancel(false);
-        setFormData({ id: "", nombre: "" });
+        setFormData({ id: "", nombre: "", carrera: "" });
+        setSelectedCarrera(""); // Limpiar selección de carrera
         ok("Registro actualizado exitosamente.");
       }
     } catch (error) {
@@ -125,7 +145,6 @@ function Materias() {
           <Form id="form-reservas">
             <div className="row">
               <div className="col-md-4">
-                <Form.Group className="form-group"></Form.Group>
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="nombre">Nombre:</Form.Label>
                   <Form.Control
@@ -138,6 +157,25 @@ function Materias() {
                       setFormData({ ...formData, nombre: e.target.value })
                     }
                   />
+                </Form.Group>
+              </div>
+              <div className="col-md-4">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="carrera">Carrera:</Form.Label>
+                  <Form.Select
+                    id="carrera"
+                    className="form-control"
+                    value={selectedCarrera}
+                    ref={carreraRef}
+                    onChange={e => setSelectedCarrera(e.target.value)}
+                  >
+                    <option value="">Seleccione una opción</option>
+                    {carreras.map(carrera => (
+                      <option key={carrera.nombre} value={carrera.nombre}>
+                        {carrera.nombre}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </div>
             </div>
@@ -175,12 +213,14 @@ function Materias() {
             <thead>
               <tr>
                 <th>Nombre</th>
+                <th>Carrera</th>
               </tr>
             </thead>
             <tbody>
               {materias.map(materia => (
                 <tr key={materia.id} onClick={e => handleRowClick(e, materia)}>
                   <td>{materia.nombre}</td>
+                  <td>{materia.carrera}</td>
                 </tr>
               ))}
             </tbody>
@@ -206,8 +246,9 @@ function Materias() {
                   setFormData({
                     id: selectedMateria.id,
                     nombre: selectedMateria.nombre,
+                    carrera: selectedMateria.carrera
                   });
-
+                  setSelectedCarrera(selectedMateria.carrera);
                   setShowContextMenu(false); // Cierra el menú contextual
                   setIsEditing(true);
                 }
