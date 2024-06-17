@@ -45,7 +45,7 @@ const LabReservations = () => {
   const [selectedBloque, setSelectedBloque] = useState(1);
   const [selectedTipo, setSelectedTipo] = useState("Aula");
   const [selectedAulaLab, setSelectedAulaLab] = useState();
-
+  
   const [horarios, setHorarios] = useState([]);
   const [reservas, setReservas] = useState([]);
 
@@ -88,7 +88,7 @@ const LabReservations = () => {
     } catch (error) {
       setHorarios([]); // Limpia los datos si la petición falla
     }
-    const formattedDate = monday.toISOString().split("T")[0];
+    const formattedDate = formatDate(monday); // Use formatDate here
     const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
       const response = await axios.get(url2);
@@ -97,6 +97,7 @@ const LabReservations = () => {
       setHorarios([]); // Limpia los datos si la petición falla
     }
   };
+  
 
   const getBloques = async () => {
     try {
@@ -299,12 +300,25 @@ const LabReservations = () => {
     let month = "" + (d.getMonth() + 1);
     let day = "" + d.getDate();
     const year = d.getFullYear();
-
+  
     if (month.length < 2) month = "0" + month;
     if (day.length < 2) day = "0" + day;
-
+  
     return [year, month, day].join("-");
   };
+  
+  const formatDisplayDate = (date) => {
+    const d = new Date(date);
+    let month = "" + (d.getMonth() + 1);
+    let day = "" + d.getDate();
+    const year = d.getFullYear();
+  
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+  
+    return [day, month, year].join("/");
+  };
+  
 
   const updateWeekRange = () => {
     const now = new Date();
@@ -314,14 +328,13 @@ const LabReservations = () => {
     for (let i = 1; i <= 6; i++) {
       const day = new Date(monday);
       day.setDate(monday.getDate() + i);
-      if (day.getDay() !== 6 && day.getDay() !== 0) {
-        dates.push(day);
-      }
+      dates.push(day);
     }
     setWeekDates(dates);
     setMonday(monday);
-    setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[4])}`);
+    setWeekRange(`Semana del: ${formatDisplayDate(monday)} - ${formatDisplayDate(dates[5])}`); // Use formatDisplayDate for UI
   };
+  
 
   const changeWeek = (change) => {
     setCurrentWeek((prev) => prev + change);
@@ -334,11 +347,11 @@ const LabReservations = () => {
     const index = dias.indexOf(dia);
     const selectedDay = weekDates[index];
   
-    const formattedDate = formatDate(selectedDay);
-    const startHour = parseInt(hora.split(":")[0]);
+    const formattedDate = formatDate(selectedDay); // Use formatDate for internal logic
+    const horaInicio = hora.split("-")[0];
     const reserva = reservas.find(
       (reserva) =>
-        reserva.fecha === formattedDate && parseInt(reserva.hora) === startHour
+        reserva.fecha === formattedDate && parseInt(reserva.hora) === parseInt(horaInicio)
     );
   
     if (reserva) {
@@ -346,8 +359,8 @@ const LabReservations = () => {
         encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
         asunto: reserva.asunto,
         descripcion: reserva.descripcion || "Descripción aquí",
-        hora: `${startHour}:00`,
-        fecha: formattedDate,
+        hora: hora,
+        fecha: formatDisplayDate(formattedDate), // Use formatDisplayDate for UI
         tipo: reserva.persona.tipo || "N/A",
         editable: false,
         id: reserva.id,
@@ -366,6 +379,7 @@ const LabReservations = () => {
   
       if (selectedDay.toDateString() === new Date().toDateString()) {
         const currentTime = new Date();
+        const [startHour] = hora.split("-").map(Number);
         if (currentTime.getHours() >= startHour) {
           Swal.fire({
             title: "Hora inválida",
@@ -382,7 +396,7 @@ const LabReservations = () => {
           encargado: "",
           asunto: "",
           descripcion: "",
-          hora: `${startHour}:00`,
+          hora: horaInicio,
         });
         setResponsible({
           cedula: "",
@@ -397,6 +411,7 @@ const LabReservations = () => {
       }
     }
   };
+  
   
 
   const enableEditing = () => {
@@ -625,6 +640,13 @@ const LabReservations = () => {
         text: "No se encontró ningún responsable con esa cédula. Puede agregarlo a continuación.",
         icon: "info",
       });
+      setResponsible({
+        cedula: responsible.cedula,
+        nombre: "",
+        apellido: "",
+        telefono: "",
+        tipo: "",
+      });
       setIsExistingResponsible(false);
       setShowAdditionalFields(true);
     }
@@ -633,6 +655,7 @@ const LabReservations = () => {
   return (
     <div className="container mt-3">
       <div className="header text-center">
+        <h2>SISTEMA DE GESTIÓN DE RESERVAS </h2>
         <h2>RSISTEMA DE GESTIÓN DE RESERVAS</h2>
       </div>
       <div className="row">
@@ -832,178 +855,198 @@ const LabReservations = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal para agregar reserva */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Agregar Reserva</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <form id="newReservationForm">
-            <div className="mb-3">
-              <label htmlFor="newDate" className="form-label">
-                Fecha
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newDate"
-                value={selectedDate ? formatDate(selectedDate) : ""}
-                disabled
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="cedula" className="form-label">
-                Cédula
-              </label>
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  id="cedula"
-                  name="cedula"
-                  value={responsible.cedula}
-                  onChange={handleCedulaChange}
-                />
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={searchResponsible}
-                >
-                  Buscar
-                </button>
-              </div>
-            </div>
-            {isExistingResponsible ? (
+
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="md">
+  <Modal.Header closeButton>
+    <Modal.Title>Agregar Reserva</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <form id="newReservationForm">
+      {/* Información de la Persona */}
+      <h5>Responsable</h5>
+      <div className="mb-3">
+        <label htmlFor="cedula" className="form-label">
+          Cédula
+        </label>
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control"
+            id="cedula"
+            name="cedula"
+            value={responsible.cedula}
+            onChange={handleCedulaChange}
+          />
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={searchResponsible}
+          >
+            Buscar
+          </button>
+        </div>
+      </div>
+      {isExistingResponsible ? (
+        <div className="mb-3">
+          <label htmlFor="newEncargado" className="form-label">
+            Nombre
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="newEncargado"
+            value={newReservation.encargado}
+            readOnly
+          />
+        </div>
+      ) : null}
+      {showAdditionalFields && (
+        <>
+          <div className="row">
+            <div className="col-md-6">
               <div className="mb-3">
-                <label htmlFor="newEncargado" className="form-label">
-                  Responsable
+                <label htmlFor="nombre" className="form-label">
+                  Nombre
                 </label>
                 <input
                   type="text"
                   className="form-control"
-                  id="newEncargado"
-                  value={newReservation.encargado}
-                  readOnly
+                  id="nombre"
+                  name="nombre"
+                  value={responsible.nombre}
+                  onChange={handleNombreChange}
                 />
               </div>
-            ) : null}
-            {showAdditionalFields && (
-              <>
-                <div className="mb-3">
-                  <label htmlFor="nombre" className="form-label">
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    value={responsible.nombre}
-                    onChange={handleNombreChange}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="apellido" className="form-label">
-                    Apellido
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="apellido"
-                    name="apellido"
-                    value={responsible.apellido}
-                    onChange={handleApellidoChange}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="telefono" className="form-label">
-                    Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="telefono"
-                    name="telefono"
-                    value={responsible.telefono}
-                    onChange={handleResponsibleChange}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="tipo" className="form-label">
-                    Tipo
-                  </label>
-                  <select
-                    className="form-control"
-                    id="tipo"
-                    name="tipo"
-                    value={responsible.tipo}
-                    onChange={handleResponsibleChange}
-                  >
-                    <option value="">Seleccione un tipo</option>
-                    <option value="Administrativo">Administrativo</option>
-                    <option value="Estudiante">Estudiante</option>
-                    <option value="Docente">Docente</option>
-                    <option value="Invitado">Invitado</option>
-                  </select>
-                </div>
-              </>
-            )}
-            <div className="mb-3">
-              <label htmlFor="newAsunto" className="form-label">
-                Asunto
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newAsunto"
-                value={newReservation.asunto}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
-                    ...prev,
-                    asunto: e.target.value,
-                  }))
-                }
-              />
             </div>
-            <div className="mb-3">
-              <label htmlFor="newDescripcion" className="form-label">
-                Descripción
-              </label>
-              <textarea
-                className="form-control"
-                id="newDescripcion"
-                value={newReservation.descripcion}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
-                    ...prev,
-                    descripcion: e.target.value,
-                  }))
-                }
-              />
+            <div className="col-md-6">
+              <div className="mb-3">
+                <label htmlFor="apellido" className="form-label">
+                  Apellido
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="apellido"
+                  name="apellido"
+                  value={responsible.apellido}
+                  onChange={handleApellidoChange}
+                />
+              </div>
             </div>
-            <div className="mb-3">
-              <label htmlFor="newHora" className="form-label">
-                Hora
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newHora"
-                value={newReservation.hora}
-                disabled
-              />
+          </div>
+          <div className="row">
+            <div className="col-md-6">
+              <div className="mb-3">
+                <label htmlFor="telefono" className="form-label">
+                  Teléfono
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="telefono"
+                  name="telefono"
+                  value={responsible.telefono}
+                  onChange={handleResponsibleChange}
+                />
+              </div>
             </div>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={saveNewReservation}>
-            Agregar
-          </Button>
-          <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-            Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            <div className="col-md-6">
+              <div className="mb-3">
+                <label htmlFor="tipo" className="form-label">
+                  Tipo
+                </label>
+                <select
+                  className="form-control"
+                  id="tipo"
+                  name="tipo"
+                  value={responsible.tipo}
+                  onChange={handleResponsibleChange}
+                >
+                  <option value="">Seleccione un tipo</option>
+                  <option value="Administrativo">Administrativo</option>
+                  <option value="Estudiante">Estudiante</option>
+                  <option value="Docente">Docente</option>
+                  <option value="Invitado">Invitado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      <hr />
+      {/* Información de la Reserva */}
+      <h5>Reserva</h5>
+      <div className="mb-3 row">
+        <div className="col-md-6">
+          <label htmlFor="newDate" className="form-label">
+            Fecha
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="newDate"
+            value={selectedDate ? formatDisplayDate(selectedDate) : ""}
+            disabled
+          />
+        </div>
+        <div className="col-md-6">
+          <label htmlFor="newHora" className="form-label">
+            Hora
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="newHora"
+            value={newReservation.hora}
+            disabled
+          />
+        </div>
+      </div>
+      <div className="mb-3">
+        <label htmlFor="newAsunto" className="form-label">
+          Asunto
+        </label>
+        <input
+          type="text"
+          className="form-control"
+          id="newAsunto"
+          value={newReservation.asunto}
+          onChange={(e) =>
+            setNewReservation((prev) => ({
+              ...prev,
+              asunto: e.target.value,
+            }))
+          }
+        />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="newDescripcion" className="form-label">
+          Descripción
+        </label>
+        <textarea
+          className="form-control"
+          id="newDescripcion"
+          value={newReservation.descripcion}
+          onChange={(e) =>
+            setNewReservation((prev) => ({
+              ...prev,
+              descripcion: e.target.value,
+            }))
+          }
+        />
+      </div>
+    </form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="success" onClick={saveNewReservation}>
+      Agregar
+    </Button>
+    <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+      Cerrar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
 
       {/* Modal para confirmación de eliminación */}
       <Modal
