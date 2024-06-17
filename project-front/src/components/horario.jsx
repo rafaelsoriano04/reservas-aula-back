@@ -182,8 +182,19 @@ function Horarios() {
     const horario = horarios.find(
       h => h.dia === dia && h.hora === hora.split("-")[0]
     );
-    return horario ? `${horario.nombre}` : "";
+    
+    if (horario) {
+      const [materia, profesor] = horario.nombre.split(" - ");
+      return (
+        <>
+          {materia} - <strong>{profesor}</strong>
+        </>
+      );
+    }
+    
+    return "";
   };
+  
 
   // Handlers
   const handleDocumentClick = e => {
@@ -356,8 +367,8 @@ function Horarios() {
               <div className="form-container">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="bloque">Bloque:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+                    
                     id="bloque"
                     className="form-control"
                     value={selectedBloque}
@@ -368,13 +379,13 @@ function Horarios() {
                         {bloque.nombre}
                       </option>
                     ))}
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
 
                 <Form.Group className="form-group col-md-6">
                   <Form.Label htmlFor="aula">Tipo:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+                    
                     id="aula"
                     className="form-control"
                     value={selectedTipo}
@@ -383,13 +394,13 @@ function Horarios() {
                   >
                     <option value="Aula">Aulas</option>
                     <option value="Laboratorio">Laboratorios</option>
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
 
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="aula-lab">Aula/Laboratorio:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+                    
                     id="aula-lab"
                     className="form-control"
                     value={selectedAulaLab}
@@ -401,7 +412,7 @@ function Horarios() {
                         {aulaLab.nombre}
                       </option>
                     ))}
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
               </div>
               <hr />
@@ -487,7 +498,8 @@ function Horarios() {
                     </Form.Control>
                   </Form.Group>
                   <div className="form-group docente-container me-2">
-                    <Form.Label htmlFor="docente">Docente</Form.Label>
+                    <Form.Label htmlFor="docente" className="me-2">Docente</Form.Label>
+                    <div className="fixed-width-select">
                     <Select
                       value={selectedDocente}
                       onChange={handleDocenteChange}
@@ -496,6 +508,7 @@ function Horarios() {
                       isClearable={true}
                       isSearchable={true}
                     />
+                  </div>
                     {docentes.map(docente => (
                       <option key={docente.id} value={docente.id}>
                         {docente.nombre}

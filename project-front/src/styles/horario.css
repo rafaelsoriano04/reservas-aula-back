@@ -126,3 +126,7 @@ body, html, #root, .app-container {
     margin-left: 10px; 
   }
   
+  .fixed-width-select {
+    max-width: 300px; /* Ajusta esto según sea necesario */
+  }
+  
