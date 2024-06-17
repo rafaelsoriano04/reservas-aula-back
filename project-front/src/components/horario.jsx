@@ -45,6 +45,13 @@ function Horarios() {
   ];
   const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
+  const formatHora = (hora) => {
+    const [start, end] = hora.split("-");
+    const startFormatted = `${start.padStart(2, "0")}:00`;
+    const endFormatted = `${end.padStart(2, "0")}:00`;
+    return `${startFormatted} - ${endFormatted}`;
+  };
+
   // useEffects
   useEffect(() => {
     getDocentes();
@@ -176,14 +183,27 @@ function Horarios() {
   };
 
   const renderTableCell = (dia, hora) => {
+    const formattedHora = formatHora(hora);
     if (hora === "13-14") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
-    const horario = horarios.find(
-      h => h.dia === dia && h.hora === hora.split("-")[0]
-    );
-    return horario ? `${horario.nombre}` : "";
+
+    const horaInicio = hora.split("-")[0];
+    const horario = horarios.find(h => h.dia === dia && h.hora === horaInicio);
+
+    if (horario) {
+      const [materia, profesor] = horario.nombre.split(" - ");
+      return (
+        <>
+          {materia} - <strong>{profesor}</strong>
+        </>
+      );
+    }
+
+    return "";
   };
+
+
 
   // Handlers
   const handleDocumentClick = e => {
@@ -356,8 +376,8 @@ function Horarios() {
               <div className="form-container">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="bloque">Bloque:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+
                     id="bloque"
                     className="form-control"
                     value={selectedBloque}
@@ -368,13 +388,13 @@ function Horarios() {
                         {bloque.nombre}
                       </option>
                     ))}
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
 
                 <Form.Group className="form-group col-md-6">
                   <Form.Label htmlFor="aula">Tipo:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+
                     id="aula"
                     className="form-control"
                     value={selectedTipo}
@@ -383,13 +403,13 @@ function Horarios() {
                   >
                     <option value="Aula">Aulas</option>
                     <option value="Laboratorio">Laboratorios</option>
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
 
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="aula-lab">Aula/Laboratorio:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+
                     id="aula-lab"
                     className="form-control"
                     value={selectedAulaLab}
@@ -401,7 +421,7 @@ function Horarios() {
                         {aulaLab.nombre}
                       </option>
                     ))}
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
               </div>
               <hr />
@@ -430,8 +450,8 @@ function Horarios() {
                 <div className="form-container">
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="dia">Día:</Form.Label>
-                    <Form.Control
-                      as="select"
+                    <Form.Select
+
                       id="dia"
                       className="form-control"
                       value={selectedDia}
@@ -442,35 +462,28 @@ function Horarios() {
                       <option>Miercoles</option>
                       <option>Jueves</option>
                       <option>Viernes</option>
-                    </Form.Control>
+                    </Form.Select>
                   </Form.Group>
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="hora">Hora:</Form.Label>
-                    <Form.Control
-                      as="select"
+                    <Form.Select
+
                       id="hora"
                       className="form-control"
                       value={selectedHora}
                       onChange={e => setSelectedHora(e.target.value)}
                     >
-                      <option>7-8</option>
-                      <option>8-9</option>
-                      <option>9-10</option>
-                      <option>10-11</option>
-                      <option>11-12</option>
-                      <option>12-13</option>
-                      <option>14-15</option>
-                      <option>15-16</option>
-                      <option>16-17</option>
-                      <option>17-18</option>
-                      <option>18-19</option>
-                      <option>19-20</option>
-                    </Form.Control>
+                      {horas.map(hora => (
+                        <option key={hora} value={hora}>
+                          {formatHora(hora)}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="materia">Materia:</Form.Label>
-                    <Form.Control
-                      as="select"
+                    <Form.Select
+
                       id="materia"
                       className="form-control"
                       value={selectedMateria}
@@ -484,18 +497,22 @@ function Horarios() {
                           {materia.nombre}
                         </option>
                       ))}
-                    </Form.Control>
+                    </Form.Select>
                   </Form.Group>
                   <div className="form-group docente-container me-2">
-                    <Form.Label htmlFor="docente">Docente</Form.Label>
-                    <Select
-                      value={selectedDocente}
-                      onChange={handleDocenteChange}
-                      options={docentes}
-                      placeholder="Seleccione un docente"
-                      isClearable={true}
-                      isSearchable={true}
-                    />
+                    <Form.Label htmlFor="docente" className="me-2">Docente</Form.Label>
+                    <div className="fixed-width-select">
+                      <Select
+                        value={selectedDocente}
+                        onChange={handleDocenteChange}
+                        options={docentes}
+                        placeholder="Seleccione un docente"
+                        isClearable={true}
+                        isSearchable={true}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                      />
+                    </div>
                     {docentes.map(docente => (
                       <option key={docente.id} value={docente.id}>
                         {docente.nombre}
@@ -558,7 +575,8 @@ function Horarios() {
                           : {}
                       }
                     >
-                      {hora}
+                      {formatHora(hora)}
+
                     </td>
                     {dias.map((dia, cellIndex) => (
                       <td
@@ -566,9 +584,9 @@ function Horarios() {
                         style={
                           hora === "13-14"
                             ? {
-                                backgroundColor: "#ffcccb",
-                                textAlign: "center",
-                              }
+                              backgroundColor: "#ffcccb",
+                              textAlign: "center",
+                            }
                             : {}
                         }
                         onClick={e =>
@@ -577,8 +595,8 @@ function Horarios() {
                         }
                         className={
                           selectedCell &&
-                          selectedCell.rowIndex === rowIndex &&
-                          selectedCell.cellIndex === cellIndex
+                            selectedCell.rowIndex === rowIndex &&
+                            selectedCell.cellIndex === cellIndex
                             ? "selected"
                             : ""
                         }

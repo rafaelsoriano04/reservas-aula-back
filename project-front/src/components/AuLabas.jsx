@@ -191,8 +191,8 @@ function AuLabs() {
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="bloque">Bloque:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+                    
                     id="bloque"
                     className="form-control"
                     value={selectedBloque}
@@ -203,14 +203,14 @@ function AuLabs() {
                         {bloque.nombre}
                       </option>
                     ))}
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
               </div>
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="tipo">Tipo:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+                   
                     id="tipo"
                     className="form-control"
                     value={selectedTipo}
@@ -218,7 +218,7 @@ function AuLabs() {
                   >
                     <option value="Aula">Aula</option>
                     <option value="Laboratorio">Laboratorio</option>
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
               </div>
             </div>
@@ -243,8 +243,8 @@ function AuLabs() {
               <div className="col-md-6">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="piso">Piso:</Form.Label>
-                  <Form.Control
-                    as="select"
+                  <Form.Select
+                   
                     id="piso"
                     className="form-control"
                     name="piso"
@@ -258,7 +258,7 @@ function AuLabs() {
                     <option value="3">Piso 3</option>
                     <option value="4">Piso 4</option>
                     <option value="5">Piso 5</option>
-                  </Form.Control>
+                  </Form.Select>
                 </Form.Group>
               </div>
               <div className="col-md-6">
