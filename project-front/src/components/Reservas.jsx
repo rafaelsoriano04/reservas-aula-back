@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Reserva.css";
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import Swal from "sweetalert2";
 
@@ -638,7 +638,7 @@ const LabReservations = () => {
       <div className="row">
         <div className="col-md-4">
           <label>Bloque/Edificio</label>
-          <select
+          <Form.Select
             className="form-control"
             id="bloqueSelect"
             value={selectedBloque}
@@ -649,11 +649,11 @@ const LabReservations = () => {
                 {bloque.nombre}
               </option>
             ))}
-          </select>
+          </Form.Select>
         </div>
         <div className="col-md-4">
           <label>Tipo</label>
-          <select
+          <Form.Select
             className="form-control"
             id="tipoSelect"
             value={selectedTipo}
@@ -661,11 +661,11 @@ const LabReservations = () => {
           >
             <option value="Aula">Aulas</option>
             <option value="Laboratorio">Laboratorios</option>
-          </select>
+          </Form.Select>
         </div>
         <div className="col-md-4">
           <label>Aula/Laboratorio</label>
-          <select
+          <Form.Select
             className="form-control"
             id="aulaLabSelect"
             value={selectedAulaLab}
@@ -676,7 +676,7 @@ const LabReservations = () => {
                 {aulaLab.nombre}
               </option>
             ))}
-          </select>
+          </Form.Select>
         </div>
         <div className="row justify-content-center align-items-center mt-3">
   <div className="col-auto">
