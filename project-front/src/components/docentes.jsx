@@ -158,9 +158,9 @@ function Docentes() {
         <div className="header">
           <h2>Docentes</h2>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 ">
           <Form id="form-reservas">
-            <div className="row">
+            <div className="row ">
              
               <div className="col-md-4">
                 <Form.Group className="form-group">
@@ -192,21 +192,7 @@ function Docentes() {
                   />
                 </Form.Group>
               </div>
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="apellido">Telefono:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="telefono"
-                    className="form-control"
-                    name="telefono"
-                    value={formData.telefono}
-                    onChange={e =>
-                      setFormData({ ...formData, telefono: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              </div>
+          
              
             </div>
             <div className="button-group mt-4 text-center">
