@@ -182,7 +182,7 @@ function Horarios() {
     const horario = horarios.find(
       h => h.dia === dia && h.hora === hora.split("-")[0]
     );
-    
+
     if (horario) {
       const [materia, profesor] = horario.nombre.split(" - ");
       return (
@@ -191,10 +191,10 @@ function Horarios() {
         </>
       );
     }
-    
+
     return "";
   };
-  
+
 
   // Handlers
   const handleDocumentClick = e => {
@@ -368,7 +368,7 @@ function Horarios() {
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="bloque">Bloque:</Form.Label>
                   <Form.Select
-                    
+
                     id="bloque"
                     className="form-control"
                     value={selectedBloque}
@@ -385,7 +385,7 @@ function Horarios() {
                 <Form.Group className="form-group col-md-6">
                   <Form.Label htmlFor="aula">Tipo:</Form.Label>
                   <Form.Select
-                    
+
                     id="aula"
                     className="form-control"
                     value={selectedTipo}
@@ -400,7 +400,7 @@ function Horarios() {
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="aula-lab">Aula/Laboratorio:</Form.Label>
                   <Form.Select
-                    
+
                     id="aula-lab"
                     className="form-control"
                     value={selectedAulaLab}
@@ -500,15 +500,17 @@ function Horarios() {
                   <div className="form-group docente-container me-2">
                     <Form.Label htmlFor="docente" className="me-2">Docente</Form.Label>
                     <div className="fixed-width-select">
-                    <Select
-                      value={selectedDocente}
-                      onChange={handleDocenteChange}
-                      options={docentes}
-                      placeholder="Seleccione un docente"
-                      isClearable={true}
-                      isSearchable={true}
-                    />
-                  </div>
+                      <Select
+                        value={selectedDocente}
+                        onChange={handleDocenteChange}
+                        options={docentes}
+                        placeholder="Seleccione un docente"
+                        isClearable={true}
+                        isSearchable={true}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                      />
+                    </div>
                     {docentes.map(docente => (
                       <option key={docente.id} value={docente.id}>
                         {docente.nombre}
@@ -579,9 +581,9 @@ function Horarios() {
                         style={
                           hora === "13-14"
                             ? {
-                                backgroundColor: "#ffcccb",
-                                textAlign: "center",
-                              }
+                              backgroundColor: "#ffcccb",
+                              textAlign: "center",
+                            }
                             : {}
                         }
                         onClick={e =>
@@ -590,8 +592,8 @@ function Horarios() {
                         }
                         className={
                           selectedCell &&
-                          selectedCell.rowIndex === rowIndex &&
-                          selectedCell.cellIndex === cellIndex
+                            selectedCell.rowIndex === rowIndex &&
+                            selectedCell.cellIndex === cellIndex
                             ? "selected"
                             : ""
                         }

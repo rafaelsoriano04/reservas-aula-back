@@ -126,7 +126,19 @@ body, html, #root, .app-container {
     margin-left: 10px; 
   }
   
-  .fixed-width-select {
-    max-width: 300px; /* Ajusta esto según sea necesario */
+  .fixed-width-select .react-select__control {
+    width: 230px; /* Ajusta este valor según sea necesario */
+    
   }
+  
+  
+  
+  .table td, .table th {
+    width: 150px; /* Ajusta este valor según sea necesario */
+    height: 50px; /* Ajusta este valor según sea necesario */
+    word-wrap: break-word;
+    text-align: center; /* Centrar el contenido horizontalmente */
+    vertical-align: middle; /* Centrar el contenido verticalmente */
+  }
+  
   
