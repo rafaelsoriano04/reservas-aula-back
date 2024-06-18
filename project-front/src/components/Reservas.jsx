@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
@@ -453,10 +454,11 @@ const LabReservations = () => {
     });
   };
 
-  const confirmDelete = () => {
-    setShowConfirmDelete(true);
+  const confirmDelete = async () => {
+      deleteReservation();
+    
   };
-
+  
   const deleteReservation = () => {
     if (reservationDetails.id) {
       handleDeleteReservation(reservationDetails.id);
