@@ -545,6 +545,13 @@ const LabReservations = () => {
     return days[dateObj.getDay()];
   };
   
+  const getDayNameFromDateR = (date) => {
+    // Añade 'T00:00:00Z' para asegurarte de que se trate como UTC
+    const dateObj = new Date(date + 'T00:00:00Z');
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return days[dateObj.getUTCDay()];
+};
+
 
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
@@ -824,7 +831,7 @@ const LabReservations = () => {
               type="text"
               className="form-control"
               id="dayName"
-              value={reservationDetails.fecha ? getDayNameFromDate(reservationDetails.fecha) : ""}
+              value={reservationDetails.fecha ? getDayNameFromDateR(reservationDetails.fecha) : ""}
               disabled
             />
           </div>
