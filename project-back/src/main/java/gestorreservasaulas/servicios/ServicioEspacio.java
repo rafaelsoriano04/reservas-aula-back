@@ -10,7 +10,7 @@ import java.util.List;
 public interface ServicioEspacio {
     Espacio findById(Long id) throws NotFoundException;
     List<EspacioDto> findAllByBloque(Long id_bloque) throws NotFoundException;
-
+    List<EspacioDto> findAll(); 
     EspacioDto save(EspacioDto espacioDto) throws NotFoundException;
 
     EspacioDto updateById(Long id, EspacioDto espacioDto) throws NotFoundException, ConflictException;
