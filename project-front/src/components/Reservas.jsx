@@ -146,17 +146,9 @@ const LabReservations = () => {
     } catch (error) {
       const { message } = error.response.data;
       if (message === "No hay espacios en este bloque") {
-        Swal.fire({
-          title: "Oops...",
-          html: `<i>${message}</i>`,
-          icon: "error",
-        });
+        oops(message);
       } else {
-        Swal.fire({
-          title: "Oops...",
-          html: `<i>Error al conectar con el servidor</i>`,
-          icon: "error",
-        });
+        oops("Error al conectar con el servidor");
       }
       setAulasLabs([]); // Limpia los datos si la petición falla
     }
@@ -216,7 +208,7 @@ const LabReservations = () => {
     case "Martes":
       index = 1;
       break;
-    case "Miércoles":
+    case "Miercoles":
       index = 2;
       break;
     case "Jueves":
@@ -225,7 +217,7 @@ const LabReservations = () => {
     case "Viernes":
       index = 4;
       break;
-    case "Sábado":
+    case "Sabado":
       index = 5;
       break;
     default:
@@ -381,11 +373,7 @@ const LabReservations = () => {
     } else {
       const now = new Date();
       if (selectedDay < now.setHours(0, 0, 0, 0)) {
-        Swal.fire({
-          title: "Fecha inválida",
-          text: "No puedes reservar una fecha que ya ha pasado.",
-          icon: "error",
-        });
+        oops("No puedes reservar en una fecha pasada.");
         return;
       }
   
@@ -393,11 +381,7 @@ const LabReservations = () => {
         const currentTime = new Date();
         const [startHour] = hora.split("-").map(Number);
         if (currentTime.getHours() >= startHour) {
-          Swal.fire({
-            title: "Hora inválida",
-            text: "No puedes reservar una hora que ya ha pasado.",
-            icon: "error",
-          });
+          oops("No puedes reservar una hora pasada.");
           return;
         }
       }
@@ -479,11 +463,7 @@ const LabReservations = () => {
         `http://localhost:8080/reservas/${reservationDetails.id}`,
         updatedReservation
       );
-      Swal.fire({
-        title: "Actualizado",
-        text: "La reserva ha sido actualizada exitosamente",
-        icon: "success",
-      });
+      ok("Registro actualizado exitosamente.");
 
       // Actualiza la lista de reservas localmente
       setReservas((prev) =>
@@ -500,24 +480,20 @@ const LabReservations = () => {
 
       setShowModal(false);
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: `Hubo un error al actualizar la reserva: ${error.response?.data?.message || error.message}`,
-        icon: "error",
-      });
+      oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
     }
   };
 
   const getDayNameFromDate = (date) => {
     const dateObj = new Date(date);
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sábado'];
     return days[dateObj.getDay()];
   };
   
   const getDayNameFromDateR = (date) => {
     // Añade 'T00:00:00Z' para asegurarte de que se trate como UTC
     const dateObj = new Date(date + 'T00:00:00Z');
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sábado'];
     return days[dateObj.getUTCDay()];
 };
 
@@ -535,24 +511,18 @@ const LabReservations = () => {
             "http://localhost:8080/person",
             responsible
           );
-          Swal.fire({
-            title: "Reserva Guardada",
-            text: "La reserva se ha guardado exitosamente",
-            icon: "success",
-          });
+          
           savedResponsible = response.data;
           setResponsible(savedResponsible);
           setNewReservation((prev) => ({
             ...prev,
             encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
           }));
-          
+          ok("Registro guardado exitosamente.");
         } catch (error) {
-          Swal.fire({
-            title: "Error",
-            text: `Hubo un error al guardar el nuevo responsable: ${error.response?.data?.message || error.message}`,
-            icon: "error",
-          });
+          oops(
+            "No se pudo guardar el registro. Por favor, inténtelo de nuevo."
+          );
           return;
         }
       }
@@ -604,11 +574,7 @@ const LabReservations = () => {
         setShowAdditionalFields(false);
       } catch (error) {
         console.error("Error al guardar la reserva:", error.response);
-        Swal.fire({
-          title: "Error",
-          text: `Hubo un error al guardar la reserva: ${error.response?.data?.message || error.message}`,
-          icon: "error",
-        });
+        oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
       }
     }
   };
@@ -634,11 +600,9 @@ const LabReservations = () => {
       setIsExistingResponsible(true);
       setShowAdditionalFields(false);
     } catch (error) {
-      Swal.fire({
-        title: "No encontrado",
-        text: "No se encontró ningún responsable con esa cédula. Puede agregarlo a continuación.",
-        icon: "info",
-      });
+      info(
+        "No se encontró el responsable con esa cédula. Puede agregarlo a continuación."
+      );
       setResponsible({
         cedula: responsible.cedula,
         nombre: "",
