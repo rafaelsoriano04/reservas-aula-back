@@ -297,15 +297,12 @@ const LabReservations = () => {
 
   const formatDate = (date) => {
     const d = new Date(date);
-    let month = "" + (d.getMonth() + 1);
-    let day = "" + d.getDate();
-    const year = d.getFullYear();
-  
-    if (month.length < 2) month = "0" + month;
-    if (day.length < 2) day = "0" + day;
-  
-    return [year, month, day].join("-");
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1; // Los meses en JS empiezan en 0
+    const day = d.getUTCDate();
+    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
   };
+  
   
   
   
@@ -473,29 +470,24 @@ const LabReservations = () => {
     }
   };
 
-  const handleDeleteReservation = async (reservationId) => {
+  const handleDeleteReservation = async reservationId => {
+    const isConfirmed = await deleteConfirmation();
     try {
-      await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
-      Swal.fire({
-        title: "Eliminado",
-        text: "La reserva ha sido eliminada exitosamente",
-        icon: "success",
-      });
-
-      // Actualiza el estado de reservas después de eliminar
-      setReservas((prev) =>
-        prev.filter((reserva) => reserva.id !== reservationId)
-      );
-      setShowConfirmDelete(false);
-      setShowModal(false);
+      if (isConfirmed) {
+        await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
+        // Actualiza el estado de reservas después de eliminar
+        setReservas(prev =>
+          prev.filter(reserva => reserva.id !== reservationId)
+        );
+        ok("Registro eliminado exitosamente.");
+        setShowConfirmDelete(false);
+        setShowModal(false);
+      }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: `Hubo un error al eliminar la reserva: ${error.response?.data?.message || error.message}`,
-        icon: "error",
-      });
+      oops("No se pudo eliminar el registro.Por favor, inténtelo de nuevo.");
     }
   };
+
 
   const updateReservation = async () => {
     const updatedReservation = {
@@ -556,7 +548,7 @@ const LabReservations = () => {
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
     
-      const formattedDate = selectedDate.toISOString().split("T")[0];
+      const formattedDate = selectedDate.toISOString();
 
       let savedResponsible = responsible;
 
@@ -577,6 +569,7 @@ const LabReservations = () => {
             ...prev,
             encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
           }));
+          
         } catch (error) {
           Swal.fire({
             title: "Error",
@@ -602,6 +595,7 @@ const LabReservations = () => {
           "http://localhost:8080/reservas",
           reserva
         );
+        await getHorarios();
         const newHorarios = [
           ...horarios,
           {
@@ -642,6 +636,8 @@ const LabReservations = () => {
     }
   };
 
+  
+
   const handleResponsibleChange = (event) => {
     const { name, value } = event.target;
     setResponsible((prev) => ({ ...prev, [name]: value }));
@@ -681,7 +677,6 @@ const LabReservations = () => {
     <div className="container mt-3">
       <div className="header text-center">
         <h2>SISTEMA DE GESTIÓN DE RESERVAS </h2>
-        <h2>RSISTEMA DE GESTIÓN DE RESERVAS</h2>
       </div>
       <div className="row">
         <div className="col-md-4">
@@ -904,7 +899,6 @@ const LabReservations = () => {
     {reservationDetails.editable ? (
       <>
         <Button variant="success" onClick={updateReservation}>Guardar</Button>
-        <Button variant="danger" onClick={confirmDelete}>Eliminar</Button>
       </>
     ) : null}
     <Button variant="secondary" onClick={() => setShowModal(false)}>Cerrar</Button>
@@ -1037,7 +1031,7 @@ const LabReservations = () => {
               disabled
             />
           </div>
-          <div className="col-md-6">
+          <div className="mb-3">
             <label htmlFor="newHora" className="form-label">Hora</label>
             <input
               type="text"
