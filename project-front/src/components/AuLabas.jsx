@@ -3,11 +3,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
-import ReactPaginate from 'react-paginate';
+import ReactPaginate from 'react-paginate'; 
+import { FaPlus } from 'react-icons/fa';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function AuLabs() {
-  // Variables
+  // Variables \
+
   const [selectedRow, setSelectedRow] = useState(null);
   const [bloques, setBloques] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState("1");
@@ -45,8 +47,8 @@ function AuLabs() {
   }, []);
 
   useEffect(() => {
-    setAulasLabsToShow(selectedTipo === "Aula" ? aulas : laboratorios);
-  }, [selectedTipo, aulas, laboratorios]);
+    setAulasLabsToShow([...aulas, ...laboratorios]);
+  }, [aulas, laboratorios]);
 
   useEffect(() => {
     fetchAulasLabs();
@@ -147,13 +149,9 @@ function AuLabs() {
 
   const fetchAulasLabs = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/espacio/bloque/${selectedBloque}`
-      );
+      const response = await axios.get("http://localhost:8080/espacio");
       setAulas(response.data.filter(item => item.tipo === "Aula"));
-      setLaboratorios(
-        response.data.filter(item => item.tipo === "Laboratorio")
-      );
+      setLaboratorios(response.data.filter(item => item.tipo === "Laboratorio"));
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
@@ -200,27 +198,20 @@ function AuLabs() {
           <h2>Aulas/Laboratorios</h2>
         </div>
         <div className="mt-4">
-          <h5
-            className="nuevo-horario text-center"
+        <Button
+            className="btn btn-primary d-flex align-items-center justify-content-center"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#collapseForm"
             aria-expanded="false"
             aria-controls="collapseForm"
             style={{
-              cursor: "pointer",
-              textDecoration: "underline",
               fontWeight: "bold",
             }}
-            onMouseOver={({ target }) =>
-              (target.style.textDecoration = "underline")
-            }
-            onMouseOut={({ target }) =>
-              (target.style.textDecoration = "none")
-            }
           >
-            Agregar Aulas/Laboratorios
-          </h5>
+            <FaPlus style={{ marginRight: '5px' }} />
+            Agregar 
+          </Button>
           <div className="collapse" id="collapseForm">
             <Form id="form-reservas">
               <div className="row">
@@ -368,6 +359,8 @@ function AuLabs() {
                     <td>{aulaLab.nombre}</td>
                     <td>{aulaLab.piso}</td>
                     <td>{aulaLab.capacidad}</td>
+                    <td>{bloques.find(b => b.id === aulaLab.id_bloque)?.nombre}</td>
+                    <td>{aulaLab.tipo}</td>
                   </tr>
                 ))
               )}
