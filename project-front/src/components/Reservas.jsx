@@ -834,7 +834,7 @@ const LabReservations = () => {
               type="text"
               className="form-control"
               id="fecha"
-              value={reservationDetails.fecha ? formatDate(reservationDetails.fecha) : ""}
+              value={reservationDetails.fecha}
               disabled
             />
           </div>
