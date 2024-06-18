@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
@@ -518,7 +518,7 @@ const LabReservations = () => {
             ...prev,
             encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
           }));
-          ok("Registro guardado exitosamente.");
+          
         } catch (error) {
           oops(
             "No se pudo guardar el registro. Por favor, inténtelo de nuevo."
@@ -572,6 +572,7 @@ const LabReservations = () => {
         });
         setIsExistingResponsible(false);
         setShowAdditionalFields(false);
+        ok("Registro guardado exitosamente.");
       } catch (error) {
         console.error("Error al guardar la reserva:", error.response);
         oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
@@ -583,8 +584,15 @@ const LabReservations = () => {
 
   const handleResponsibleChange = (event) => {
     const { name, value } = event.target;
-    setResponsible((prev) => ({ ...prev, [name]: value }));
+    if (name === "telefono") {
+      if (/^\d*$/.test(value)) {
+        setResponsible((prev) => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setResponsible((prev) => ({ ...prev, [name]: value }));
+    }
   };
+  
 
   //BUSCAR  EL RESPONSABLE PARA EL MODAL DE AGREGAR RESERVA
   const searchResponsible = async () => {
@@ -598,22 +606,23 @@ const LabReservations = () => {
         encargado: `${response.data.nombre} ${response.data.apellido}`,
       }));
       setIsExistingResponsible(true);
-      setShowAdditionalFields(false);
+      setShowAdditionalFields(false); // Asegúrate de ocultar los campos adicionales si se encuentra el responsable
     } catch (error) {
       info(
         "No se encontró el responsable con esa cédula. Puede agregarlo a continuación."
       );
-      setResponsible({
-        cedula: responsible.cedula,
+      setResponsible((prev) => ({
+        ...prev,
         nombre: "",
         apellido: "",
         telefono: "",
         tipo: "",
-      });
+      }));
       setIsExistingResponsible(false);
-      setShowAdditionalFields(true);
+      setShowAdditionalFields(true); // Muestra los campos adicionales si no se encuentra el responsable
     }
   };
+  
 
   return (
     <div className="container mt-3">
@@ -851,7 +860,7 @@ const LabReservations = () => {
 </Modal>
 
 
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="md">
+<Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="md">
   <Modal.Header closeButton>
     <Modal.Title>Agregar Reserva</Modal.Title>
   </Modal.Header>
@@ -893,11 +902,12 @@ const LabReservations = () => {
                   <label htmlFor="nombre" className="form-label">Nombre</label>
                   <input
                     type="text"
+                    maxLength={30}
                     className="form-control"
                     id="nombre"
                     name="nombre"
                     value={responsible.nombre}
-                    onChange={handleNombreChange}
+                    onChange={handleResponsibleChange}
                   />
                 </div>
               </div>
@@ -906,11 +916,12 @@ const LabReservations = () => {
                   <label htmlFor="apellido" className="form-label">Apellido</label>
                   <input
                     type="text"
+                    maxLength={30}
                     className="form-control"
                     id="apellido"
                     name="apellido"
                     value={responsible.apellido}
-                    onChange={handleApellidoChange}
+                    onChange={handleResponsibleChange}
                   />
                 </div>
               </div>
@@ -920,6 +931,7 @@ const LabReservations = () => {
                 <div className="mb-3">
                   <label htmlFor="telefono" className="form-label">Teléfono</label>
                   <input
+                  maxLength={10}
                     type="text"
                     className="form-control"
                     id="telefono"
@@ -1015,34 +1027,6 @@ const LabReservations = () => {
   </Modal.Footer>
 </Modal>
 
-
-
-      
-
-
-      {/* Modal para confirmación de eliminación */}
-      <Modal
-        show={showConfirmDelete}
-        onHide={() => setShowConfirmDelete(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar Eliminación</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro de que deseas eliminar esta reserva?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={deleteReservation}>
-            Eliminar
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => setShowConfirmDelete(false)}
-          >
-            Cancelar
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };
