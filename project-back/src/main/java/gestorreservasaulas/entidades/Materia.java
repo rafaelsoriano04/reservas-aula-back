@@ -19,8 +19,10 @@ public class Materia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column()
     private String nombre;
+    @Column()
+    private String carrera;
 
     @OneToMany( mappedBy = "materia")
     List<Horario> listaHorario;
