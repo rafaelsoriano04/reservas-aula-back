@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button } from "react-bootstrap";
 import "../styles/materias.css";
 import axios from "axios";
+import ReactPaginate from 'react-paginate';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Materias() {
@@ -19,13 +20,18 @@ function Materias() {
   const [carreras] = useState([
     { nombre: "Ingeniería en Software" },
     { nombre: "Ingeniería Industrial" },
+    { nombre: "Ingeniería en Telecomunicaciones" },
+    { nombre: "Ingeniería en Tecnologías de la Información" },
     { nombre: "Ingeniería en Automatización y Robotica" },
   ]);
   const carreraRef = useRef(null);
 
   const [selectedCarrera, setSelectedCarrera] = useState("");
 
-  // useEffects
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(0);
+  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
     return () => {
@@ -95,7 +101,7 @@ function Materias() {
 
   const editarMateria = async () => {
     const url = `http://localhost:8080/materia`;
-    if (selectedCarrera == '') {
+    if (selectedCarrera === '') {
       carreraRef.current.focus();
       return;
     }
@@ -119,7 +125,6 @@ function Materias() {
     }
   };
 
-  // Handlers
   const handleRowClick = (e, materia) => {
     e.stopPropagation();
     setSelectedRow(materia.id);
@@ -134,7 +139,28 @@ function Materias() {
     }
   };
 
-  // Render
+  const handlePageClick = (data) => {
+    setPaginaActual(data.selected);
+  };
+
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = materias.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(materias.length / itemsPorPagina);
+
+  const cargarMaterias = () => {
+    return currentPageData.map((materia) => (
+      <tr
+        key={materia.id}
+        className={materia.id === selectedRow ? "table-active" : ""}
+        onClick={(e) => handleRowClick(e, materia)}
+        style={{ cursor: "pointer" }}
+      >
+        <td>{materia.nombre}</td>
+        <td>{materia.carrera}</td>
+      </tr>
+    ));
+  };
+
   return (
     <div className="container-fluid">
       <div className="content">
@@ -153,7 +179,7 @@ function Materias() {
                     className="form-control"
                     name="nombre"
                     value={formData.nombre}
-                    onChange={e =>
+                    onChange={(e) =>
                       setFormData({ ...formData, nombre: e.target.value })
                     }
                   />
@@ -167,10 +193,10 @@ function Materias() {
                     className="form-control"
                     value={selectedCarrera}
                     ref={carreraRef}
-                    onChange={e => setSelectedCarrera(e.target.value)}
+                    onChange={(e) => setSelectedCarrera(e.target.value)}
                   >
                     <option value="">Seleccione una opción</option>
-                    {carreras.map(carrera => (
+                    {carreras.map((carrera) => (
                       <option key={carrera.nombre} value={carrera.nombre}>
                         {carrera.nombre}
                       </option>
@@ -217,14 +243,37 @@ function Materias() {
               </tr>
             </thead>
             <tbody>
-              {materias.map(materia => (
-                <tr key={materia.id} onClick={e => handleRowClick(e, materia)}>
-                  <td>{materia.nombre}</td>
-                  <td>{materia.carrera}</td>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="2">No hay resultados</td>
                 </tr>
-              ))}
+              ) : (
+                cargarMaterias()
+              )}
             </tbody>
           </table>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
+          />
+          <div className="d-flex justify-content-end">
+            
+          </div>
           <div
             className="context-menu"
             id="context-menu"
@@ -240,13 +289,13 @@ function Materias() {
               id="editar-btn"
               onClick={() => {
                 const selectedMateria = materias.find(
-                  m => m.id === selectedRow
+                  (m) => m.id === selectedRow
                 );
                 if (selectedMateria) {
                   setFormData({
                     id: selectedMateria.id,
                     nombre: selectedMateria.nombre,
-                    carrera: selectedMateria.carrera
+                    carrera: selectedMateria.carrera,
                   });
                   setSelectedCarrera(selectedMateria.carrera);
                   setShowContextMenu(false); // Cierra el menú contextual
