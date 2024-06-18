@@ -790,6 +790,7 @@ const LabReservations = () => {
           variant="custom"
           id="editar-btn"
           onClick={() => {
+            enableEditing();
             setReservationDetails(prev => ({ ...prev, editable: true })); // Hace los campos editables
             setShowModal(true);
             setShowContextMenu(false);
@@ -874,22 +875,24 @@ const LabReservations = () => {
           </div>
         </div>
         <div className="mb-3">
-          <label htmlFor="asunto" className="form-label">Asunto</label>
+        <label htmlFor="asunto" className="form-label">Asunto</label>
           <input
             type="text"
             className="form-control"
             id="asunto"
             value={reservationDetails.asunto}
-            disabled={!reservationDetails.editable}
+            onChange={(e) => setReservationDetails({...reservationDetails, asunto: e.target.value})}
+            disabled={!reservationDetails.editable}  // Asegúrate de que esto depende de `editable`
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">Descripción</label>
+        <label htmlFor="descripcion" className="form-label">Descripción</label>
           <textarea
             className="form-control"
             id="descripcion"
             value={reservationDetails.descripcion}
-            disabled={!reservationDetails.editable}
+            onChange={(e) => setReservationDetails({...reservationDetails, descripcion: e.target.value})}
+            disabled={!reservationDetails.editable}  // Asegúrate de que esto depende de `editable`
           />
         </div>
       </section>
