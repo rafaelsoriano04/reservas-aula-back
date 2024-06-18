@@ -118,4 +118,11 @@ public class ServicioEspacioImpl implements ServicioEspacio {
         espacioDto.setId_bloque(espacio.getBloque().getId());
         return espacioDto;
     }
+
+    @Override
+public List<EspacioDto> findAll() {
+    List<Espacio> listaEspacios = repositorioEspacio.findAll();
+    return listaEspacios.stream().map(this::espacioToDto).collect(Collectors.toList());
+}
+
 }
