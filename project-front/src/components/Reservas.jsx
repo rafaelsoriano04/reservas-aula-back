@@ -54,6 +54,7 @@ const LabReservations = () => {
     top: 0,
     left: 0,
   });
+
   const [monday, setMonday] = useState();
 
   useEffect(() => {
@@ -94,6 +95,7 @@ const LabReservations = () => {
     updateWeekRange();
   }, [currentWeek]);
 
+  //TRAE LOS HORARIOS Y LAS RESERVAS
   const getHorarios = async () => {
     const url =
       selectedTipo === "Laboratorio"
@@ -194,6 +196,7 @@ const LabReservations = () => {
     setSelectedAulaLab(event.target.value);
   };
 
+  //RENDERIZA LA TABLA PARA PONER COLORES EN RECESOS,RESERVADOS,Y HORARIOS
   const renderTableCell = (dia, hora) => {
   // Manejo del receso
   if (hora === "13:00 - 14:00") {
@@ -296,6 +299,7 @@ const LabReservations = () => {
     return new Date(d.setDate(diff));
   };
 
+  //FORMATE LA FECHA
   const formatDate = (date) => {
     const d = new Date(date);
     const year = d.getUTCFullYear();
@@ -307,7 +311,7 @@ const LabReservations = () => {
   
   
   
-
+  //OBTIENE LAS SEMANAS SEGUN LA FECHA ACTUAL
   const updateWeekRange = () => {
     const now = new Date();
     now.setDate(now.getDate() + currentWeek * 7);
@@ -430,30 +434,6 @@ const LabReservations = () => {
     }));
   };
 
-  const saveReservation = () => {
-    const formattedDate = formatDate(selectedDate);
-    setReservations((prev) => [
-      ...prev,
-      {
-        dia: selectedCell.dia,
-        hora: selectedCell.hora,
-        fecha: formattedDate,
-        encargado: reservationDetails.encargado,
-        asunto: reservationDetails.asunto,
-        descripcion: reservationDetails.descripcion,
-      },
-    ]);
-    setShowModal(false);
-    setReservationDetails({
-      encargado: "",
-      asunto: "",
-      descripcion: "",
-      hora: "",
-      fecha: "",
-      editable: false,
-    });
-  };
-
   const confirmDelete = async () => {
       deleteReservation();
     
@@ -465,13 +445,8 @@ const LabReservations = () => {
     }
   };
 
-  const handleAddReservation = () => {
-    if (selectedCell) {
-      setNewReservation((prev) => ({ ...prev, hora: selectedCell.hora }));
-      setShowAddModal(true);
-    }
-  };
-
+  
+  //ELIMINAR LA RESERVA DE LA BASE
   const handleDeleteReservation = async reservationId => {
     const isConfirmed = await deleteConfirmation();
     try {
@@ -546,7 +521,7 @@ const LabReservations = () => {
     return days[dateObj.getUTCDay()];
 };
 
-
+  //GUARDA LA RESERVA
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
     
@@ -645,6 +620,7 @@ const LabReservations = () => {
     setResponsible((prev) => ({ ...prev, [name]: value }));
   };
 
+  //BUSCAR  EL RESPONSABLE PARA EL MODAL DE AGREGAR RESERVA
   const searchResponsible = async () => {
     try {
       const response = await axios.get(
@@ -992,7 +968,7 @@ const LabReservations = () => {
               <div className="col-md-6">
                 <div className="mb-3">
                   <label htmlFor="tipo" className="form-label">Tipo</label>
-                  <select
+                  <Form.Select
                     className="form-control"
                     id="tipo"
                     name="tipo"
@@ -1004,7 +980,7 @@ const LabReservations = () => {
                     <option value="Estudiante">Estudiante</option>
                     <option value="Docente">Docente</option>
                     <option value="Invitado">Invitado</option>
-                  </select>
+                  </Form.Select>
                 </div>
               </div>
             </div>
