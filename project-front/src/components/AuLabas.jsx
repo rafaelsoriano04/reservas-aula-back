@@ -3,10 +3,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
+import ReactPaginate from 'react-paginate'; 
+import { FaPlus } from 'react-icons/fa';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function AuLabs() {
-  // Variables
+  // Variables \
+
   const [selectedRow, setSelectedRow] = useState(null);
   const [bloques, setBloques] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState("1");
@@ -17,6 +20,7 @@ function AuLabs() {
   const [laboratorios, setLaboratorios] = useState([]);
   const [cancel, setCancel] = useState(false);
   const [aulasLabsToShow, setAulasLabsToShow] = useState([]);
+ 
   const [formData, setFormData] = useState({
     id_bloque: "1",
     tipo: "Aula",
@@ -32,6 +36,10 @@ function AuLabs() {
   });
   const [isEditing, setIsEditing] = useState(false);
 
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(0);
+  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+
   // useEffects
   useEffect(() => {
     getBloques();
@@ -39,8 +47,8 @@ function AuLabs() {
   }, []);
 
   useEffect(() => {
-    setAulasLabsToShow(selectedTipo === "Aula" ? aulas : laboratorios);
-  }, [selectedTipo, aulas, laboratorios]);
+    setAulasLabsToShow([...aulas, ...laboratorios]);
+  }, [aulas, laboratorios]);
 
   useEffect(() => {
     fetchAulasLabs();
@@ -141,19 +149,23 @@ function AuLabs() {
 
   const fetchAulasLabs = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/espacio/bloque/${selectedBloque}`
-      );
+      const response = await axios.get("http://localhost:8080/espacio");
       setAulas(response.data.filter(item => item.tipo === "Aula"));
-      setLaboratorios(
-        response.data.filter(item => item.tipo === "Laboratorio")
-      );
+      setLaboratorios(response.data.filter(item => item.tipo === "Laboratorio"));
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
       setLaboratorios([]);
     }
   };
+
+  const handlePageClick = (data) => {
+    setPaginaActual(data.selected);
+  };
+
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = aulasLabsToShow.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(aulasLabsToShow.length / itemsPorPagina);
 
   // Handlers
   const handleBloqueChange = event => {
@@ -186,151 +198,194 @@ function AuLabs() {
           <h2>Aulas/Laboratorios</h2>
         </div>
         <div className="mt-4">
-          <Form id="form-reservas">
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="bloque">Bloque:</Form.Label>
-                  <Form.Select
-                    
-                    id="bloque"
-                    className="form-control"
-                    value={selectedBloque}
-                    onChange={handleBloqueChange}
-                  >
-                    {bloques.map(bloque => (
-                      <option key={bloque.id} value={bloque.id}>
-                        {bloque.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
+        <Button
+            className="btn btn-primary d-flex align-items-center justify-content-center"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseForm"
+            aria-expanded="false"
+            aria-controls="collapseForm"
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            <FaPlus style={{ marginRight: '5px' }} />
+            Agregar 
+          </Button>
+          <div className="collapse" id="collapseForm">
+            <Form id="form-reservas">
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="bloque">Bloque:</Form.Label>
+                    <Form.Select
+                      id="bloque"
+                      className="form-control"
+                      value={selectedBloque}
+                      onChange={handleBloqueChange}
+                    >
+                      {bloques.map(bloque => (
+                        <option key={bloque.id} value={bloque.id}>
+                          {bloque.nombre}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="tipo">Tipo:</Form.Label>
+                    <Form.Select
+                      id="tipo"
+                      className="form-control"
+                      value={selectedTipo}
+                      onChange={handleTipoChange}
+                    >
+                      <option value="Aula">Aula</option>
+                      <option value="Laboratorio">Laboratorio</option>
+                    </Form.Select>
+                  </Form.Group>
+                </div>
               </div>
-              <div className="col-md-6">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="tipo">Tipo:</Form.Label>
-                  <Form.Select
-                   
-                    id="tipo"
-                    className="form-control"
-                    value={selectedTipo}
-                    onChange={handleTipoChange}
-                  >
-                    <option value="Aula">Aula</option>
-                    <option value="Laboratorio">Laboratorio</option>
-                  </Form.Select>
-                </Form.Group>
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      id="nombre"
+                      className="form-control"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={e => {
+                        setFormData({ ...formData, nombre: e.target.value });
+                        setNombreError("");
+                      }}
+                    />
+                    {nombreError && <Alert variant="danger">{nombreError}</Alert>}
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="piso">Piso:</Form.Label>
+                    <Form.Select
+                      id="piso"
+                      className="form-control"
+                      name="piso"
+                      value={formData.piso}
+                      onChange={e =>
+                        setFormData({ ...formData, piso: e.target.value })
+                      }
+                    >
+                      <option value="1">Piso 1</option>
+                      <option value="2">Piso 2</option>
+                      <option value="3">Piso 3</option>
+                      <option value="4">Piso 4</option>
+                      <option value="5">Piso 5</option>
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="capacidad">Capacidad:</Form.Label>
+                    <Form.Control
+                      type="number"
+                      id="capacidad"
+                      className="form-control"
+                      name="capacidad"
+                      min="1"
+                      max="100"
+                      value={formData.capacidad}
+                      onChange={e => {
+                        setFormData({ ...formData, capacidad: e.target.value });
+                        setCapacidadError("");
+                      }}
+                    />
+                    {capacidadError && (
+                      <Alert variant="danger">{capacidadError}</Alert>
+                    )}
+                  </Form.Group>
+                </div>
               </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="nombre"
-                    className="form-control"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={e => {
-                      setFormData({ ...formData, nombre: e.target.value });
-                      setNombreError("");
-                    }}
-                  />
-                  {nombreError && <Alert variant="danger">{nombreError}</Alert>}
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="piso">Piso:</Form.Label>
-                  <Form.Select
-                   
-                    id="piso"
-                    className="form-control"
-                    name="piso"
-                    value={formData.piso}
-                    onChange={e =>
-                      setFormData({ ...formData, piso: e.target.value })
-                    }
-                  >
-                    <option value="1">Piso 1</option>
-                    <option value="2">Piso 2</option>
-                    <option value="3">Piso 3</option>
-                    <option value="4">Piso 4</option>
-                    <option value="5">Piso 5</option>
-                  </Form.Select>
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="capacidad">Capacidad:</Form.Label>
-                  <Form.Control
-                    type="number"
-                    id="capacidad"
-                    className="form-control"
-                    name="capacidad"
-                    min="1"
-                    max="100"
-                    value={formData.capacidad}
-                    onChange={e => {
-                      setFormData({ ...formData, capacidad: e.target.value });
-                      setCapacidadError("");
-                    }}
-                  />
-                  {capacidadError && (
-                    <Alert variant="danger">{capacidadError}</Alert>
-                  )}
-                </Form.Group>
-              </div>
-            </div>
-            <div className="button-group mt-4 text-center">
-              {!isEditing ? (
-                <Button
-                  type="button"
-                  className="btn btn-custom"
-                  onClick={crearEspacio}
-                >
-                  Crear
-                </Button>
-              ) : (
-                <>
+              <div className="button-group mt-4 text-center">
+                {!isEditing ? (
                   <Button
                     type="button"
                     className="btn btn-custom"
-                    id="guardar-btn"
-                    onClick={() => editarespacio()}
+                    onClick={crearEspacio}
                   >
-                    Guardar
+                    Crear
                   </Button>
-                  <Button
-                    type="button"
-                    className="btn btn-danger ml-2"
-                    onClick={limpiar}
-                  >
-                    Cancelar
-                  </Button>
-                </>
-              )}
-            </div>
-          </Form>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      className="btn btn-custom"
+                      id="guardar-btn"
+                      onClick={() => editarespacio()}
+                    >
+                      Guardar
+                    </Button>
+                    <Button
+                      type="button"
+                      className="btn btn-danger ml-2"
+                      onClick={limpiar}
+                    >
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Form>
+          </div>
           <table className="table table-bordered mt-4">
             <thead>
               <tr>
                 <th>Nombre</th>
                 <th>Piso</th>
                 <th>Capacidad</th>
+                <th>Bloque</th>
+                <th>Tipo</th>
               </tr>
             </thead>
             <tbody>
-              {aulasLabsToShow.map(aulaLab => (
-                <tr key={aulaLab.id} onClick={e => handleRowClick(e, aulaLab)}>
-                  <td>{aulaLab.nombre}</td>
-                  <td>{aulaLab.piso}</td>
-                  <td>{aulaLab.capacidad}</td>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="3">No hay resultados</td>
                 </tr>
-              ))}
+              ) : (
+                currentPageData.map(aulaLab => (
+                  <tr key={aulaLab.id} onClick={e => handleRowClick(e, aulaLab)}>
+                    <td>{aulaLab.nombre}</td>
+                    <td>{aulaLab.piso}</td>
+                    <td>{aulaLab.capacidad}</td>
+                    <td>{bloques.find(b => b.id === aulaLab.id_bloque)?.nombre}</td>
+                    <td>{aulaLab.tipo}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
+          />
+        
           <div
             className="context-menu"
             style={{
