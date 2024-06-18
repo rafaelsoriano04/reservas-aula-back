@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/menu.css";
 import { useNavigate } from "react-router-dom";
@@ -7,14 +7,24 @@ import Horarios from "./horario";
 import Reservas from "./Reservas";
 import Aulas from "./AuLabas";
 import Docentes from "./docentes";
+import Usuarios from "./Usuarios";
 import Materia from "./materia";
 
 const SidebarMenu = () => {
   const navigate = useNavigate();
   const [activeComponent, setActiveComponent] = useState("reservas");
+  const [tipoUsuario, setTipoUsuario] = useState("");
+
+  useEffect(() => {
+    const dato = localStorage.getItem("tipoUsuario");
+    if (dato) {
+      setTipoUsuario(dato);
+    }
+  });
 
   const handleLogout = event => {
     event.preventDefault();
+    localStorage.removeItem("tipoUsuario");
     navigate("/");
   };
 
@@ -28,9 +38,21 @@ const SidebarMenu = () => {
         return <Docentes />;
       case "materia":
         return <Materia />;
+      case "usuarios":
+        return <Usuarios />;
       case "reservas":
       default:
         return <Reservas />;
+    }
+  };
+
+  const showUsersOption = () => {
+    if (tipoUsuario === "Administrador") {
+      return (
+        <Link onClick={() => setActiveComponent("usuarios")}>
+          <i className="fas fa-users"></i>Usuarios
+        </Link>
+      );
     }
   };
 
@@ -62,6 +84,7 @@ const SidebarMenu = () => {
               <Link onClick={() => setActiveComponent("materia")}>
                 <i className="fas fa-book"></i>Materia
               </Link>
+              {showUsersOption()}
             </div>
             <a href="/" className="menu-bottom" onClick={handleLogout}>
               <i className="fas fa-sign-out-alt"></i>Cerrar Sesión
