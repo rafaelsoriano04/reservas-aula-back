@@ -6,7 +6,7 @@ export const ok = message => {
     title: "OK",
     text: message, //"Registo creado exitosamente",
     showConfirmButton: false,
-    timer: 2500,
+    timer: 1500,
   });
 };
 

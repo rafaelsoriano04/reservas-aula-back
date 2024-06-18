@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
+import ReactPaginate from 'react-paginate';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function AuLabs() {
@@ -33,7 +34,10 @@ function AuLabs() {
   });
   const [isEditing, setIsEditing] = useState(false);
 
-  
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(0);
+  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+
   // useEffects
   useEffect(() => {
     getBloques();
@@ -156,6 +160,14 @@ function AuLabs() {
       setLaboratorios([]);
     }
   };
+
+  const handlePageClick = (data) => {
+    setPaginaActual(data.selected);
+  };
+
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = aulasLabsToShow.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(aulasLabsToShow.length / itemsPorPagina);
 
   // Handlers
   const handleBloqueChange = event => {
@@ -346,17 +358,41 @@ function AuLabs() {
               </tr>
             </thead>
             <tbody>
-              {aulasLabsToShow.map(aulaLab => (
-                <tr key={aulaLab.id} onClick={e => handleRowClick(e, aulaLab)}>
-                  <td>{aulaLab.nombre}</td>
-                  <td>{aulaLab.piso}</td>
-                  <td>{aulaLab.capacidad}</td>
-                  <td>{bloques.find(b => b.id === aulaLab.id_bloque)?.nombre}</td>
-                  <td>{aulaLab.tipo}</td>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="3">No hay resultados</td>
                 </tr>
-              ))}
+              ) : (
+                currentPageData.map(aulaLab => (
+                  <tr key={aulaLab.id} onClick={e => handleRowClick(e, aulaLab)}>
+                    <td>{aulaLab.nombre}</td>
+                    <td>{aulaLab.piso}</td>
+                    <td>{aulaLab.capacidad}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
+          />
+        
           <div
             className="context-menu"
             style={{

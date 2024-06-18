@@ -7,5 +7,6 @@ import lombok.Data;
 public class MateriaDto {
     private Long id;
     private String nombre;
+    private String carrera;
 
 }
