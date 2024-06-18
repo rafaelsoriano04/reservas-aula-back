@@ -585,13 +585,20 @@ const LabReservations = () => {
   const handleResponsibleChange = (event) => {
     const { name, value } = event.target;
     if (name === "telefono") {
+      // Validar que solo contenga números
       if (/^\d*$/.test(value)) {
+        setResponsible((prev) => ({ ...prev, [name]: value }));
+      }
+    } else if (name === "nombre" || name === "apellido") {
+      // Validar que solo contenga letras y espacios
+      if (/^[a-zA-Z\s]*$/.test(value)) {
         setResponsible((prev) => ({ ...prev, [name]: value }));
       }
     } else {
       setResponsible((prev) => ({ ...prev, [name]: value }));
     }
   };
+  
   
 
   //BUSCAR  EL RESPONSABLE PARA EL MODAL DE AGREGAR RESERVA
