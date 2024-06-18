@@ -83,4 +83,23 @@ body, html {
 .selected {
     background-color: #d4d4d4 !important;
   }
-  
+
+  .pagination .page-link {
+    color: #8B0000; /* Color de los números de la paginación */
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #8B0000; /* Fondo del número activo */
+    border-color: #8B0000; /* Borde del número activo */
+    color: white; /* Color del número activo */
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #892222; /* Fondo del número al pasar el ratón */
+    border-color: #892222; /* Borde del número al pasar el ratón */
+    color: white; /* Color del número al pasar el ratón */
+}
+
+.pagination .page-item .page-link {
+    border: 1px solid #8B0000; /* Borde de los números de la paginación */
+}

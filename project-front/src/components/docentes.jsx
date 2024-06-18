@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import "../styles/docentes.css";
 import axios from "axios";
+import ReactPaginate from 'react-paginate';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Docentes() {
@@ -26,15 +27,10 @@ function Docentes() {
     left: 0,
   });
 
-  const generarCodigoCedula = () => {
-    const inicialNombre = formData.nombre.charAt(0).toUpperCase();
-    const inicialApellido = formData.apellido
-    const numeroAleatorio = Math.floor(Math.random() * 100); 
-    return `DC${numeroAleatorio}-${inicialNombre}${inicialApellido}`;
-  };
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(0);
+  const [itemsPorPagina, setItemsPorPagina] = useState(10);
 
-
-  // useEffects
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
     return () => {
@@ -48,9 +44,8 @@ function Docentes() {
 
   // Funciones
   const crearDocente = async () => {
-    
     formData.cedula = generarCodigoCedula();
-    console.log (formData.cedula);
+    try {
       let docente = {
         cedula: formData.cedula,
         nombre: formData.nombre,
@@ -69,7 +64,9 @@ function Docentes() {
         telefono: "",
       });
       ok("Registro guardado exitosamente.");
-  
+    } catch (error) {
+      oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
+    }
   };
 
   const getDocentes = async () => {
@@ -106,7 +103,6 @@ function Docentes() {
   };
 
   const editarDocente = async id => {
-    
     const url = `http://localhost:8080/person`;
     let docente = {
       id: formData.id,
@@ -136,7 +132,6 @@ function Docentes() {
     }
   };
 
-  // Handlers
   const handleRowClick = (e, docente) => {
     e.stopPropagation();
     setSelectedRow(docente.id);
@@ -151,17 +146,45 @@ function Docentes() {
     }
   };
 
-  // Interfaz
+  const handlePageClick = (data) => {
+    setPaginaActual(data.selected);
+  };
+
+  const generarCodigoCedula = () => {
+    const inicialNombre = formData.nombre.charAt(0).toUpperCase();
+    const inicialApellido = formData.apellido.charAt(0).toUpperCase();
+    const numeroAleatorio = Math.floor(Math.random() * 100);
+    return `DC${numeroAleatorio}-${inicialNombre}${inicialApellido}`;
+  };
+
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = docentes.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(docentes.length / itemsPorPagina);
+
+  const cargarDocentes = () => {
+    return currentPageData.map((docente) => (
+      <tr
+        key={docente.id}
+        className={docente.id === selectedRow ? "table-active" : ""}
+        onClick={(e) => handleRowClick(e, docente)}
+        style={{ cursor: "pointer" }}
+      >
+        <td>{docente.cedula}</td>
+        <td>{docente.nombre}</td>
+        <td>{docente.apellido}</td>
+      </tr>
+    ));
+  };
+
   return (
     <div className="container-fluid">
       <div className="content">
         <div className="header">
           <h2>Docentes</h2>
         </div>
-        <div className="mt-4 ">
+        <div className="mt-4">
           <Form id="form-reservas">
-            <div className="row ">
-             
+            <div className="row">
               <div className="col-md-4">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="nombre">Nombre:</Form.Label>
@@ -192,8 +215,6 @@ function Docentes() {
                   />
                 </Form.Group>
               </div>
-          
-             
             </div>
             <div className="button-group mt-4 text-center">
               {!isEditing ? (
@@ -234,15 +255,35 @@ function Docentes() {
               </tr>
             </thead>
             <tbody>
-              {docentes.map(docente => (
-                <tr key={docente.id} onClick={e => handleRowClick(e, docente)}>
-                  <td>{docente.cedula}</td>
-                  <td>{docente.nombre}</td>
-                  <td>{docente.apellido}</td>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="3">No hay resultados</td>
                 </tr>
-              ))}
+              ) : (
+                cargarDocentes()
+              )}
             </tbody>
           </table>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
+          />
+          
           <div
             className="context-menu"
             style={{
