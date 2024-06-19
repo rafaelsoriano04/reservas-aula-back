@@ -294,10 +294,10 @@ const LabReservations = () => {
   //FORMATE LA FECHA
   const formatDate = (date) => {
     const d = new Date(date);
-    const year = d.getUTCFullYear();
-    const month = d.getUTCMonth() + 1; // Los meses en JS empiezan en 0
-    const day = d.getUTCDate();
-    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0'); // Los meses en JS empiezan en 0
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
   
