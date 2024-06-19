@@ -137,11 +137,11 @@ const LabReservations = () => {
       let filteredData = [];
       if (selectedTipo == "Aula") {
         filteredData = response.data.filter((item) => item.tipo === "Aula");
-      } else {
-        filteredData = response.data.filter(
-          (item) => item.tipo === "Laboratorio"
-        );
-      }
+      } else if (selectedTipo == "Laboratorio") {
+        filteredData = response.data.filter((item) => item.tipo === "Laboratorio");
+      } else if (selectedTipo == "Especial") {
+        filteredData = response.data.filter((item) => item.tipo === "Especial");
+      }      
       setAulasLabs(filteredData);
     } catch (error) {
       const { message } = error.response.data;
@@ -662,6 +662,7 @@ const LabReservations = () => {
           >
             <option value="Aula">Aulas</option>
             <option value="Laboratorio">Laboratorios</option>
+            <option value="Especial">Especial</option>
           </Form.Select>
         </div>
         <div className="col-md-4">
