@@ -138,6 +138,7 @@ const LabReservations = () => {
     }
   };
 
+  //carga
   const getBloques = async () => {
     try {
       const resp = await axios.get("http://localhost:8080/bloque");
@@ -364,102 +365,110 @@ const LabReservations = () => {
   };
 
   const handleCellClick = (event, dia, hora) => {
-    const text = event.target.textContent.trim();
-    setSelectedCell({ dia, hora });
+  const text = event.target.textContent.trim();
+  setSelectedCell({ dia, hora });
 
-    const index = dias.indexOf(dia);
-    const selectedDay = weekDates[index];
+  const index = dias.indexOf(dia);
+  const selectedDay = weekDates[index];
 
-    const formattedDate = formatDate(selectedDay);
-    const horaInicio = hora.split("-")[0];
-    const reserva = reservas.find(
-      reserva =>
-        reserva.fecha === formattedDate &&
-        parseInt(reserva.hora) === parseInt(horaInicio)
-    );
+  const formattedDate = formatDate(selectedDay);
+  const horaInicioStr = hora.split("-")[0].trim();
+  const startHour = parseInt(horaInicioStr, 10);
 
-    const isFeriado = feriados.some(
-      feriado =>
-        new Date(feriado.inicio) <= new Date(formattedDate) &&
-        new Date(feriado.fin) >= new Date(formattedDate)
-    );
+  // Verificar si startHour es un número
+  if (isNaN(startHour)) {
+    console.error(`Error: No se pudo convertir la hora de inicio a número. horaInicioStr: ${horaInicioStr}`);
+    return;
+  }
 
-    if (isFeriado) {
-      oops("No puedes reservar en un día de feriado.");
+  const reserva = reservas.find(
+    reserva =>
+      reserva.fecha === formattedDate &&
+      parseInt(reserva.hora) === startHour
+  );
+
+  const isFeriado = feriados.some(
+    feriado =>
+      new Date(feriado.inicio) <= new Date(formattedDate) &&
+      new Date(feriado.fin) >= new Date(formattedDate)
+  );
+
+  if (isFeriado) {
+    oops("No puedes reservar en un día de feriado.");
+    return;
+  }
+
+  if (reserva) {
+    const now = new Date();
+    if (
+      selectedDay > now.setHours(0, 0, 0, 0) ||
+      (selectedDay.toDateString() === new Date().toDateString() &&
+        startHour > now.getHours())
+    ) {
+      setReservationDetails({
+        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+        asunto: reserva.asunto,
+        descripcion: reserva.descripcion || "Descripción aquí",
+        hora: hora,
+        fecha: formattedDate,
+        tipo: reserva.persona.tipo || "N/A",
+        editable: false,
+        id: reserva.id,
+      });
+      setContextMenuPosition({ top: event.pageY, left: event.pageX });
+      setShowContextMenu(true);
+      return;
+    } else {
+      setReservationDetails({
+        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+        asunto: reserva.asunto,
+        descripcion: reserva.descripcion || "Descripción aquí",
+        hora: hora,
+        fecha: reserva.fecha,
+        tipo: reserva.persona.tipo || "N/A",
+        editable: false,
+        id: reserva.id,
+      });
+      setShowModal(true);
+      return;
+    }
+  } else {
+    const now = new Date();
+    if (selectedDay < now.setHours(0, 0, 0, 0)) {
+      oops("No puedes reservar en una fecha pasada.");
       return;
     }
 
-    if (reserva) {
-      const now = new Date();
-      if (
-        selectedDay > now.setHours(0, 0, 0, 0) ||
-        (selectedDay.toDateString() === new Date().toDateString() &&
-          parseInt(horaInicio) > now.getHours())
-      ) {
-        setReservationDetails({
-          encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
-          asunto: reserva.asunto,
-          descripcion: reserva.descripcion || "Descripción aquí",
-          hora: hora,
-          fecha: formattedDate,
-          tipo: reserva.persona.tipo || "N/A",
-          editable: false,
-          id: reserva.id,
-        });
-        setContextMenuPosition({ top: event.pageY, left: event.pageX });
-        setShowContextMenu(true);
+    if (selectedDay.toDateString() === new Date().toDateString()) {
+      const currentTime = new Date();
+      if (currentTime.getHours() >= startHour) {
+        console.log("No puedes reservar una hora pasada.");
+        oops("No puedes reservar una hora pasada.");
         return;
-      } else {
-        setReservationDetails({
-          encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
-          asunto: reserva.asunto,
-          descripcion: reserva.descripcion || "Descripción aquí",
-          hora: hora,
-          fecha: reserva.fecha,
-          tipo: reserva.persona.tipo || "N/A",
-          editable: false,
-          id: reserva.id,
-        });
-        setShowModal(true);
-        return;
-      }
-    } else {
-      const now = new Date();
-      if (selectedDay < now.setHours(0, 0, 0, 0)) {
-        oops("No puedes reservar en una fecha pasada.");
-        return;
-      }
-
-      if (selectedDay.toDateString() === new Date().toDateString()) {
-        const currentTime = new Date();
-        const [startHour] = hora.split("-").map(Number);
-        if (currentTime.getHours() >= startHour) {
-          oops("No puedes reservar una hora pasada.");
-          return;
-        }
-      }
-
-      if (text === "Disponible") {
-        setSelectedDate(selectedDay);
-        setNewReservation({
-          encargado: "",
-          asunto: "",
-          descripcion: "",
-          hora: horaInicio,
-        });
-        setResponsible({
-          cedula: "",
-          nombre: "",
-          apellido: "",
-          telefono: "",
-          tipo: "",
-        });
-        setIsExistingResponsible(false);
-        setShowAdditionalFields(false);
-        setShowAddModal(true);
       }
     }
-  };
+
+    if (text === "Disponible") {
+      setSelectedDate(selectedDay);
+      setNewReservation({
+        encargado: "",
+        asunto: "",
+        descripcion: "",
+        hora: startHour.toString(),
+      });
+      setResponsible({
+        cedula: "",
+        nombre: "",
+        apellido: "",
+        telefono: "",
+        tipo: "",
+      });
+      setIsExistingResponsible(false);
+      setShowAdditionalFields(false);
+      setShowAddModal(true);
+    }
+  }
+};
 
   const enableEditing = () => {
     setReservationDetails(prev => ({
