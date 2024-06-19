@@ -97,25 +97,32 @@ const LabReservations = () => {
 
   //TRAE LOS HORARIOS Y LAS RESERVAS
   const getHorarios = async () => {
-    const url =
-      selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
-    try {
-      const response = await axios.get(url);
-      setHorarios(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      setHorarios([]); // Limpia los datos si la petición falla
+    let url;
+    if (selectedTipo === "Laboratorio") {
+        url = `http://localhost:8080/horario/lab/${selectedAulaLab}`;
+    } else if (selectedTipo === "Aula") {
+        url = `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    } else if (selectedTipo === "Especial") {
+        url = `http://localhost:8080/horario/especial/${selectedAulaLab}`;
     }
-    const formattedDate = formatDate(monday); // Use formatDate here
+
+    try {
+        const response = await axios.get(url);
+        setHorarios(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+        setHorarios([]); // Limpia los datos si la petición falla
+    }
+
+    const formattedDate = formatDate(monday); // Usa formatDate aquí
     const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
-      const response = await axios.get(url2);
-      setReservas(response.data);
+        const response = await axios.get(url2);
+        setReservas(response.data);
     } catch (error) {
-      setHorarios([]); // Limpia los datos si la petición falla
+        setHorarios([]); // Limpia los datos si la petición falla
     }
-  };
+};
+
   
 
   const getBloques = async () => {
