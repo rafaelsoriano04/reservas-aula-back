@@ -172,7 +172,7 @@ function Docentes() {
       a.nombre.localeCompare(b.nombre)
     );
 
-    return docentesOrdenados.map((docente) => (
+    return docentesOrdenados.slice(offset, offset + itemsPorPagina).map((docente) => (
       <tr
         key={docente.id}
         className={docente.id === selectedRow ? "table-active" : ""}
@@ -185,7 +185,7 @@ function Docentes() {
       </tr>
     ));
   };
-
+ 
   return (
 
    <>
