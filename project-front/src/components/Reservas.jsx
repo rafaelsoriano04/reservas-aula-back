@@ -13,6 +13,8 @@ const LabReservations = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [noHorariosMessage, setNoHorariosMessage] = useState("");
+
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: "",
@@ -110,17 +112,23 @@ const LabReservations = () => {
 
   //TRAE LOS HORARIOS Y LAS RESERVAS
   const getHorarios = async () => {
-    const url =
-      selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    let url;
+    if (selectedTipo === "Laboratorio") {
+      url = `http://localhost:8080/horario/lab/${selectedAulaLab}`;
+    } else if (selectedTipo === "Aula") {
+      url = `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    } else if (selectedTipo === "Especial") {
+      url = `http://localhost:8080/horario/especial/${selectedAulaLab}`;
+    }
+
     try {
       const response = await axios.get(url);
       setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       setHorarios([]); // Limpia los datos si la petición falla
     }
-    const formattedDate = formatDate(monday); // Use formatDate here
+
+    const formattedDate = formatDate(monday); // Usa formatDate aquí
     const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
       const response = await axios.get(url2);
@@ -145,16 +153,24 @@ const LabReservations = () => {
 
     try {
       const response = await axios.get(url);
-      //Aqui se debe controlar que se llene de acuerdo al tipo
       let filteredData = [];
       if (selectedTipo == "Aula") {
         filteredData = response.data.filter(item => item.tipo === "Aula");
-      } else {
+      } else if (selectedTipo == "Laboratorio") {
         filteredData = response.data.filter(
           item => item.tipo === "Laboratorio"
         );
+      } else if (selectedTipo == "Especial") {
+        filteredData = response.data.filter(item => item.tipo === "Especial");
       }
       setAulasLabs(filteredData);
+      if (filteredData.length === 0) {
+        setNoHorariosMessage(
+          "No hay espacios disponibles para esta selección."
+        );
+      } else {
+        setNoHorariosMessage("");
+      }
     } catch (error) {
       const { message } = error.response.data;
       if (message === "No hay espacios en este bloque") {
@@ -163,6 +179,9 @@ const LabReservations = () => {
         oops("Error al conectar con el servidor");
       }
       setAulasLabs([]); // Limpia los datos si la petición falla
+      setNoHorariosMessage(
+        "No hay aulas, laboratorios o espacios especiales disponibles."
+      );
     }
   };
 
@@ -224,14 +243,14 @@ const LabReservations = () => {
       default:
         index = -1;
     }
-  
+
     const fecha = formatDate(weekDates[index]);
     const isFeriado = feriados.some(
       feriado =>
         new Date(feriado.inicio) <= new Date(fecha) &&
         new Date(feriado.fin) >= new Date(fecha)
     );
-  
+
     if (isFeriado) {
       return (
         <td style={{ backgroundColor: "#d3d3d3", cursor: "not-allowed" }}>
@@ -239,20 +258,20 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     if (hora === "13:00 - 14:00") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
-  
+
     const startHour = parseInt(hora.split(":")[0]);
     const horario = horarios.find(
       h => h.dia === dia && parseInt(h.hora) === startHour
     );
-  
+
     const reserva = reservas.find(
       reserva => reserva.fecha === fecha && parseInt(reserva.hora) === startHour
     );
-  
+
     if (reserva) {
       return (
         <td
@@ -263,7 +282,7 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     if (!horario) {
       return (
         <td
@@ -274,12 +293,12 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     const colorFondo = horario.reservado ? "#ffcccc" : "#cce7ff";
     const textoCelda = horario.reservado
       ? `Reservado - ${horario.asunto}`
       : horario.nombre;
-  
+
     return (
       <td
         style={{ backgroundColor: colorFondo, cursor: "pointer" }}
@@ -290,7 +309,6 @@ const LabReservations = () => {
       </td>
     );
   };
-  
 
   const horas = [
     "07:00 - 08:00",
@@ -675,7 +693,7 @@ const LabReservations = () => {
   return (
     <div className="container mt-3">
       <div className="header text-center">
-        <h2>SISTEMA DE GESTIÓN DE RESERVAS </h2>
+        <h2>Reservas </h2>
       </div>
       <div className="row">
         <div className="col-md-4">
@@ -703,6 +721,7 @@ const LabReservations = () => {
           >
             <option value="Aula">Aulas</option>
             <option value="Laboratorio">Laboratorios</option>
+            <option value="Especial">Especial</option>
           </Form.Select>
         </div>
         <div className="col-md-4">
@@ -739,31 +758,37 @@ const LabReservations = () => {
         </div>
       </div>
 
-      <table className="table table-bordered mt-4 table-centered">
-        <thead>
-          <tr>
-            <th>Horas</th>
-            <th>Lunes</th>
-            <th>Martes</th>
-            <th>Miércoles</th>
-            <th>Jueves</th>
-            <th>Viernes</th>
-            <th>Sabado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {horas.map(hora => (
-            <tr key={hora}>
-              <td>{hora}</td>
-              {dias.map(dia => (
-                <React.Fragment key={`${dia}-${hora}`}>
-                  {renderTableCell(dia, hora)}
-                </React.Fragment>
-              ))}
+      {noHorariosMessage ? (
+        <div className="alert alert-info text-center mt-3" role="alert">
+          {noHorariosMessage}
+        </div>
+      ) : (
+        <table className="table table-bordered mt-4 table-centered">
+          <thead>
+            <tr>
+              <th>Horas</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miercoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+              <th>Sabado</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {horas.map(hora => (
+              <tr key={hora}>
+                <td>{hora}</td>
+                {dias.map(dia => (
+                  <React.Fragment key={`${dia}-${hora}`}>
+                    {renderTableCell(dia, hora)}
+                  </React.Fragment>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       <div
         className="context-menu"

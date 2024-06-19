@@ -199,6 +199,7 @@ const Usuarios = () => {
 
   const handleShowPassword = () => {
     if (!isEditing) {
+      console.log("hola");
       return (
         <Form.Group className="mb-3" controlId="formBasicApellido">
           <Form.Label>Contraseña</Form.Label>
@@ -352,7 +353,7 @@ const Usuarios = () => {
                 required
               />
             </Form.Group>
-            {handleShowPassword}
+            {handleShowPassword()}
             <Form.Group className="mb-3">
               <Form.Label>Tipo</Form.Label>
               <Form.Select

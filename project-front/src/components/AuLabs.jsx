@@ -3,8 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
-import ReactPaginate from 'react-paginate';
-import { FaPlus } from 'react-icons/fa';
+import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function AuLabs() {
@@ -49,18 +49,17 @@ function AuLabs() {
   }, []);
 
   ////filtros
-  const handleFiltroBloqueChange = (e) => {
+  const handleFiltroBloqueChange = e => {
     setFiltroBloque(e.target.value);
   };
 
-  const handleFiltroTipoChange = (e) => {
+  const handleFiltroTipoChange = e => {
     setFiltroTipo(e.target.value);
   };
 
-  const handleFiltroNombreChange = (e) => {
+  const handleFiltroNombreChange = e => {
     setFiltroNombre(e.target.value);
   };
-
 
   useEffect(() => {
     setAulasLabsToShow([...aulas, ...laboratorios]);
@@ -107,6 +106,7 @@ function AuLabs() {
       await axios.post(`http://localhost:8080/espacio`, espacio);
       fetchAulasLabs();
       ok("Registro guardado exitosamente.");
+      limpiar();
     } catch (error) {
       oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
     }
@@ -167,12 +167,9 @@ function AuLabs() {
     try {
       const response = await axios.get("http://localhost:8080/espacio");
       setAulas(response.data);
-      
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
-      // setLaboratorios([]);
-      // setAulasLabsToShow([]);
     }
   };
 
@@ -196,11 +193,29 @@ function AuLabs() {
     setSelectedTipo(event.target.value);
   };
 
-  const handleRowClick = (e, aulasLabs) => {
+  const handleRowClick = (e, aula) => {
     e.stopPropagation();
-    setSelectedRow(aulasLabs.id);
+    setSelectedRow(aula.id);
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
     setShowContextMenu(true);
+  };
+
+  const handleEditClick = () => {
+    const selectedAulaLab = aulasLabsToShow.find(d => d.id === selectedRow);
+    if (selectedAulaLab) {
+      setFormData({
+        id_bloque: selectedAulaLab.id_bloque,
+        tipo: selectedAulaLab.tipo,
+        piso: selectedAulaLab.piso,
+        nombre: selectedAulaLab.nombre,
+        capacidad: selectedAulaLab.capacidad,
+        id: selectedAulaLab.id,
+      });
+      setSelectedBloque(selectedAulaLab.id_bloque);
+      setSelectedTipo(selectedAulaLab.tipo);
+      setIsEditing(true);
+      setShowContextMenu(false);
+    }
   };
 
   const handleDocumentClick = e => {
@@ -211,11 +226,12 @@ function AuLabs() {
   };
 
   const cargarTabla = () => {
-  
     const aulasFiltradas = aulas.filter(aula => {
       return (
         (filtroTipo === "" || aula.tipo === filtroTipo) &&
-        (filtroBloque === "" || bloques.find(b => b.id === aula.id_bloque)?.nombre === filtroBloque) &&
+        (filtroBloque === "" ||
+          bloques.find(b => b.id === aula.id_bloque)?.nombre ===
+            filtroBloque) &&
         (filtroNombre === "" ||
           aula.nombre.toLowerCase().includes(filtroNombre.toLowerCase()))
       );
@@ -225,8 +241,8 @@ function AuLabs() {
       a.nombre.localeCompare(b.nombre)
     );
 
-    return aulasOrdenadas.map(aula => (
-      <tr key={aula.id} onClick={e => handleRowClick(e, aulaLab)}>
+    return aulasOrdenadas.slice(offset, offset + itemsPorPagina).map(aula => (
+      <tr key={aula.id} onClick={e => handleRowClick(e, aula)}>
         <td>{aula.nombre}</td>
         <td>{aula.piso}</td>
         <td>{aula.capacidad}</td>
@@ -234,24 +250,8 @@ function AuLabs() {
         <td>{aula.tipo}</td>
       </tr>
     ));
+  };
 
-    // currentPageData.length === 0 ? (
-    //   <tr>
-    //     <td colSpan="5">No hay resultados</td>
-    //   </tr>
-    // ) : (
-    // currentPageData.map(aulaLab => (
-    //   <tr key={aulaLab.id} onClick={e => handleRowClick(e, aulaLab)}>
-    //     <td>{aulaLab.nombre}</td>
-    //     <td>{aulaLab.piso}</td>
-    //     <td>{aulaLab.capacidad}</td>
-    //     <td>{bloques.find(b => b.id === aulaLab.id_bloque)?.nombre}</td>
-    //     <td>{aulaLab.tipo}</td>
-    //   </tr>
-    // ))
-  }
-
-  // Render
   return (
     <div className="container">
       <div className="content">
@@ -270,7 +270,7 @@ function AuLabs() {
               fontWeight: "bold",
             }}
           >
-            <FaPlus style={{ marginRight: '5px' }} />
+            <FaPlus style={{ marginRight: "5px" }} />
             Agregar
           </Button>
           <div className="collapse" id="collapseForm">
@@ -283,7 +283,7 @@ function AuLabs() {
                       id="bloque"
                       className="form-control"
                       value={selectedBloque}
-                      onChange={(e) => setSelectedBloque(e.target.value)}
+                      onChange={e => setSelectedBloque(e.target.value)}
                     >
                       {bloques.map(bloque => (
                         <option key={bloque.id} value={bloque.id}>
@@ -300,10 +300,11 @@ function AuLabs() {
                       id="tipo"
                       className="form-control"
                       value={selectedTipo}
-                      onChange={(e) => setSelectedTipo(e.target.value)}
+                      onChange={e => setSelectedTipo(e.target.value)}
                     >
                       <option value="Aula">Aula</option>
                       <option value="Laboratorio">Laboratorio</option>
+                      <option value="Especial">Especial</option>
                     </Form.Select>
                   </Form.Group>
                 </div>
@@ -422,7 +423,7 @@ function AuLabs() {
               >
                 <option value="">Todos</option>
                 {bloques.map(bloque => (
-                  <option value={bloque.nombre}>
+                  <option key={bloque.id} value={bloque.nombre}>
                     {bloque.nombre}
                   </option>
                 ))}
@@ -438,6 +439,7 @@ function AuLabs() {
                 <option value="">Todos</option>
                 <option value="Aula">Aula</option>
                 <option value="Laboratorio">Laboratorio</option>
+                <option value="Especial">Especial</option>
               </select>
             </div>
           </div>
@@ -451,9 +453,7 @@ function AuLabs() {
                 <th>Tipo</th>
               </tr>
             </thead>
-            <tbody>
-              {cargarTabla()}
-            </tbody>
+            <tbody>{cargarTabla()}</tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}
@@ -483,27 +483,7 @@ function AuLabs() {
               left: contextMenuPosition.left,
             }}
           >
-            <Button
-              variant="custom"
-              id="editar-btn"
-              onClick={() => {
-                const selectedAulaLab = aulasLabsToShow.find(
-                  d => d.id === selectedRow
-                );
-                if (selectedAulaLab) {
-                  setFormData({
-                    id_bloque: selectedAulaLab.id_bloque,
-                    tipo: selectedAulaLab.tipo,
-                    piso: selectedAulaLab.piso,
-                    nombre: selectedAulaLab.nombre,
-                    capacidad: selectedAulaLab.capacidad,
-                    id: selectedAulaLab.id,
-                  });
-                  setIsEditing(true);
-                  setShowContextMenu(false);
-                }
-              }}
-            >
+            <Button variant="custom" id="editar-btn" onClick={handleEditClick}>
               Editar
             </Button>
             <Button
@@ -518,9 +498,6 @@ function AuLabs() {
       </div>
     </div>
   );
-
-
-
 }
 
 export default AuLabs;
