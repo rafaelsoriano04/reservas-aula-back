@@ -63,10 +63,10 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     public UsuarioDto updateById(Long id, UsuarioDto request) throws NotFoundException {
         Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new NotFoundException("No existe el usuario"));
 
-        if (request.getUsername() != null) {
+        if (!request.getUsername().isEmpty()) {
             usuario.setUsername(request.getUsername());
         }
-        if (request.getNewPassword() != null) {
+        if (!request.getNewPassword().isEmpty()) {
             usuario.setContrasenia(request.getNewPassword());
         }
         if (request.getTipo() != null) {

@@ -266,8 +266,8 @@ const Feriados = () => {
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>Inicio (mm/dd/yyyy)</th>
-                <th>Fin (mm/dd/yyyy)</th>
+                <th>Inicio</th>
+                <th>Fin</th>
               </tr>
             </thead>
             <tbody>{cargarFeriados()}</tbody>
