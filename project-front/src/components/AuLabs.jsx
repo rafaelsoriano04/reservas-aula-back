@@ -3,8 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
-import ReactPaginate from 'react-paginate';
-import { FaPlus } from 'react-icons/fa';
+import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function AuLabs() {
@@ -49,18 +49,17 @@ function AuLabs() {
   }, []);
 
   ////filtros
-  const handleFiltroBloqueChange = (e) => {
+  const handleFiltroBloqueChange = e => {
     setFiltroBloque(e.target.value);
   };
 
-  const handleFiltroTipoChange = (e) => {
+  const handleFiltroTipoChange = e => {
     setFiltroTipo(e.target.value);
   };
 
-  const handleFiltroNombreChange = (e) => {
+  const handleFiltroNombreChange = e => {
     setFiltroNombre(e.target.value);
   };
-
 
   useEffect(() => {
     setAulasLabsToShow([...aulas, ...laboratorios]);
@@ -127,7 +126,6 @@ function AuLabs() {
       nombre: formData.nombre,
       capacidad: formData.capacidad,
     };
-    
 
     try {
       const response = await axios.put(
@@ -231,13 +229,18 @@ function AuLabs() {
     const aulasFiltradas = aulas.filter(aula => {
       return (
         (filtroTipo === "" || aula.tipo === filtroTipo) &&
-        (filtroBloque === "" || bloques.find(b => b.id === aula.id_bloque)?.nombre === filtroBloque) &&
-        (filtroNombre === "" || aula.nombre.toLowerCase().includes(filtroNombre.toLowerCase()))
+        (filtroBloque === "" ||
+          bloques.find(b => b.id === aula.id_bloque)?.nombre ===
+            filtroBloque) &&
+        (filtroNombre === "" ||
+          aula.nombre.toLowerCase().includes(filtroNombre.toLowerCase()))
       );
     });
-  
-    const aulasOrdenadas = aulasFiltradas.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  
+
+    const aulasOrdenadas = aulasFiltradas.sort((a, b) =>
+      a.nombre.localeCompare(b.nombre)
+    );
+
     return aulasOrdenadas.slice(offset, offset + itemsPorPagina).map(aula => (
       <tr key={aula.id} onClick={e => handleRowClick(e, aula)}>
         <td>{aula.nombre}</td>
@@ -267,7 +270,7 @@ function AuLabs() {
               fontWeight: "bold",
             }}
           >
-            <FaPlus style={{ marginRight: '5px' }} />
+            <FaPlus style={{ marginRight: "5px" }} />
             Agregar
           </Button>
           <div className="collapse" id="collapseForm">
@@ -280,7 +283,7 @@ function AuLabs() {
                       id="bloque"
                       className="form-control"
                       value={selectedBloque}
-                      onChange={(e) => setSelectedBloque(e.target.value)}
+                      onChange={e => setSelectedBloque(e.target.value)}
                     >
                       {bloques.map(bloque => (
                         <option key={bloque.id} value={bloque.id}>
@@ -297,7 +300,7 @@ function AuLabs() {
                       id="tipo"
                       className="form-control"
                       value={selectedTipo}
-                      onChange={(e) => setSelectedTipo(e.target.value)}
+                      onChange={e => setSelectedTipo(e.target.value)}
                     >
                       <option value="Aula">Aula</option>
                       <option value="Laboratorio">Laboratorio</option>
@@ -450,9 +453,7 @@ function AuLabs() {
                 <th>Tipo</th>
               </tr>
             </thead>
-            <tbody>
-              {cargarTabla()}
-            </tbody>
+            <tbody>{cargarTabla()}</tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}
@@ -476,16 +477,13 @@ function AuLabs() {
           <div
             className="context-menu"
             style={{
-              display: showContextMenu && selectedRow !== null ? "block" : "none",
+              display:
+                showContextMenu && selectedRow !== null ? "block" : "none",
               top: contextMenuPosition.top,
               left: contextMenuPosition.left,
             }}
           >
-            <Button
-              variant="custom"
-              id="editar-btn"
-              onClick={handleEditClick}
-            >
+            <Button variant="custom" id="editar-btn" onClick={handleEditClick}>
               Editar
             </Button>
             <Button

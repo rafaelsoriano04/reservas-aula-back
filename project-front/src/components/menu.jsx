@@ -9,6 +9,7 @@ import AuLabs from "./AuLabs";
 import Docentes from "./docentes";
 import Usuarios from "./Usuarios";
 import Materia from "./materia";
+import Feriados from "./Feriados";
 
 const SidebarMenu = () => {
   const navigate = useNavigate();
@@ -40,6 +41,8 @@ const SidebarMenu = () => {
         return <Materia />;
       case "usuarios":
         return <Usuarios />;
+      case "feriados":
+        return <Feriados />;
       case "reservas":
       default:
         return <Reservas />;
@@ -89,6 +92,11 @@ const SidebarMenu = () => {
             <Nav.Item>
               <Nav.Link onClick={() => setActiveComponent("materia")}>
                 <i className="fas fa-book me-2"></i>Materia
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link onClick={() => setActiveComponent("feriados")}>
+                <i className="fas fa-umbrella-beach me-2"></i>Feriados
               </Nav.Link>
             </Nav.Item>
             {showUsersOption()}
