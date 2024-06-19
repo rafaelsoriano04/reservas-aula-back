@@ -4,6 +4,7 @@ import { Button, Form } from "react-bootstrap";
 import Select from "react-select";
 import "../styles/horario.css";
 import axios from "axios";
+import { FaPlus } from 'react-icons/fa';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Horarios() {
@@ -419,28 +420,21 @@ function Horarios() {
                   </Form.Select>
                 </Form.Group>
               </div>
-              <hr />
-              <h5
-                className="nuevo-horario"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseForm"
-                aria-expanded="false"
-                aria-controls="collapseForm"
-                style={{
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  fontWeight: "bold",
-                }}
-                onMouseOver={({ target }) =>
-                  (target.style.textDecoration = "underline")
-                }
-                onMouseOut={({ target }) =>
-                  (target.style.textDecoration = "none")
-                }
-              >
-                Nuevo Horario
-              </h5>
+              
+              <Button
+            className="btn btn-primary d-flex align-items-center justify-content-center"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseForm"
+            aria-expanded="false"
+            aria-controls="collapseForm"
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            <FaPlus style={{ marginRight: '5px' }} />
+            Agregar 
+          </Button>
               <div className="collapse " id="collapseForm">
                 <div className="form-container">
                   <Form.Group className="form-group">

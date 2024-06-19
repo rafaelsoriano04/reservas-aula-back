@@ -17,6 +17,7 @@ const Usuarios = () => {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [showModal, setShowModal] = useState(false);
+
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
@@ -193,6 +194,7 @@ const Usuarios = () => {
         <div className="header">
           <h2>Usuarios</h2>
         </div>
+        <div className="row mb-3 mt-4 justify-content-center"></div>
         <div className="row justify-content-center mb-2">
           <div className="col-auto">
             <button className="btn" onClick={handleShowModal}>
@@ -201,7 +203,8 @@ const Usuarios = () => {
           </div>
         </div>
         <div className="row mb-0 mt-3 justify-content-center">
-          <div className="col-3">
+          <div className="col-auto d-flex align-items-center">
+          <label className="me-2">Buscar:</label>
             <input
               type="text"
               className="form-control"
@@ -224,6 +227,7 @@ const Usuarios = () => {
             </select>
           </div>
         </div>
+
         <div className="mt-0">
           <table className="table table-bordered mt-3">
             <thead>

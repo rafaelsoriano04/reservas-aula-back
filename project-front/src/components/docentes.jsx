@@ -4,6 +4,7 @@ import { Form, Button } from "react-bootstrap";
 import "../styles/docentes.css";
 import axios from "axios";
 import ReactPaginate from 'react-paginate';
+import { FaPlus } from 'react-icons/fa';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Docentes() {
@@ -11,6 +12,7 @@ function Docentes() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [docentes, setDocente] = useState([]);
   const [showContextMenu, setShowContextMenu] = useState(false);
+  const [filtroNombre, setFiltroNombre] = useState("");
   const [formData, setFormData] = useState({
     id: "",
     nombre: "",
@@ -162,7 +164,15 @@ function Docentes() {
   const pageCount = Math.ceil(docentes.length / itemsPorPagina);
 
   const cargarDocentes = () => {
-    return currentPageData.map((docente) => (
+    const docentesFiltrados = docentes.filter(docente =>
+      docente.nombre.toLowerCase().includes(filtroNombre.toLowerCase())
+    );
+
+    const docentesOrdenados = docentesFiltrados.sort((a, b) =>
+      a.nombre.localeCompare(b.nombre)
+    );
+
+    return docentesOrdenados.map((docente) => (
       <tr
         key={docente.id}
         className={docente.id === selectedRow ? "table-active" : ""}
@@ -177,75 +187,104 @@ function Docentes() {
   };
 
   return (
-    <div className="container-fluid">
-      <div className="content">
+
+   <>
         <div className="header">
           <h2>Docentes</h2>
         </div>
         <div className="mt-4">
-          <Form id="form-reservas">
-            <div className="row">
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="nombre"
-                    className="form-control"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={e =>
-                      setFormData({ ...formData, nombre: e.target.value })
-                    }
-                  />
-                </Form.Group>
+          <Button
+            className="btn btn-primary d-flex align-items-center justify-content-center"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseForm"
+            aria-expanded="false"
+            aria-controls="collapseForm"
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            <FaPlus style={{ marginRight: '5px' }} />
+            Agregar
+          </Button>
+          <div className="collapse" id="collapseForm">
+            <Form id="form-reservas">
+              <div className="row">
+                <div className="col-md-4">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      id="nombre"
+                      className="form-control"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={e =>
+                        setFormData({ ...formData, nombre: e.target.value })
+                      }
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-4">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="apellido">Apellido:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      id="apellido"
+                      className="form-control"
+                      name="apellido"
+                      value={formData.apellido}
+                      onChange={e =>
+                        setFormData({ ...formData, apellido: e.target.value })
+                      }
+                    />
+                  </Form.Group>
+                </div>
               </div>
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="apellido">Apellido:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="apellido"
-                    className="form-control"
-                    name="apellido"
-                    value={formData.apellido}
-                    onChange={e =>
-                      setFormData({ ...formData, apellido: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              </div>
-            </div>
-            <div className="button-group mt-4 text-center">
-              {!isEditing ? (
-                <Button
-                  type="button"
-                  className="btn btn-custom"
-                  onClick={crearDocente}
-                >
-                  Crear
-                </Button>
-              ) : (
-                <>
+              <div className="button-group mt-4 text-center">
+                {!isEditing ? (
                   <Button
                     type="button"
                     className="btn btn-custom"
-                    id="guardar-btn"
-                    onClick={editarDocente}
+                    onClick={crearDocente}
                   >
-                    Guardar
+                    Crear
                   </Button>
-                  <Button
-                    type="button"
-                    className="btn btn-danger ml-2"
-                    onClick={limpiar}
-                  >
-                    Cancelar
-                  </Button>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      className="btn btn-custom"
+                      id="guardar-btn"
+                      onClick={editarDocente}
+                    >
+                      Guardar
+                    </Button>
+                    <Button
+                      type="button"
+                      className="btn btn-danger ml-2"
+                      onClick={limpiar}
+                    >
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Form>
+          </div>
+          <div className="row mb-3 mt-4 justify-content-center">
+            <div className="col-auto d-flex align-items-center">
+              <label className="me-2">Buscar:</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Nombre"
+                value={filtroNombre}
+                onChange={(e) => setFiltroNombre(e.target.value)}
+                maxLength={25}
+              />
             </div>
-          </Form>
+          </div>
           <table className="table table-bordered mt-4">
             <thead>
               <tr>
@@ -283,7 +322,6 @@ function Docentes() {
             breakClassName={'page-item'}
             breakLinkClassName={'page-link'}
           />
-          
           <div
             className="context-menu"
             style={{
@@ -308,7 +346,7 @@ function Docentes() {
                     apellido: selectedDocente.apellido,
                     telefono: selectedDocente.telefono,
                   });
-
+  
                   setShowContextMenu(false); // Cierra el menú contextual
                   setIsEditing(true);
                 }
@@ -325,9 +363,9 @@ function Docentes() {
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+        </>
   );
+  
 }
 
 export default Docentes;

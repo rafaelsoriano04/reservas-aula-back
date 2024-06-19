@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button } from "react-bootstrap";
 import "../styles/materias.css";
 import axios from "axios";
+import { FaPlus } from 'react-icons/fa';
 import ReactPaginate from 'react-paginate';
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
@@ -13,6 +14,9 @@ function Materias() {
   const [formData, setFormData] = useState({ id: "", nombre: "", carrera: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [cancel, setCancel] = useState(false);
+  const [filtroNombre, setFiltroNombre] = useState("");
+const [filtroCarrera, setFiltroCarrera] = useState("");
+
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
@@ -27,7 +31,18 @@ function Materias() {
   const carreraRef = useRef(null);
 
   const [selectedCarrera, setSelectedCarrera] = useState("");
+  const handleFiltroNombreChange = (e) => {
+    setFiltroNombre(e.target.value);
+  };
+  
+  const handleFiltroCarreraChange = (e) => {
+    setFiltroCarrera(e.target.value);
+  };
 
+  useEffect(() => {
+    getMaterias();
+  }, [filtroNombre, filtroCarrera]);
+  
   // Paginación
   const [paginaActual, setPaginaActual] = useState(0);
   const [itemsPorPagina, setItemsPorPagina] = useState(10);
@@ -47,12 +62,20 @@ function Materias() {
     const url = `http://localhost:8080/materia/todos`;
     try {
       const response = await axios.get(url);
-      setMateria(Array.isArray(response.data) ? response.data : []);
+      const data = Array.isArray(response.data) ? response.data : [];
+      const filteredData = data.filter((materia) => {
+        return (
+          (filtroNombre === "" || materia.nombre.toLowerCase().includes(filtroNombre.toLowerCase())) &&
+          (filtroCarrera === "" || materia.carrera === filtroCarrera)
+        );
+      });
+      setMateria(filteredData);
     } catch (error) {
       oops("Error al cargar materias.");
       setMateria([]); // Limpia los datos si la petición falla
     }
   };
+  
 
   const eliminarMateria = async id => {
     const url = `http://localhost:8080/materia/${id}`;
@@ -162,79 +185,122 @@ function Materias() {
   };
 
   return (
-    <div className="container-fluid">
-      <div className="content">
+    <>
         <div className="header">
           <h2>Materias</h2>
         </div>
         <div className="mt-4">
-          <Form id="form-reservas">
-            <div className="row">
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="nombre"
-                    className="form-control"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nombre: e.target.value })
-                    }
-                  />
-                </Form.Group>
+          <Button
+            className="btn btn-primary d-flex align-items-center justify-content-center"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseForm"
+            aria-expanded="false"
+            aria-controls="collapseForm"
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            <FaPlus style={{ marginRight: '5px' }} />
+            Agregar
+          </Button>
+          <div className="collapse" id="collapseForm">
+            <Form id="form-reservas">
+              <div className="row">
+                <div className="col-md-4">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      id="nombre"
+                      className="form-control"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={(e) =>
+                        setFormData({ ...formData, nombre: e.target.value })
+                      }
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-4">
+                  <Form.Group className="form-group">
+                    <Form.Label htmlFor="carrera">Carrera:</Form.Label>
+                    <Form.Select
+                      id="carrera"
+                      className="form-control"
+                      value={selectedCarrera}
+                      ref={carreraRef}
+                      onChange={(e) => setSelectedCarrera(e.target.value)}
+                    >
+                      <option value="">Seleccione una opción</option>
+                      {carreras.map((carrera) => (
+                        <option key={carrera.nombre} value={carrera.nombre}>
+                          {carrera.nombre}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </div>
               </div>
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="carrera">Carrera:</Form.Label>
-                  <Form.Select
-                    id="carrera"
-                    className="form-control"
-                    value={selectedCarrera}
-                    ref={carreraRef}
-                    onChange={(e) => setSelectedCarrera(e.target.value)}
-                  >
-                    <option value="">Seleccione una opción</option>
-                    {carreras.map((carrera) => (
-                      <option key={carrera.nombre} value={carrera.nombre}>
-                        {carrera.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            </div>
-            <div className="button-group mt-4 text-center">
-              {!isEditing ? (
-                <Button
-                  type="button"
-                  className="btn btn-custom"
-                  onClick={() => guardarMateria()}
-                >
-                  Crear
-                </Button>
-              ) : (
-                <>
+              <div className="button-group mt-4 text-center">
+                {!isEditing ? (
                   <Button
                     type="button"
                     className="btn btn-custom"
-                    id="guardar-btn"
-                    onClick={() => editarMateria(selectedRow)}
+                    onClick={() => guardarMateria()}
                   >
-                    Guardar
+                    Crear
                   </Button>
-                  <Button
-                    type="button"
-                    className="btn btn-danger ml-2"
-                    onClick={limpiar}
-                  >
-                    Cancelar
-                  </Button>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      className="btn btn-custom"
+                      id="guardar-btn"
+                      onClick={() => editarMateria(selectedRow)}
+                    >
+                      Guardar
+                    </Button>
+                    <Button
+                      type="button"
+                      className="btn btn-danger ml-2"
+                      onClick={limpiar}
+                    >
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Form>
+          </div>
+          <div className="row mb-3 mt-4 justify-content-center">
+            <div className="col-auto d-flex align-items-center">
+              <label className="me-2">Buscar:</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Nombre"
+                value={filtroNombre}
+                onChange={(e) => setFiltroNombre(e.target.value)}
+                maxLength={30}
+              />
             </div>
-          </Form>
+            <div className="col-auto d-flex align-items-center">
+              <label className="me-2">Carrera:</label>
+              <select
+                className="form-select"
+                value={filtroCarrera}
+                onChange={(e) => setFiltroCarrera(e.target.value)}
+              >
+                <option value="">Todos</option>
+                {carreras.map((carrera) => (
+                  <option key={carrera.nombre} value={carrera.nombre}>
+                    {carrera.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <table className="table table-bordered mt-4">
             <thead>
               <tr>
@@ -271,9 +337,6 @@ function Materias() {
             breakClassName={'page-item'}
             breakLinkClassName={'page-link'}
           />
-          <div className="d-flex justify-content-end">
-            
-          </div>
           <div
             className="context-menu"
             id="context-menu"
@@ -314,9 +377,10 @@ function Materias() {
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+        </>
   );
-}
-
-export default Materias;
+  
+  }
+  
+  export default Materias;
+  
