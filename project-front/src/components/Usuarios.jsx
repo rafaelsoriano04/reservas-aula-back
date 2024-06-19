@@ -4,6 +4,7 @@ import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
 import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import ReactPaginate from "react-paginate";
 
 const Usuarios = () => {
   const [username, setUsername] = useState("");
@@ -23,6 +24,10 @@ const Usuarios = () => {
     left: 0,
   });
 
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(0);
+  const [itemsPorPagina] = useState(10);
+
   // useEffects
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
@@ -33,17 +38,27 @@ const Usuarios = () => {
 
   useEffect(() => {
     getUsuarios();
-  }, []);
+  }, [filtroUsername, filtroTipo, paginaActual]);
 
   const getUsuarios = async () => {
     const url = `http://localhost:8080/usuario`;
     try {
       const response = await axios.get(url);
-      setUsuarios(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      const filteredData = data.filter(usuario => {
+        return (
+          (filtroUsername === "" ||
+            usuario.username
+              .toLowerCase()
+              .includes(filtroUsername.toLowerCase())) &&
+          (filtroTipo === "" || usuario.tipo === filtroTipo)
+        );
+      });
+      setUsuarios(filteredData);
     } catch (error) {
       if (error.response) {
         const { message } = error.response.data;
-        if (message == "No hay usuarios") {
+        if (message === "No hay usuarios") {
           oops(message);
         } else {
           oops("Error al conectar con el servidor.");
@@ -84,25 +99,20 @@ const Usuarios = () => {
     }
   };
 
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = usuarios.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(usuarios.length / itemsPorPagina);
+
   const cargarUsuarios = () => {
-    const usuariosFiltrados = usuarios.filter(usuario => {
-      return (
-        (filtroTipo === "" || usuario.tipo === filtroTipo) &&
-        (filtroUsername === "" ||
-          usuario.username.toLowerCase().includes(filtroUsername.toLowerCase()))
-      );
-    });
-
-    const usuariosOrdenados = usuariosFiltrados.sort((a, b) =>
-      a.username.localeCompare(b.username)
-    );
-
-    return usuariosOrdenados.map(usuario => (
+    return currentPageData.map(usuario => (
       <tr key={usuario.id} onClick={e => handleRowClick(e, usuario)}>
         <td>{usuario.username}</td>
         <td>{usuario.tipo}</td>
       </tr>
     ));
+  };
+  const handlePageClick = data => {
+    setPaginaActual(data.selected);
   };
 
   const limpiar = () => {
@@ -187,6 +197,24 @@ const Usuarios = () => {
     }
   };
 
+  const handleShowPassword = () => {
+    if (!isEditing) {
+      return (
+        <Form.Group className="mb-3" controlId="formBasicApellido">
+          <Form.Label>Contraseña</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Ingrese la contraseña"
+            maxLength="30"
+            value={newPassword}
+            onChange={handleNewPassword}
+            required
+          />
+        </Form.Group>
+      );
+    }
+  };
+
   // Render
   return (
     <>
@@ -194,40 +222,47 @@ const Usuarios = () => {
         <div className="header">
           <h2>Usuarios</h2>
         </div>
-        <div className="row mb-3 mt-4 justify-content-center"></div>
-        <div className="row justify-content-center mb-2">
+        <div className="row mb-0 mt-3 justify-content-between">
+          <div className="col d-flex align-items-center">
+            <label className="d-flex align-items-center fw-bold me-4">
+              Filtros:
+            </label>
+            <div className="col-auto d-flex align-items-center">
+              <label className="me-2">Nombre:</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Username"
+                value={filtroUsername}
+                onChange={handleFiltroUsername}
+                maxLength={30}
+              />
+            </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <label className="me-2">Estado:</label>
+              <select
+                className="form-select"
+                value={filtroTipo}
+                onChange={handleFiltroTipo}
+              >
+                <option value="">Todos</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Usuario">Usuario</option>
+              </select>
+            </div>
+          </div>
           <div className="col-auto">
-            <button className="btn" onClick={handleShowModal}>
+            <button
+              className="btn"
+              onClick={() => {
+                setIsEditing(false);
+                handleShowModal();
+              }}
+            >
               Nuevo usuario
             </button>
           </div>
         </div>
-        <div className="row mb-0 mt-3 justify-content-center">
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Buscar:</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Username"
-              value={filtroUsername}
-              onChange={handleFiltroUsername}
-              maxLength={30}
-            />
-          </div>
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Estado:</label>
-            <select
-              className="form-select"
-              value={filtroTipo}
-              onChange={handleFiltroTipo}
-            >
-              <option value="">Todos</option>
-              <option value="Administrador">Administrador</option>
-              <option value="Usuario">Usuario</option>
-            </select>
-          </div>
-        </div>
-
         <div className="mt-0">
           <table className="table table-bordered mt-3">
             <thead>
@@ -238,6 +273,26 @@ const Usuarios = () => {
             </thead>
             <tbody>{cargarUsuarios()}</tbody>
           </table>
+          <ReactPaginate
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+            breakClassName={"page-item"}
+            breakLinkClassName={"page-link"}
+          />
+
           <div
             className="context-menu"
             id="context-menu"
@@ -297,17 +352,7 @@ const Usuarios = () => {
                 required
               />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicApellido">
-              <Form.Label>Contraseña</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Ingrese la contraseña"
-                maxLength="30"
-                value={newPassword}
-                onChange={handleNewPassword}
-                required
-              />
-            </Form.Group>
+            {handleShowPassword}
             <Form.Group className="mb-3">
               <Form.Label>Tipo</Form.Label>
               <Form.Select

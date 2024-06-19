@@ -4,8 +4,9 @@ import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
 import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import ReactPaginate from "react-paginate";
 
-const Usuarios = () => {
+const Feriados = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -15,12 +16,15 @@ const Usuarios = () => {
     left: 0,
   });
   const [nombre, setNombre] = useState("");
-  const [inicio, setInicio] = useState("");
-  const [fin, setFin] = useState("");
+  const [inicio, setInicio] = useState();
+  const [fin, setFin] = useState();
   const [idFeriado, setIdFeriado] = useState("");
   const [feriados, setFeriados] = useState([]);
   const [filtroInicio, setFiltroInicio] = useState();
   const [filtroFin, setFiltroFin] = useState();
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(0);
+  const [itemsPorPagina, setItemsPorPagina] = useState(10);
 
   // useEffects
   useEffect(() => {
@@ -32,24 +36,27 @@ const Usuarios = () => {
 
   useEffect(() => {
     getFeriados();
-  }, []);
+  }, [filtroInicio, filtroFin, paginaActual]);
 
   const getFeriados = async () => {
     const url = `http://localhost:8080/feriado`;
     try {
       const response = await axios.get(url);
-      setFeriados(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      const filteredData = data.filter(feriado => {
+        return (
+          (!filtroInicio && !filtroFin) || // Ningún filtro
+          (filtroInicio && !filtroFin && feriado.inicio >= filtroInicio) || // Solo filtroInicio
+          (!filtroInicio && filtroFin && feriado.fin <= filtroFin) || // Solo filtroFin
+          (filtroInicio &&
+            filtroFin && // Ambos filtros
+            ((feriado.inicio >= filtroInicio && feriado.inicio <= filtroFin) ||
+              (feriado.fin >= filtroInicio && feriado.fin <= filtroFin) ||
+              (feriado.inicio <= filtroInicio && feriado.fin >= filtroFin)))
+        );
+      });
+      setFeriados(filteredData);
     } catch (error) {
-      if (error.response) {
-        const { message } = error.response.data;
-        if (message == "No hay feriados") {
-          oops(message);
-        } else {
-          oops("Error al conectar con el servidor.");
-        }
-      } else {
-        oops("Error al conectar con el servidor.");
-      }
       setFeriados([]); // Limpia los datos si la petición falla
     }
   };
@@ -83,26 +90,21 @@ const Usuarios = () => {
     }
   };
 
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = feriados.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(feriados.length / itemsPorPagina);
+
   const cargarFeriados = () => {
-    const feriadosFiltrados = feriados.filter(feriado => {
-      return (
-        (feriado.inicio >= filtroInicio && feriado.inicio <= filtroFin) ||
-        (feriado.fechaFin >= filtroInicio && feriado.fechaFin <= filtroFin) ||
-        (feriado.inicio <= filtroInicio && feriado.fechaFin >= filtroFin)
-      );
-    });
-
-    const feriadosOrdenados = feriadosFiltrados.sort((a, b) => {
-      return new Date(a.fecha).getTime() - new Date(b.fecha).getTime();
-    });
-
-    return feriadosOrdenados.map(feriado => (
+    return currentPageData.map(feriado => (
       <tr key={feriado.id} onClick={e => handleRowClick(e, feriado)}>
         <td>{feriado.nombre}</td>
         <td>{feriado.inicio}</td>
         <td>{feriado.fin}</td>
       </tr>
     ));
+  };
+  const handlePageClick = data => {
+    setPaginaActual(data.selected);
   };
 
   const limpiar = () => {
@@ -111,29 +113,52 @@ const Usuarios = () => {
     setFin("");
   };
 
-  const handleCloseModal = () => setShowModal(false);
-  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => {
+    limpiar();
+    setShowModal(false);
+  };
+
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
+
+  const addOneDay = dateString => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1);
+
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+
+    return `${year}-${month}-${day}`;
+  };
 
   const saveFeriado = async () => {
     try {
-      const feriado = { nombre, inicio, fin };
+      const feriado = {
+        nombre,
+        inicio,
+        fin,
+      };
       await axios.post("http://localhost:8080/feriado", feriado);
       ok("Registro guardado exitosamente.");
       getFeriados();
       handleCloseModal();
       limpiar();
     } catch (error) {
-      if (error.response) {
-        oops("Error al conectar con el servidor.");
-      } else {
-        oops("Error al conectar con el servidor.");
-      }
+      oops("Error al conectar con el servidor.");
     }
   };
 
   const editFeriado = async () => {
     try {
-      const feriado = { nombre, inicio, fin };
+      console.log(inicio, fin);
+      const feriado = {
+        nombre,
+        inicio: addOneDay(inicio),
+        fin: addOneDay(fin),
+      };
+      console.log(addOneDay(inicio), addOneDay(fin));
       await axios.put(`http://localhost:8080/feriado/${idFeriado}`, feriado);
       getFeriados();
       ok("Registro actualizado exitosamente.");
@@ -187,36 +212,53 @@ const Usuarios = () => {
     <>
       <div>
         <div className="header">
-          <h2>Usuarios</h2>
+          <h2>Feriados</h2>
         </div>
-        <div className="row mb-3 mt-4 justify-content-center"></div>
-        <div className="row justify-content-center mb-2">
+        <div className="row mb-0 mt-3 justify-content-between">
+          <div className="col d-flex align-items-center">
+            <label className="d-flex align-items-center fw-bold me-4">
+              Filtros:
+            </label>
+            <div className="d-flex align-items-center">
+              <label className="me-2">Desde:</label>
+              <input
+                className="form-control"
+                type="date"
+                value={filtroInicio}
+                onChange={handleFiltroInicio}
+                style={{
+                  padding: "8px",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <div className="d-flex align-items-center ms-4">
+              <label className="me-2">Hasta:</label>
+              <input
+                type="date"
+                className="form-control"
+                value={filtroFin}
+                onChange={handleFiltroFin}
+                style={{
+                  padding: "8px",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+                min={filtroInicio}
+              />
+            </div>
+          </div>
           <div className="col-auto">
-            <button className="btn" onClick={handleShowModal}>
+            <button
+              className="btn"
+              onClick={() => {
+                setIsEditing(false);
+                handleShowModal();
+              }}
+            >
               Nuevo feriado
             </button>
-          </div>
-        </div>
-        <div className="row mb-0 mt-3 justify-content-center">
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Desde:</label>
-            <input
-              type="date"
-              value={filtroInicio}
-              onChange={handleFiltroInicio}
-              style={{ padding: "8px", width: "100%", boxSizing: "border-box" }}
-            />
-          </div>
-        </div>
-        <div className="row mb-0 mt-3 justify-content-center">
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Hasta:</label>
-            <input
-              type="date"
-              value={filtroFin}
-              onChange={handleFiltroFin}
-              style={{ padding: "8px", width: "100%", boxSizing: "border-box" }}
-            />
           </div>
         </div>
         <div className="mt-0">
@@ -224,12 +266,32 @@ const Usuarios = () => {
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>Fecha de Inicio</th>
-                <th>Fecha de Fin</th>
+                <th>Inicio (mm/dd/yyyy)</th>
+                <th>Fin (mm/dd/yyyy)</th>
               </tr>
             </thead>
             <tbody>{cargarFeriados()}</tbody>
           </table>
+          <ReactPaginate
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+            breakClassName={"page-item"}
+            breakLinkClassName={"page-link"}
+          />
+
           <div
             className="context-menu"
             id="context-menu"
@@ -274,12 +336,12 @@ const Usuarios = () => {
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            {!isEditing ? "Crear Usuario" : "Editar Usuario"}
+            {!isEditing ? "Crear Feriado" : "Editar Feriado"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicNombre">
+            <Form.Group className="mb-3">
               <Form.Label>Nombre</Form.Label>
               <Form.Control
                 type="text"
@@ -290,7 +352,7 @@ const Usuarios = () => {
                 required
               />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicApellido">
+            <Form.Group className="mb-3">
               <Form.Label>Fecha de inicio</Form.Label>
               <Form.Control
                 type="date"
@@ -300,7 +362,12 @@ const Usuarios = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Fecha de fin</Form.Label>
-              <Form.Control type="date" value={fin} onChange={finChange} />
+              <Form.Control
+                type="date"
+                value={fin}
+                onChange={finChange}
+                min={inicio}
+              />
             </Form.Group>
             <div className="container d-flex justify-content-center">
               <Button
@@ -318,4 +385,4 @@ const Usuarios = () => {
   );
 };
 
-export default Usuarios;
+export default Feriados;

@@ -96,7 +96,7 @@ const SidebarMenu = () => {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link onClick={() => setActiveComponent("feriados")}>
-                <i className="fas fa-umbrella-beach me-2"></i>Materia
+                <i className="fas fa-umbrella-beach me-2"></i>Feriados
               </Nav.Link>
             </Nav.Item>
             {showUsersOption()}

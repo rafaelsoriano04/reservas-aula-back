@@ -10,6 +10,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,8 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
 
     @Override
     public FeriadoDto save(FeriadoDto feriadoDto) throws NotFoundException {
+        feriadoDto.setInicio(sumarUnDia(feriadoDto.getInicio()));
+        feriadoDto.setFin(sumarUnDia(feriadoDto.getFin()));
         return feriadoToDto(repositorioFeriado.save(dtoToFeriado(feriadoDto)));
     }
 
@@ -52,9 +56,11 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
             feriadoExistente.setNombre(feriadoDto.getNombre());
         }
         if (feriadoDto.getInicio() != null) {
+            feriadoDto.setInicio(sumarUnDia(feriadoDto.getInicio()));
             feriadoExistente.setInicio(feriadoDto.getInicio());
         }
         if (feriadoDto.getFin() != null) {
+            feriadoDto.setFin(sumarUnDia(feriadoDto.getFin()));
             feriadoExistente.setFin(feriadoDto.getFin());
         }
 
@@ -75,5 +81,15 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
 
     private FeriadoDto feriadoToDto(Feriado feriado) {
         return modelMapper.map(feriado, FeriadoDto.class);
+    }
+
+    private Date sumarUnDia(Date fecha) {
+        // Utilizar Calendar para sumar un día a la fecha
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fecha);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+        // Devolver la nueva fecha como Date
+        return new Date(calendar.getTimeInMillis());
     }
 }
