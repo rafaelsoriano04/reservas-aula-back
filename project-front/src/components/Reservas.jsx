@@ -14,6 +14,8 @@ const LabReservations = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [noHorariosMessage, setNoHorariosMessage] = useState("");
+
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: "",
@@ -97,25 +99,32 @@ const LabReservations = () => {
 
   //TRAE LOS HORARIOS Y LAS RESERVAS
   const getHorarios = async () => {
-    const url =
-      selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
-    try {
-      const response = await axios.get(url);
-      setHorarios(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      setHorarios([]); // Limpia los datos si la petición falla
+    let url;
+    if (selectedTipo === "Laboratorio") {
+        url = `http://localhost:8080/horario/lab/${selectedAulaLab}`;
+    } else if (selectedTipo === "Aula") {
+        url = `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    } else if (selectedTipo === "Especial") {
+        url = `http://localhost:8080/horario/especial/${selectedAulaLab}`;
     }
-    const formattedDate = formatDate(monday); // Use formatDate here
+
+    try {
+        const response = await axios.get(url);
+        setHorarios(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+        setHorarios([]); // Limpia los datos si la petición falla
+    }
+
+    const formattedDate = formatDate(monday); // Usa formatDate aquí
     const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
-      const response = await axios.get(url2);
-      setReservas(response.data);
+        const response = await axios.get(url2);
+        setReservas(response.data);
     } catch (error) {
-      setHorarios([]); // Limpia los datos si la petición falla
+        setHorarios([]); // Limpia los datos si la petición falla
     }
-  };
+};
+
   
 
   const getBloques = async () => {
@@ -132,27 +141,33 @@ const LabReservations = () => {
     const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
 
     try {
-      const response = await axios.get(url);
-      //Aqui se debe controlar que se llene de acuerdo al tipo
-      let filteredData = [];
-      if (selectedTipo == "Aula") {
-        filteredData = response.data.filter((item) => item.tipo === "Aula");
-      } else {
-        filteredData = response.data.filter(
-          (item) => item.tipo === "Laboratorio"
-        );
-      }
-      setAulasLabs(filteredData);
+        const response = await axios.get(url);
+        let filteredData = [];
+        if (selectedTipo == "Aula") {
+            filteredData = response.data.filter((item) => item.tipo === "Aula");
+        } else if (selectedTipo == "Laboratorio") {
+            filteredData = response.data.filter((item) => item.tipo === "Laboratorio");
+        } else if (selectedTipo == "Especial") {
+            filteredData = response.data.filter((item) => item.tipo === "Especial");
+        }
+        setAulasLabs(filteredData);
+        if (filteredData.length === 0) {
+            setNoHorariosMessage("No hay espacios disponibles para esta selección.");
+        } else {
+            setNoHorariosMessage("");
+        }
     } catch (error) {
-      const { message } = error.response.data;
-      if (message === "No hay espacios en este bloque") {
-        oops(message);
-      } else {
-        oops("Error al conectar con el servidor");
-      }
-      setAulasLabs([]); // Limpia los datos si la petición falla
+        const { message } = error.response.data;
+        if (message === "No hay espacios en este bloque") {
+            oops(message);
+        } else {
+            oops("Error al conectar con el servidor");
+        }
+        setAulasLabs([]); // Limpia los datos si la petición falla
+        setNoHorariosMessage("No hay aulas, laboratorios o espacios especiales disponibles.");
     }
-  };
+};
+
 
   const handleCedulaChange = (event) => {
     const value = event.target.value;
@@ -634,7 +649,7 @@ const LabReservations = () => {
   return (
     <div className="container mt-3">
       <div className="header text-center">
-        <h2>SISTEMA DE GESTIÓN DE RESERVAS </h2>
+        <h2>Reservas </h2>
       </div>
       <div className="row">
         <div className="col-md-4">
@@ -662,6 +677,7 @@ const LabReservations = () => {
           >
             <option value="Aula">Aulas</option>
             <option value="Laboratorio">Laboratorios</option>
+            <option value="Especial">Especial</option>
           </Form.Select>
         </div>
         <div className="col-md-4">
@@ -698,31 +714,37 @@ const LabReservations = () => {
 </div>
       </div>
 
-      <table className="table table-bordered mt-4 table-centered">
-        <thead>
-          <tr>
-            <th>Horas</th>
-            <th>Lunes</th>
-            <th>Martes</th>
-            <th>Miércoles</th>
-            <th>Jueves</th>
-            <th>Viernes</th>
-            <th>Sabado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {horas.map((hora) => (
-            <tr key={hora}>
-              <td>{hora}</td>
-              {dias.map((dia) => (
-                <React.Fragment key={`${dia}-${hora}`}>
-                  {renderTableCell(dia, hora)}
-                </React.Fragment>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {noHorariosMessage ? (
+            <div className="alert alert-info text-center mt-3" role="alert">
+                {noHorariosMessage}
+            </div>
+        ) : (
+            <table className="table table-bordered mt-4 table-centered">
+                <thead>
+                    <tr>
+                        <th>Horas</th>
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miercoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                        <th>Sabado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {horas.map((hora) => (
+                        <tr key={hora}>
+                            <td>{hora}</td>
+                            {dias.map((dia) => (
+                                <React.Fragment key={`${dia}-${hora}`}>
+                                    {renderTableCell(dia, hora)}
+                                </React.Fragment>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        )}
 
       <div
         className="context-menu"

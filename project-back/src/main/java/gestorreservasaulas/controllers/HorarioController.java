@@ -27,6 +27,11 @@ public class HorarioController {
         return servicioHorario.obtenerHorariosPorLabs(id);
     }
 
+    @GetMapping("/especial/{id}")
+    public List<HorarioDto> getByEspecial(@PathVariable Long id) {
+        return servicioHorario.obtenerHorariosPorEspecial(id);
+    }
+
     @PostMapping
     public HorarioDto save(@RequestBody HorarioDto horario) throws ConflictException, NotFoundException {
         return servicioHorario.crearHorario(horario);
