@@ -6,19 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
+
 @Entity
+@Table(name = "feriados")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "usuarios")
-public class Usuario {
-
+public class Feriado {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    @Column(unique = true)
-    String username;
-    String contrasenia;
-    String tipo;
+    private Long id;
+    private Date inicio;
+    private Date fin;
+    private String nombre;
 }

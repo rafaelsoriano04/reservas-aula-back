@@ -1,12 +1,13 @@
 package gestorreservasaulas.dtos;
 
-
 import lombok.Data;
 
-@Data
-public class MateriaDto {
-    private Long id;
-    private String nombre;
-    private String carrera;
+import java.sql.Date;
 
+@Data
+public class FeriadoDto {
+    private Long id;
+    private Date inicio;
+    private Date fin;
+    private String nombre;
 }

@@ -2,14 +2,52 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/login.css";
 import axios from "axios";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { oops } from "../utils/Alerts";
 
 function Login() {
+  // Variables
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [mensajeError, setMensajeError] = useState("");
   const navigate = useNavigate();
+
+  // Funciones
+  const validarLogin = async e => {
+    e.preventDefault();
+    if (!username || !password) {
+      setMensajeError("Completa todos los campos...");
+    } else {
+      const usuario = {
+        username,
+        password,
+      };
+      try {
+        const resp = await axios.post(
+          "http://localhost:8080/usuario/login",
+          usuario
+        );
+        if (resp.data) {
+          setMensajeError("");
+          localStorage.setItem("tipoUsuario", resp.data.tipo);
+          navigate(`/menu`);
+        }
+      } catch (error) {
+        if (error.response) {
+          const { message } = error.response.data;
+          if (message == "Credenciales inválidas") {
+            setMensajeError(message);
+          } else {
+            oops("Error al conectar con el servidor.");
+          }
+        } else {
+          oops("Error al conectar con el servidor.");
+        }
+      }
+    }
+  };
+
+  // Handlers
   const handleUsernameChange = e => {
     setUsername(e.target.value);
   };
@@ -18,50 +56,7 @@ function Login() {
     setPassword(e.target.value);
   };
 
-  const validarLogin = async e => {
-    e.preventDefault();
-
-    if (!username || !password) {
-      setMensajeError("Completa todos los campos...");
-    } else {
-      try {
-        const resp = await axios.post("http://localhost:8080/login", {
-          username,
-          password,
-        });
-        if (resp.data) {
-          Swal.fire({
-            title: "Bienvenido...",
-            html: "<i>Inicio de sesión exitoso</i>",
-            icon: "success",
-          });
-          setMensajeError("");
-          //Llamar al Componente Menu
-          navigate("/menu");
-        }
-      } catch (error) {
-        if (error.response) {
-          const { message } = error.response.data;
-          if (message == "Credenciales inválidas") {
-            setMensajeError(message);
-          } else {
-            Swal.fire({
-              title: "Oops...",
-              html: "<i>Error al conectar con el servidor</i>",
-              icon: "error",
-            });
-          }
-        } else {
-          Swal.fire({
-            title: "Oops...",
-            html: "<i>Error al conectar con el servidor</i>",
-            icon: "error",
-          });
-        }
-      }
-    }
-  };
-
+  // Render
   return (
     <div className="container-fluid">
       <div className="login-container">

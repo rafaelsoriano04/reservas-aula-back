@@ -46,8 +46,6 @@ public class ServicioMateriaImpl implements ServicioMateria {
         }
 
     }
-    
-    
 
     @Override
     public Materia buscarMateria(Long id) throws NotFoundException {

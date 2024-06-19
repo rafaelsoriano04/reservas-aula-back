@@ -1,9 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Reserva.css";
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
-import Swal from "sweetalert2";
+import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
@@ -13,6 +13,8 @@ const LabReservations = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [noHorariosMessage, setNoHorariosMessage] = useState("");
+
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: "",
@@ -48,9 +50,27 @@ const LabReservations = () => {
 
   const [horarios, setHorarios] = useState([]);
   const [reservas, setReservas] = useState([]);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
+  const [feriados, setFeriados] = useState([]);
 
   const [monday, setMonday] = useState();
 
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  const handleDocumentClick = e => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setShowContextMenu(false);
+    }
+  };
   useEffect(() => {
     getBloques();
   }, []);
@@ -76,19 +96,39 @@ const LabReservations = () => {
   useEffect(() => {
     updateWeekRange();
   }, [currentWeek]);
+  useEffect(() => {
+    getFeriados();
+  }, []);
 
+  const getFeriados = async () => {
+    const url = `http://localhost:8080/feriado`;
+    try {
+      const response = await axios.get(url);
+      setFeriados(response.data);
+    } catch (error) {
+      setFeriados([]); // Limpia los datos si la petición falla
+    }
+  };
+
+  //TRAE LOS HORARIOS Y LAS RESERVAS
   const getHorarios = async () => {
-    const url =
-      selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    let url;
+    if (selectedTipo === "Laboratorio") {
+      url = `http://localhost:8080/horario/lab/${selectedAulaLab}`;
+    } else if (selectedTipo === "Aula") {
+      url = `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+    } else if (selectedTipo === "Especial") {
+      url = `http://localhost:8080/horario/especial/${selectedAulaLab}`;
+    }
+
     try {
       const response = await axios.get(url);
       setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       setHorarios([]); // Limpia los datos si la petición falla
     }
-    const formattedDate = monday.toISOString().split("T")[0];
+
+    const formattedDate = formatDate(monday); // Usa formatDate aquí
     const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
       const response = await axios.get(url2);
@@ -98,6 +138,7 @@ const LabReservations = () => {
     }
   };
 
+  //carga
   const getBloques = async () => {
     try {
       const resp = await axios.get("http://localhost:8080/bloque");
@@ -113,94 +154,73 @@ const LabReservations = () => {
 
     try {
       const response = await axios.get(url);
-      //Aqui se debe controlar que se llene de acuerdo al tipo
       let filteredData = [];
       if (selectedTipo == "Aula") {
-        filteredData = response.data.filter((item) => item.tipo === "Aula");
-      } else {
+        filteredData = response.data.filter(item => item.tipo === "Aula");
+      } else if (selectedTipo == "Laboratorio") {
         filteredData = response.data.filter(
-          (item) => item.tipo === "Laboratorio"
+          item => item.tipo === "Laboratorio"
         );
+      } else if (selectedTipo == "Especial") {
+        filteredData = response.data.filter(item => item.tipo === "Especial");
       }
       setAulasLabs(filteredData);
+      if (filteredData.length === 0) {
+        setNoHorariosMessage(
+          "No hay espacios disponibles para esta selección."
+        );
+      } else {
+        setNoHorariosMessage("");
+      }
     } catch (error) {
       const { message } = error.response.data;
       if (message === "No hay espacios en este bloque") {
-        Swal.fire({
-          title: "Oops...",
-          html: `<i>${message}</i>`,
-          icon: "error",
-        });
+        oops(message);
       } else {
-        Swal.fire({
-          title: "Oops...",
-          html: `<i>Error al conectar con el servidor</i>`,
-          icon: "error",
-        });
+        oops("Error al conectar con el servidor");
       }
       setAulasLabs([]); // Limpia los datos si la petición falla
+      setNoHorariosMessage(
+        "No hay aulas, laboratorios o espacios especiales disponibles."
+      );
     }
   };
 
-  const handleCedulaChange = (event) => {
+  const handleCedulaChange = event => {
     const value = event.target.value;
     if (/^\d*$/.test(value) && value.length <= 10) {
-      setResponsible((prev) => ({ ...prev, cedula: value }));
+      setResponsible(prev => ({ ...prev, cedula: value }));
     }
   };
 
-  const handleNombreChange = (event) => {
+  const handleNombreChange = event => {
     const value = event.target.value;
     if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible((prev) => ({ ...prev, nombre: value }));
+      setResponsible(prev => ({ ...prev, nombre: value }));
     }
   };
 
-  const handleApellidoChange = (event) => {
+  const handleApellidoChange = event => {
     const value = event.target.value;
     if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible((prev) => ({ ...prev, apellido: value }));
-    }
-  };
-  const handleAsuntoChange = (event) => {
-    const value = event.target.value;
-    if (value.length <= 30) {
-      setReservationDetails((prev) => ({
-        ...prev,
-        asunto: value,
-      }));
+      setResponsible(prev => ({ ...prev, apellido: value }));
     }
   };
 
-  const handleDescripcionChange = (event) => {
-    const value = event.target.value;
-    setReservationDetails((prev) => ({
-      ...prev,
-      descripcion: value,
-    }));
-  };
-
-  const handleBloqueChange = (event) => {
+  const handleBloqueChange = event => {
     setSelectedBloque(event.target.value);
   };
 
-  const handleTipoChange = (event) => {
+  const handleTipoChange = event => {
     setSelectedTipo(event.target.value);
   };
 
-  const handleAulaLabChange = (event) => {
+  const handleAulaLabChange = event => {
     setSelectedAulaLab(event.target.value);
   };
 
+  //RENDERIZA LA TABLA PARA PONER COLORES EN RECESOS,RESERVADOS,Y HORARIOS
   const renderTableCell = (dia, hora) => {
-    if (hora === "13-14") {
-      return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
-    }
-
-    const horario = horarios.find(
-      (h) => h.dia === dia && h.hora === hora.split("-")[0]
-    );
-
     let index;
     switch (dia) {
       case "Lunes":
@@ -218,18 +238,46 @@ const LabReservations = () => {
       case "Viernes":
         index = 4;
         break;
+      case "Sabado":
+        index = 5;
+        break;
+      default:
+        index = -1;
     }
 
     const fecha = formatDate(weekDates[index]);
+    const isFeriado = feriados.some(
+      feriado =>
+        new Date(feriado.inicio) <= new Date(fecha) &&
+        new Date(feriado.fin) >= new Date(fecha)
+    );
+
+    if (isFeriado) {
+      return (
+        <td style={{ backgroundColor: "#d3d3d3", cursor: "not-allowed" }}>
+          Feriado
+        </td>
+      );
+    }
+
+    if (hora === "13:00 - 14:00") {
+      return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
+    }
+
+    const startHour = parseInt(hora.split(":")[0]);
+    const horario = horarios.find(
+      h => h.dia === dia && parseInt(h.hora) === startHour
+    );
+
     const reserva = reservas.find(
-      (reserva) => reserva.fecha === fecha && reserva.hora === hora.split("-")[0]
+      reserva => reserva.fecha === fecha && parseInt(reserva.hora) === startHour
     );
 
     if (reserva) {
       return (
         <td
           style={{ backgroundColor: "#ffcccc", cursor: "pointer" }}
-          onClick={(e) => handleCellClick(e, dia, hora)}
+          onClick={e => handleCellClick(e, dia, hora)}
         >
           Reservado - {reserva.asunto}
         </td>
@@ -240,7 +288,7 @@ const LabReservations = () => {
       return (
         <td
           style={{ backgroundColor: "#d3ffd3", cursor: "pointer" }}
-          onClick={(e) => handleCellClick(e, dia, hora)}
+          onClick={e => handleCellClick(e, dia, hora)}
         >
           Disponible
         </td>
@@ -255,7 +303,7 @@ const LabReservations = () => {
     return (
       <td
         style={{ backgroundColor: colorFondo, cursor: "pointer" }}
-        onClick={(e) => handleCellClick(e, dia, hora)}
+        onClick={e => handleCellClick(e, dia, hora)}
         data-info={`Encargado: ${horario.encargado}, Asunto: ${horario.asunto}`}
       >
         {textoCelda}
@@ -264,41 +312,39 @@ const LabReservations = () => {
   };
 
   const horas = [
-    "7-8",
-    "8-9",
-    "9-10",
-    "10-11",
-    "11-12",
-    "12-13",
-    "13-14",
-    "14-15",
-    "15-16",
-    "16-17",
-    "17-18",
-    "18-19",
-    "19-20",
+    "07:00 - 08:00",
+    "08:00 - 09:00",
+    "09:00 - 10:00",
+    "10:00 - 11:00",
+    "11:00 - 12:00",
+    "12:00 - 13:00",
+    "13:00 - 14:00",
+    "14:00 - 15:00",
+    "15:00 - 16:00",
+    "16:00 - 17:00",
+    "17:00 - 18:00",
+    "18:00 - 19:00",
+    "19:00 - 20:00",
   ];
-  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
-  const getMonday = (d) => {
+  const getMonday = d => {
     d = new Date(d);
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
   };
 
-  const formatDate = (date) => {
+  //FORMATE LA FECHA
+  const formatDate = date => {
     const d = new Date(date);
-    let month = "" + (d.getMonth() + 1);
-    let day = "" + d.getDate();
     const year = d.getFullYear();
-
-    if (month.length < 2) month = "0" + month;
-    if (day.length < 2) day = "0" + day;
-
-    return [year, month, day].join("-");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0"); // Los meses en JS empiezan en 0
+    const day = d.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
+  //OBTIENE LAS SEMANAS SEGUN LA FECHA ACTUAL
   const updateWeekRange = () => {
     const now = new Date();
     now.setDate(now.getDate() + currentWeek * 7);
@@ -307,34 +353,58 @@ const LabReservations = () => {
     for (let i = 1; i <= 6; i++) {
       const day = new Date(monday);
       day.setDate(monday.getDate() + i);
-      if (day.getDay() !== 6 && day.getDay() !== 0) {
-        dates.push(day);
-      }
+      dates.push(day);
     }
     setWeekDates(dates);
     setMonday(monday);
-    setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[4])}`);
+    setWeekRange(`Semana del: ${formatDate(monday)} - ${formatDate(dates[5])}`);
   };
 
-  const changeWeek = (change) => {
-    setCurrentWeek((prev) => prev + change);
+  const changeWeek = change => {
+    setCurrentWeek(prev => prev + change);
   };
 
   const handleCellClick = (event, dia, hora) => {
-    const text = event.target.textContent.trim();
-    setSelectedCell({ dia, hora });
+  const text = event.target.textContent.trim();
+  setSelectedCell({ dia, hora });
 
-    const index = dias.indexOf(dia);
-    const selectedDay = weekDates[index];
+  const index = dias.indexOf(dia);
+  const selectedDay = weekDates[index];
 
-    const formattedDate = formatDate(selectedDay);
-    const horaInicio = hora.split("-")[0];
-    const reserva = reservas.find(
-      (reserva) =>
-        reserva.fecha === formattedDate && reserva.hora === horaInicio
-    );
+  const formattedDate = formatDate(selectedDay);
+  const horaInicioStr = hora.split("-")[0].trim();
+  const startHour = parseInt(horaInicioStr, 10);
 
-    if (reserva) {
+  // Verificar si startHour es un número
+  if (isNaN(startHour)) {
+    console.error(`Error: No se pudo convertir la hora de inicio a número. horaInicioStr: ${horaInicioStr}`);
+    return;
+  }
+
+  const reserva = reservas.find(
+    reserva =>
+      reserva.fecha === formattedDate &&
+      parseInt(reserva.hora) === startHour
+  );
+
+  const isFeriado = feriados.some(
+    feriado =>
+      new Date(feriado.inicio) <= new Date(formattedDate) &&
+      new Date(feriado.fin) >= new Date(formattedDate)
+  );
+
+  if (isFeriado) {
+    oops("No puedes reservar en un día de feriado.");
+    return;
+  }
+
+  if (reserva) {
+    const now = new Date();
+    if (
+      selectedDay > now.setHours(0, 0, 0, 0) ||
+      (selectedDay.toDateString() === new Date().toDateString() &&
+        startHour > now.getHours())
+    ) {
       setReservationDetails({
         encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
         asunto: reserva.asunto,
@@ -345,86 +415,70 @@ const LabReservations = () => {
         editable: false,
         id: reserva.id,
       });
-      setShowModal(true);
+      setContextMenuPosition({ top: event.pageY, left: event.pageX });
+      setShowContextMenu(true);
+      return;
     } else {
-      const now = new Date();
-      if (selectedDay < now.setHours(0, 0, 0, 0)) {
-        Swal.fire({
-          title: "Fecha inválida",
-          text: "No puedes reservar una fecha que ya ha pasado.",
-          icon: "error",
-        });
+      setReservationDetails({
+        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+        asunto: reserva.asunto,
+        descripcion: reserva.descripcion || "Descripción aquí",
+        hora: hora,
+        fecha: reserva.fecha,
+        tipo: reserva.persona.tipo || "N/A",
+        editable: false,
+        id: reserva.id,
+      });
+      setShowModal(true);
+      return;
+    }
+  } else {
+    const now = new Date();
+    if (selectedDay < now.setHours(0, 0, 0, 0)) {
+      oops("No puedes reservar en una fecha pasada.");
+      return;
+    }
+
+    if (selectedDay.toDateString() === new Date().toDateString()) {
+      const currentTime = new Date();
+      if (currentTime.getHours() >= startHour) {
+        console.log("No puedes reservar una hora pasada.");
+        oops("No puedes reservar una hora pasada.");
         return;
       }
-
-      if (selectedDay.toDateString() === new Date().toDateString()) {
-        const currentTime = new Date();
-        const [startHour] = hora.split("-").map(Number);
-        if (currentTime.getHours() >= startHour) {
-          Swal.fire({
-            title: "Hora inválida",
-            text: "No puedes reservar una hora que ya ha pasado.",
-            icon: "error",
-          });
-          return;
-        }
-      }
-
-      if (text === "Disponible") {
-        setSelectedDate(selectedDay);
-        setNewReservation({
-          encargado: "",
-          asunto: "",
-          descripcion: "",
-          hora: horaInicio,
-        });
-        setResponsible({
-          cedula: "",
-          nombre: "",
-          apellido: "",
-          telefono: "",
-          tipo: "",
-        });
-        setIsExistingResponsible(false);
-        setShowAdditionalFields(false);
-        setShowAddModal(true);
-      }
     }
-  };
+
+    if (text === "Disponible") {
+      setSelectedDate(selectedDay);
+      setNewReservation({
+        encargado: "",
+        asunto: "",
+        descripcion: "",
+        hora: startHour.toString(),
+      });
+      setResponsible({
+        cedula: "",
+        nombre: "",
+        apellido: "",
+        telefono: "",
+        tipo: "",
+      });
+      setIsExistingResponsible(false);
+      setShowAdditionalFields(false);
+      setShowAddModal(true);
+    }
+  }
+};
 
   const enableEditing = () => {
-    setReservationDetails((prev) => ({
+    setReservationDetails(prev => ({
       ...prev,
       editable: true,
     }));
   };
 
-  const saveReservation = () => {
-    const formattedDate = formatDate(selectedDate);
-    setReservations((prev) => [
-      ...prev,
-      {
-        dia: selectedCell.dia,
-        hora: selectedCell.hora,
-        fecha: formattedDate,
-        encargado: reservationDetails.encargado,
-        asunto: reservationDetails.asunto,
-        descripcion: reservationDetails.descripcion,
-      },
-    ]);
-    setShowModal(false);
-    setReservationDetails({
-      encargado: "",
-      asunto: "",
-      descripcion: "",
-      hora: "",
-      fecha: "",
-      editable: false,
-    });
-  };
-
-  const confirmDelete = () => {
-    setShowConfirmDelete(true);
+  const confirmDelete = async () => {
+    deleteReservation();
   };
 
   const deleteReservation = () => {
@@ -433,34 +487,22 @@ const LabReservations = () => {
     }
   };
 
-  const handleAddReservation = () => {
-    if (selectedCell) {
-      setNewReservation((prev) => ({ ...prev, hora: selectedCell.hora }));
-      setShowAddModal(true);
-    }
-  };
-
-  const handleDeleteReservation = async (reservationId) => {
+  //ELIMINAR LA RESERVA DE LA BASE
+  const handleDeleteReservation = async reservationId => {
+    const isConfirmed = await deleteConfirmation();
     try {
-      await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
-      Swal.fire({
-        title: "Eliminado",
-        text: "La reserva ha sido eliminada exitosamente",
-        icon: "success",
-      });
-
-      // Actualiza el estado de reservas después de eliminar
-      setReservas((prev) =>
-        prev.filter((reserva) => reserva.id !== reservationId)
-      );
-      setShowConfirmDelete(false);
-      setShowModal(false);
+      if (isConfirmed) {
+        await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
+        // Actualiza el estado de reservas después de eliminar
+        setReservas(prev =>
+          prev.filter(reserva => reserva.id !== reservationId)
+        );
+        ok("Registro eliminado exitosamente.");
+        setShowConfirmDelete(false);
+        setShowModal(false);
+      }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: `Hubo un error al eliminar la reserva: ${error.response?.data?.message || error.message}`,
-        icon: "error",
-      });
+      oops("No se pudo eliminar el registro.Por favor, inténtelo de nuevo.");
     }
   };
 
@@ -477,20 +519,18 @@ const LabReservations = () => {
         `http://localhost:8080/reservas/${reservationDetails.id}`,
         updatedReservation
       );
-      Swal.fire({
-        title: "Actualizado",
-        text: "La reserva ha sido actualizada exitosamente",
-        icon: "success",
-      });
+      ok("Registro actualizado exitosamente.");
 
       // Actualiza la lista de reservas localmente
-      setReservas((prev) =>
-        prev.map((reserva) =>
+      setReservas(prev =>
+        prev.map(reserva =>
           reserva.id === reservationDetails.id
             ? {
                 ...reserva,
                 asunto: reservationDetails.asunto,
-                descripcion: reservationDetails.descripcion || "Sin descripción proporcionada",
+                descripcion:
+                  reservationDetails.descripcion ||
+                  "Sin descripción proporcionada",
               }
             : reserva
         )
@@ -498,18 +538,43 @@ const LabReservations = () => {
 
       setShowModal(false);
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: `Hubo un error al actualizar la reserva: ${error.response?.data?.message || error.message}`,
-        icon: "error",
-      });
+      oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
     }
   };
 
+  const getDayNameFromDate = date => {
+    const dateObj = new Date(date);
+    const days = [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miercoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ];
+    return days[dateObj.getDay()];
+  };
+
+  const getDayNameFromDateR = date => {
+    // Añade 'T00:00:00Z' para asegurarte de que se trate como UTC
+    const dateObj = new Date(date + "T00:00:00Z");
+    const days = [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miercoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ];
+    return days[dateObj.getUTCDay()];
+  };
+
+  //GUARDA LA RESERVA
   const saveNewReservation = async () => {
     if (selectedCell && selectedAulaLab) {
-      selectedDate.setDate(selectedDate.getDate() + 1);
-      const formattedDate = selectedDate.toISOString().split("T")[0];
+      const formattedDate = selectedDate.toISOString();
 
       let savedResponsible = responsible;
 
@@ -519,23 +584,17 @@ const LabReservations = () => {
             "http://localhost:8080/person",
             responsible
           );
-          Swal.fire({
-            title: "Reserva Guardada",
-            text: "La reserva se ha guardado exitosamente",
-            icon: "success",
-          });
+
           savedResponsible = response.data;
           setResponsible(savedResponsible);
-          setNewReservation((prev) => ({
+          setNewReservation(prev => ({
             ...prev,
             encargado: `${savedResponsible.nombre} ${savedResponsible.apellido}`,
           }));
         } catch (error) {
-          Swal.fire({
-            title: "Error",
-            text: `Hubo un error al guardar el nuevo responsable: ${error.response?.data?.message || error.message}`,
-            icon: "error",
-          });
+          oops(
+            "No se pudo guardar el registro. Por favor, inténtelo de nuevo."
+          );
           return;
         }
       }
@@ -544,7 +603,8 @@ const LabReservations = () => {
         hora: selectedCell.hora.split("-")[0],
         fecha: formattedDate,
         asunto: newReservation.asunto,
-        descripcion: newReservation.descripcion || "Sin descripción proporcionada",
+        descripcion:
+          newReservation.descripcion || "Sin descripción proporcionada",
         id_persona: savedResponsible.id,
         id_espacio: selectedAulaLab,
       };
@@ -555,6 +615,7 @@ const LabReservations = () => {
           "http://localhost:8080/reservas",
           reserva
         );
+        await getHorarios();
         const newHorarios = [
           ...horarios,
           {
@@ -584,69 +645,84 @@ const LabReservations = () => {
         });
         setIsExistingResponsible(false);
         setShowAdditionalFields(false);
+        ok("Registro guardado exitosamente.");
       } catch (error) {
         console.error("Error al guardar la reserva:", error.response);
-        Swal.fire({
-          title: "Error",
-          text: `Hubo un error al guardar la reserva: ${error.response?.data?.message || error.message}`,
-          icon: "error",
-        });
+        oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
       }
     }
   };
 
-  const handleResponsibleChange = (event) => {
+  const handleResponsibleChange = event => {
     const { name, value } = event.target;
-    setResponsible((prev) => ({ ...prev, [name]: value }));
+    if (name === "telefono") {
+      // Validar que solo contenga números
+      if (/^\d*$/.test(value)) {
+        setResponsible(prev => ({ ...prev, [name]: value }));
+      }
+    } else if (name === "nombre" || name === "apellido") {
+      // Validar que solo contenga letras y espacios
+      if (/^[a-zA-Z\s]*$/.test(value)) {
+        setResponsible(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setResponsible(prev => ({ ...prev, [name]: value }));
+    }
   };
 
+  //BUSCAR  EL RESPONSABLE PARA EL MODAL DE AGREGAR RESERVA
   const searchResponsible = async () => {
     try {
       const response = await axios.get(
         `http://localhost:8080/person/${responsible.cedula}`
       );
       setResponsible(response.data);
-      setNewReservation((prev) => ({
+      setNewReservation(prev => ({
         ...prev,
         encargado: `${response.data.nombre} ${response.data.apellido}`,
       }));
       setIsExistingResponsible(true);
-      setShowAdditionalFields(false);
+      setShowAdditionalFields(false); // Asegúrate de ocultar los campos adicionales si se encuentra el responsable
     } catch (error) {
-      Swal.fire({
-        title: "No encontrado",
-        text: "No se encontró ningún responsable con esa cédula. Puede agregarlo a continuación.",
-        icon: "info",
-      });
+      info(
+        "No se encontró el responsable con esa cédula. Puede agregarlo a continuación."
+      );
+      setResponsible(prev => ({
+        ...prev,
+        nombre: "",
+        apellido: "",
+        telefono: "",
+        tipo: "",
+      }));
       setIsExistingResponsible(false);
-      setShowAdditionalFields(true);
+      setShowAdditionalFields(true); // Muestra los campos adicionales si no se encuentra el responsable
     }
   };
 
   return (
     <div className="container mt-3">
       <div className="header text-center">
-        <h2>RESERVAS DE LABORATORIO</h2>
+        <h2>Reservas </h2>
       </div>
       <div className="row">
         <div className="col-md-4">
           <label>Bloque/Edificio</label>
-          <select
+          <Form.Select
             className="form-control"
             id="bloqueSelect"
             value={selectedBloque}
             onChange={handleBloqueChange}
           >
-            {bloques.map((bloque) => (
+            {bloques.map(bloque => (
               <option key={bloque.id} value={bloque.id}>
                 {bloque.nombre}
               </option>
             ))}
-          </select>
+          </Form.Select>
         </div>
         <div className="col-md-4">
           <label>Tipo</label>
-          <select
+          <Form.Select
             className="form-control"
             id="tipoSelect"
             value={selectedTipo}
@@ -654,331 +730,448 @@ const LabReservations = () => {
           >
             <option value="Aula">Aulas</option>
             <option value="Laboratorio">Laboratorios</option>
-          </select>
+            <option value="Especial">Especial</option>
+          </Form.Select>
         </div>
         <div className="col-md-4">
           <label>Aula/Laboratorio</label>
-          <select
+          <Form.Select
             className="form-control"
             id="aulaLabSelect"
             value={selectedAulaLab}
             onChange={handleAulaLabChange}
           >
-            {aulasLabs.map((aulaLab) => (
+            {aulasLabs.map(aulaLab => (
               <option key={aulaLab.id} value={aulaLab.id}>
                 {aulaLab.nombre}
               </option>
             ))}
-          </select>
+          </Form.Select>
         </div>
-        <div className="col-md-4 nav-buttons">
-          <button className="btn" onClick={() => changeWeek(-1)}>
-            &lt;&lt;
-          </button>
-          <span id="weekRange" className="week-display">
-            {weekRange}
-          </span>
-          <button className="btn" onClick={() => changeWeek(1)}>
-            &gt;&gt;
-          </button>
+        <div className="row justify-content-center align-items-center mt-3">
+          <div className="col-auto">
+            <button className="btn mx-2" onClick={() => changeWeek(-1)}>
+              &lt;&lt;
+            </button>
+          </div>
+          <div className="col-auto mx-2">
+            <span id="weekRange" className="week-display">
+              {weekRange}
+            </span>
+          </div>
+          <div className="col-auto">
+            <button className="btn mx-2" onClick={() => changeWeek(1)}>
+              &gt;&gt;
+            </button>
+          </div>
         </div>
       </div>
 
-      <table className="table table-bordered mt-4 table-centered">
-        <thead>
-          <tr>
-            <th>Horas</th>
-            <th>Lunes</th>
-            <th>Martes</th>
-            <th>Miércoles</th>
-            <th>Jueves</th>
-            <th>Viernes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {horas.map((hora) => (
-            <tr key={hora}>
-              <td>{hora}</td>
-              {dias.map((dia) => (
-                <React.Fragment key={`${dia}-${hora}`}>
-                  {renderTableCell(dia, hora)}
-                </React.Fragment>
-              ))}
+      {noHorariosMessage ? (
+        <div className="alert alert-info text-center mt-3" role="alert">
+          {noHorariosMessage}
+        </div>
+      ) : (
+        <table className="table table-bordered mt-4 table-centered">
+          <thead>
+            <tr>
+              <th>Horas</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miercoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+              <th>Sabado</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {horas.map(hora => (
+              <tr key={hora}>
+                <td>{hora}</td>
+                {dias.map(dia => (
+                  <React.Fragment key={`${dia}-${hora}`}>
+                    {renderTableCell(dia, hora)}
+                  </React.Fragment>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-      <div id="context-menu" className="context-menu">
-        <button className="btn btn-sm" onClick={handleAddReservation}>
-          Reservar
-        </button>
+      <div
+        className="context-menu"
+        id="context-menu"
+        style={{
+          display: showContextMenu ? "block" : "none",
+          top: contextMenuPosition.top,
+          left: contextMenuPosition.left,
+        }}
+      >
+        <Button
+          variant="custom"
+          id="ver-btn"
+          onClick={() => {
+            setReservationDetails(prev => ({ ...prev, editable: false })); // Asegura que los campos no sean editables
+            setShowModal(true);
+            setShowContextMenu(false);
+          }}
+        >
+          Ver
+        </Button>
+        <Button
+          variant="custom"
+          id="editar-btn"
+          onClick={() => {
+            enableEditing();
+            setReservationDetails(prev => ({ ...prev, editable: true })); // Hace los campos editables
+            setShowModal(true);
+            setShowContextMenu(false);
+          }}
+        >
+          Editar
+        </Button>
+        <Button
+          variant="custom"
+          id="eliminar-btn"
+          onClick={() => {
+            confirmDelete();
+            setShowContextMenu(false);
+          }}
+        >
+          Eliminar
+        </Button>
       </div>
 
       {/* Modal para detalles de reserva */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="md">
         <Modal.Header closeButton>
           <Modal.Title>Detalles de la Reserva</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form id="reservationForm">
-            <div className="mb-3">
-              <label htmlFor="fecha" className="form-label">
-                Fecha
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="fecha"
-                value={reservationDetails.fecha}
-                disabled
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="encargado" className="form-label">
-                Responsable
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="encargado"
-                value={reservationDetails.encargado}
-                disabled
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="tipo" className="form-label">
-                Tipo
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="tipo"
-                value={reservationDetails.tipo}
-                disabled
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="asunto" className="form-label">
-                Asunto
-              </label>
-              <input
-                type="text"
-                maxLength={30}
-                className="form-control"
-                id="asunto"
-                value={reservationDetails.asunto}
-                onChange={(e) => setReservationDetails({ ...reservationDetails, asunto: e.target.value })}
-                disabled={!reservationDetails.editable}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="descripcion" className="form-label">
-                Descripción
-              </label>
-              <textarea
-                maxLength={150}
-                className="form-control"
-                id="descripcion"
-                value={reservationDetails.descripcion}
-                onChange={(e) => setReservationDetails({ ...reservationDetails, descripcion: e.target.value })}
-                disabled={!reservationDetails.editable}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="hora" className="form-label">
-                Hora
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="hora"
-                value={reservationDetails.hora}
-                disabled
-              />
-            </div>
+            <section>
+              <h5>Información de la Reserva</h5>
+              <div className="row">
+                <div className="col-md-6">
+                  <label htmlFor="dayName" className="form-label">
+                    Día
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="dayName"
+                    value={
+                      reservationDetails.fecha
+                        ? getDayNameFromDateR(reservationDetails.fecha)
+                        : ""
+                    }
+                    disabled
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="fecha" className="form-label">
+                    Fecha
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="fecha"
+                    value={reservationDetails.fecha}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="hora" className="form-label">
+                  Hora
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="hora"
+                  value={reservationDetails.hora}
+                  disabled
+                />
+              </div>
+              <div className="row">
+                <div className="col-md-6">
+                  <label htmlFor="encargado" className="form-label">
+                    Responsable
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="encargado"
+                    value={reservationDetails.encargado}
+                    disabled
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="tipo" className="form-label">
+                    Tipo
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="tipo"
+                    value={reservationDetails.tipo}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="asunto" className="form-label">
+                  Asunto
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="asunto"
+                  value={reservationDetails.asunto}
+                  onChange={e =>
+                    setReservationDetails({
+                      ...reservationDetails,
+                      asunto: e.target.value,
+                    })
+                  }
+                  disabled={!reservationDetails.editable} // Asegúrate de que esto depende de `editable`
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="descripcion" className="form-label">
+                  Descripción
+                </label>
+                <textarea
+                  className="form-control"
+                  id="descripcion"
+                  value={reservationDetails.descripcion}
+                  onChange={e =>
+                    setReservationDetails({
+                      ...reservationDetails,
+                      descripcion: e.target.value,
+                    })
+                  }
+                  disabled={!reservationDetails.editable} // Asegúrate de que esto depende de `editable`
+                />
+              </div>
+            </section>
           </form>
         </Modal.Body>
         <Modal.Footer>
-          {!reservationDetails.editable ? (
-            <Button variant="primary" onClick={enableEditing}>
-              Modificar
-            </Button>
-          ) : (
-            <Button variant="success" onClick={updateReservation}>
-              Guardar
-            </Button>
-          )}
-          <Button variant="danger" onClick={confirmDelete}>
-            Eliminar
-          </Button>
+          {reservationDetails.editable ? (
+            <>
+              <Button variant="success" onClick={updateReservation}>
+                Guardar
+              </Button>
+            </>
+          ) : null}
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* Modal para agregar reserva */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+      <Modal
+        show={showAddModal}
+        onHide={() => setShowAddModal(false)}
+        size="md"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Agregar Reserva</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form id="newReservationForm">
-            <div className="mb-3">
-              <label htmlFor="newDate" className="form-label">
-                Fecha
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newDate"
-                value={selectedDate ? formatDate(selectedDate) : ""}
-                disabled
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="cedula" className="form-label">
-                Cédula
-              </label>
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  id="cedula"
-                  name="cedula"
-                  value={responsible.cedula}
-                  onChange={handleCedulaChange}
-                />
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={searchResponsible}
-                >
-                  Buscar
-                </button>
-              </div>
-            </div>
-            {isExistingResponsible ? (
+            <section>
+              <h5>Responsable</h5>
               <div className="mb-3">
-                <label htmlFor="newEncargado" className="form-label">
-                  Responsable
+                <label htmlFor="cedula" className="form-label">
+                  Cédula
                 </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="newEncargado"
-                  value={newReservation.encargado}
-                  readOnly
-                />
+                <div className="input-group">
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="cedula"
+                    name="cedula"
+                    value={responsible.cedula}
+                    onChange={handleCedulaChange}
+                  />
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    onClick={searchResponsible}
+                  >
+                    Buscar
+                  </button>
+                </div>
               </div>
-            ) : null}
-            {showAdditionalFields && (
-              <>
+              {isExistingResponsible && (
                 <div className="mb-3">
-                  <label htmlFor="nombre" className="form-label">
+                  <label htmlFor="newEncargado" className="form-label">
                     Nombre
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    value={responsible.nombre}
-                    onChange={handleNombreChange}
+                    id="newEncargado"
+                    value={newReservation.encargado}
+                    readOnly
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="apellido" className="form-label">
-                    Apellido
+              )}
+              {showAdditionalFields && (
+                <>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label htmlFor="nombre" className="form-label">
+                          Nombre
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={30}
+                          className="form-control"
+                          id="nombre"
+                          name="nombre"
+                          value={responsible.nombre}
+                          onChange={handleResponsibleChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label htmlFor="apellido" className="form-label">
+                          Apellido
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={30}
+                          className="form-control"
+                          id="apellido"
+                          name="apellido"
+                          value={responsible.apellido}
+                          onChange={handleResponsibleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label htmlFor="telefono" className="form-label">
+                          Teléfono
+                        </label>
+                        <input
+                          maxLength={10}
+                          type="text"
+                          className="form-control"
+                          id="telefono"
+                          name="telefono"
+                          value={responsible.telefono}
+                          onChange={handleResponsibleChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label htmlFor="tipo" className="form-label">
+                          Tipo
+                        </label>
+                        <Form.Select
+                          className="form-control"
+                          id="tipo"
+                          name="tipo"
+                          value={responsible.tipo}
+                          onChange={handleResponsibleChange}
+                        >
+                          <option value="">Seleccione un tipo</option>
+                          <option value="Administrativo">Administrativo</option>
+                          <option value="Estudiante">Estudiante</option>
+                          <option value="Docente">Docente</option>
+                          <option value="Invitado">Invitado</option>
+                        </Form.Select>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </section>
+            <hr />
+            <section>
+              <h5>Reserva</h5>
+              <div className="mb-3 row">
+                <div className="col-md-6">
+                  <label htmlFor="dayName" className="form-label">
+                    Día
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="apellido"
-                    name="apellido"
-                    value={responsible.apellido}
-                    onChange={handleApellidoChange}
+                    id="dayName"
+                    value={selectedDate ? getDayNameFromDate(selectedDate) : ""}
+                    disabled
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="telefono" className="form-label">
-                    Teléfono
+                <div className="col-md-6">
+                  <label htmlFor="newDate" className="form-label">
+                    Fecha
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="telefono"
-                    name="telefono"
-                    value={responsible.telefono}
-                    onChange={handleResponsibleChange}
+                    id="newDate"
+                    value={selectedDate ? formatDate(selectedDate) : ""}
+                    disabled
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="tipo" className="form-label">
-                    Tipo
+                  <label htmlFor="newHora" className="form-label">
+                    Hora
                   </label>
-                  <select
+                  <input
+                    type="text"
                     className="form-control"
-                    id="tipo"
-                    name="tipo"
-                    value={responsible.tipo}
-                    onChange={handleResponsibleChange}
-                  >
-                    <option value="">Seleccione un tipo</option>
-                    <option value="Administrativo">Administrativo</option>
-                    <option value="Estudiante">Estudiante</option>
-                    <option value="Docente">Docente</option>
-                    <option value="Invitado">Invitado</option>
-                  </select>
+                    id="newHora"
+                    value={newReservation.hora}
+                    disabled
+                  />
                 </div>
-              </>
-            )}
-            <div className="mb-3">
-              <label htmlFor="newAsunto" className="form-label">
-                Asunto
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newAsunto"
-                value={newReservation.asunto}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
-                    ...prev,
-                    asunto: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="newDescripcion" className="form-label">
-                Descripción
-              </label>
-              <textarea
-                className="form-control"
-                id="newDescripcion"
-                value={newReservation.descripcion}
-                onChange={(e) =>
-                  setNewReservation((prev) => ({
-                    ...prev,
-                    descripcion: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="newHora" className="form-label">
-                Hora
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="newHora"
-                value={newReservation.hora}
-                disabled
-              />
-            </div>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="newAsunto" className="form-label">
+                  Asunto
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="newAsunto"
+                  value={newReservation.asunto}
+                  onChange={e =>
+                    setNewReservation(prev => ({
+                      ...prev,
+                      asunto: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="newDescripcion" className="form-label">
+                  Descripción
+                </label>
+                <textarea
+                  className="form-control"
+                  id="newDescripcion"
+                  value={newReservation.descripcion}
+                  onChange={e =>
+                    setNewReservation(prev => ({
+                      ...prev,
+                      descripcion: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </section>
           </form>
         </Modal.Body>
         <Modal.Footer>
@@ -987,30 +1180,6 @@ const LabReservations = () => {
           </Button>
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
             Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Modal para confirmación de eliminación */}
-      <Modal
-        show={showConfirmDelete}
-        onHide={() => setShowConfirmDelete(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar Eliminación</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro de que deseas eliminar esta reserva?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={deleteReservation}>
-            Eliminar
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => setShowConfirmDelete(false)}
-          >
-            Cancelar
           </Button>
         </Modal.Footer>
       </Modal>

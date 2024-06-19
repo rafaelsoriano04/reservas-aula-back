@@ -71,7 +71,7 @@ public class ServicioReservaImpl implements ServicioReserva {
 
     @Override
     public List<ReservaDto> getByWeek(Date fecha, Long id_espacio) throws NotFoundException {
-        Date[] weekDates = getMondayAndFriday(fecha);
+        Date[] weekDates = getMondayAndSaturday(fecha);
         Espacio espacio = servicioEspacio.findById(id_espacio);
         //Mapear de Reserva a ReservaDto
 
@@ -161,7 +161,7 @@ public class ServicioReservaImpl implements ServicioReserva {
         return reservadto;
     }
 
-    public static Date[] getMondayAndFriday(Date date) {
+    public static Date[] getMondayAndSaturday(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
@@ -169,11 +169,11 @@ public class ServicioReservaImpl implements ServicioReserva {
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         Date monday = new Date(calendar.getTimeInMillis());
 
-        // Calcular el viernes
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-        Date friday = new Date(calendar.getTimeInMillis());
+        // Calcular el sabado
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+        Date saturday = new Date(calendar.getTimeInMillis());
 
-        return new Date[]{monday, friday};
+        return new Date[]{monday, saturday};
     }
 
 }

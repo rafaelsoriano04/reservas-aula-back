@@ -6,4 +6,6 @@ import lombok.Data;
 public class UsuarioDto {
     Long id;
     String username;
+    String newPassword;
+    String tipo;
 }
