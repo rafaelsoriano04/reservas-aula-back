@@ -45,7 +45,7 @@ function Horarios() {
   ];
   const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
-  const formatHora = (hora) => {
+  const formatHora = hora => {
     const [start, end] = hora.split("-");
     const startFormatted = `${start.padStart(2, "0")}:00`;
     const endFormatted = `${end.padStart(2, "0")}:00`;
@@ -202,8 +202,6 @@ function Horarios() {
 
     return "";
   };
-
-
 
   // Handlers
   const handleDocumentClick = e => {
@@ -377,7 +375,6 @@ function Horarios() {
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="bloque">Bloque:</Form.Label>
                   <Form.Select
-
                     id="bloque"
                     className="form-control"
                     value={selectedBloque}
@@ -394,7 +391,6 @@ function Horarios() {
                 <Form.Group className="form-group col-md-6">
                   <Form.Label htmlFor="aula">Tipo:</Form.Label>
                   <Form.Select
-
                     id="aula"
                     className="form-control"
                     value={selectedTipo}
@@ -409,7 +405,6 @@ function Horarios() {
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="aula-lab">Aula/Laboratorio:</Form.Label>
                   <Form.Select
-
                     id="aula-lab"
                     className="form-control"
                     value={selectedAulaLab}
@@ -451,7 +446,6 @@ function Horarios() {
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="dia">Día:</Form.Label>
                     <Form.Select
-
                       id="dia"
                       className="form-control"
                       value={selectedDia}
@@ -467,7 +461,6 @@ function Horarios() {
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="hora">Hora:</Form.Label>
                     <Form.Select
-
                       id="hora"
                       className="form-control"
                       value={selectedHora}
@@ -483,7 +476,6 @@ function Horarios() {
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="materia">Materia:</Form.Label>
                     <Form.Select
-
                       id="materia"
                       className="form-control"
                       value={selectedMateria}
@@ -500,7 +492,9 @@ function Horarios() {
                     </Form.Select>
                   </Form.Group>
                   <div className="form-group docente-container me-2">
-                    <Form.Label htmlFor="docente" className="me-2">Docente</Form.Label>
+                    <Form.Label htmlFor="docente" className="me-2">
+                      Docente
+                    </Form.Label>
                     <div className="fixed-width-select">
                       <Select
                         value={selectedDocente}
@@ -576,7 +570,6 @@ function Horarios() {
                       }
                     >
                       {formatHora(hora)}
-
                     </td>
                     {dias.map((dia, cellIndex) => (
                       <td
@@ -584,9 +577,9 @@ function Horarios() {
                         style={
                           hora === "13-14"
                             ? {
-                              backgroundColor: "#ffcccb",
-                              textAlign: "center",
-                            }
+                                backgroundColor: "#ffcccb",
+                                textAlign: "center",
+                              }
                             : {}
                         }
                         onClick={e =>
@@ -595,8 +588,8 @@ function Horarios() {
                         }
                         className={
                           selectedCell &&
-                            selectedCell.rowIndex === rowIndex &&
-                            selectedCell.cellIndex === cellIndex
+                          selectedCell.rowIndex === rowIndex &&
+                          selectedCell.cellIndex === cellIndex
                             ? "selected"
                             : ""
                         }

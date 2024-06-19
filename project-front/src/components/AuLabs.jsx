@@ -3,8 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
-import ReactPaginate from 'react-paginate'; 
-import { FaPlus } from 'react-icons/fa';
+import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function AuLabs() {
@@ -20,7 +20,7 @@ function AuLabs() {
   const [laboratorios, setLaboratorios] = useState([]);
   const [cancel, setCancel] = useState(false);
   const [aulasLabsToShow, setAulasLabsToShow] = useState([]);
- 
+
   const [formData, setFormData] = useState({
     id_bloque: "1",
     tipo: "Aula",
@@ -151,7 +151,9 @@ function AuLabs() {
     try {
       const response = await axios.get("http://localhost:8080/espacio");
       setAulas(response.data.filter(item => item.tipo === "Aula"));
-      setLaboratorios(response.data.filter(item => item.tipo === "Laboratorio"));
+      setLaboratorios(
+        response.data.filter(item => item.tipo === "Laboratorio")
+      );
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
@@ -159,12 +161,15 @@ function AuLabs() {
     }
   };
 
-  const handlePageClick = (data) => {
+  const handlePageClick = data => {
     setPaginaActual(data.selected);
   };
 
   const offset = paginaActual * itemsPorPagina;
-  const currentPageData = aulasLabsToShow.slice(offset, offset + itemsPorPagina);
+  const currentPageData = aulasLabsToShow.slice(
+    offset,
+    offset + itemsPorPagina
+  );
   const pageCount = Math.ceil(aulasLabsToShow.length / itemsPorPagina);
 
   // Handlers
@@ -192,13 +197,13 @@ function AuLabs() {
 
   // Render
   return (
-    <div className="container-fluid">
+    <div className="container">
       <div className="content">
         <div className="header">
           <h2>Aulas/Laboratorios</h2>
         </div>
         <div className="mt-4">
-        <Button
+          <Button
             className="btn btn-primary d-flex align-items-center justify-content-center"
             type="button"
             data-bs-toggle="collapse"
@@ -209,8 +214,8 @@ function AuLabs() {
               fontWeight: "bold",
             }}
           >
-            <FaPlus style={{ marginRight: '5px' }} />
-            Agregar 
+            <FaPlus style={{ marginRight: "5px" }} />
+            Agregar
           </Button>
           <div className="collapse" id="collapseForm">
             <Form id="form-reservas">
@@ -262,7 +267,9 @@ function AuLabs() {
                         setNombreError("");
                       }}
                     />
-                    {nombreError && <Alert variant="danger">{nombreError}</Alert>}
+                    {nombreError && (
+                      <Alert variant="danger">{nombreError}</Alert>
+                    )}
                   </Form.Group>
                 </div>
                 <div className="col-md-6">
@@ -355,11 +362,16 @@ function AuLabs() {
                 </tr>
               ) : (
                 currentPageData.map(aulaLab => (
-                  <tr key={aulaLab.id} onClick={e => handleRowClick(e, aulaLab)}>
+                  <tr
+                    key={aulaLab.id}
+                    onClick={e => handleRowClick(e, aulaLab)}
+                  >
                     <td>{aulaLab.nombre}</td>
                     <td>{aulaLab.piso}</td>
                     <td>{aulaLab.capacidad}</td>
-                    <td>{bloques.find(b => b.id === aulaLab.id_bloque)?.nombre}</td>
+                    <td>
+                      {bloques.find(b => b.id === aulaLab.id_bloque)?.nombre}
+                    </td>
                     <td>{aulaLab.tipo}</td>
                   </tr>
                 ))
@@ -367,25 +379,25 @@ function AuLabs() {
             </tbody>
           </table>
           <ReactPaginate
-            previousLabel={'<'}
-            nextLabel={'>'}
-            breakLabel={'...'}
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
             pageCount={pageCount}
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={handlePageClick}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+            breakClassName={"page-item"}
+            breakLinkClassName={"page-link"}
           />
-        
+
           <div
             className="context-menu"
             style={{
