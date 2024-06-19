@@ -15,18 +15,22 @@ function Login() {
   // Funciones
   const validarLogin = async e => {
     e.preventDefault();
-
     if (!username || !password) {
       setMensajeError("Completa todos los campos...");
     } else {
+      const usuario = {
+        username,
+        password,
+      };
       try {
-        const resp = await axios.post("http://localhost:8080/login", {
-          username,
-          password,
-        });
+        const resp = await axios.post(
+          "http://localhost:8080/usuario/login",
+          usuario
+        );
         if (resp.data) {
           setMensajeError("");
-          navigate("/menu");
+          localStorage.setItem("tipoUsuario", resp.data.tipo);
+          navigate(`/menu`);
         }
       } catch (error) {
         if (error.response) {

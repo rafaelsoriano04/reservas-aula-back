@@ -17,9 +17,8 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
     @Column(unique = true)
     String username;
-
     String contrasenia;
+    String tipo;
 }
