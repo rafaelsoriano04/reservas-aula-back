@@ -166,9 +166,10 @@ function AuLabs() {
   const fetchAulasLabs = async () => {
     try {
       const response = await axios.get("http://localhost:8080/espacio");
-      setAulas(response.data);
-      // setLaboratorios(response.data.filter(item => item.tipo === "Laboratorio"));
-      // setAulasLabsToShow(response.data);
+      setAulas(response.data.filter(item => item.tipo === "Aula"));
+      setLaboratorios(
+        response.data.filter(item => item.tipo === "Laboratorio")
+      );
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
@@ -177,27 +178,15 @@ function AuLabs() {
     }
   };
 
-  const applyFilters = (bloque = filtroBloque, tipo = filtroTipo, nombre = filtroNombre) => {
-    let filteredData = [...aulas, ...laboratorios];
-    if (bloque) {
-      filteredData = filteredData.filter(item => item.id_bloque.toString() === bloque);
-    }
-    if (tipo) {
-      filteredData = filteredData.filter(item => item.tipo === tipo);
-    }
-    if (nombre) {
-      filteredData = filteredData.filter(item => item.nombre.toLowerCase().includes(nombre.toLowerCase()));
-    }
-    setAulasLabsToShow(filteredData);
-  };
-
-
-  const handlePageClick = (data) => {
+  const handlePageClick = data => {
     setPaginaActual(data.selected);
   };
 
   const offset = paginaActual * itemsPorPagina;
-  const currentPageData = aulasLabsToShow.slice(offset, offset + itemsPorPagina);
+  const currentPageData = aulasLabsToShow.slice(
+    offset,
+    offset + itemsPorPagina
+  );
   const pageCount = Math.ceil(aulasLabsToShow.length / itemsPorPagina);
 
   // Handlers
@@ -266,7 +255,7 @@ function AuLabs() {
 
   // Render
   return (
-    <div className="container-fluid">
+    <div className="container">
       <div className="content">
         <div className="header">
           <h2>Aulas/Laboratorios</h2>
@@ -336,7 +325,9 @@ function AuLabs() {
                         setNombreError("");
                       }}
                     />
-                    {nombreError && <Alert variant="danger">{nombreError}</Alert>}
+                    {nombreError && (
+                      <Alert variant="danger">{nombreError}</Alert>
+                    )}
                   </Form.Group>
                 </div>
                 <div className="col-md-6">
@@ -467,23 +458,23 @@ function AuLabs() {
             </tbody>
           </table>
           <ReactPaginate
-            previousLabel={'<'}
-            nextLabel={'>'}
-            breakLabel={'...'}
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
             pageCount={pageCount}
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={handlePageClick}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+            breakClassName={"page-item"}
+            breakLinkClassName={"page-link"}
           />
           <div
             className="context-menu"

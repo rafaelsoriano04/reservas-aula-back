@@ -189,9 +189,9 @@ const Usuarios = () => {
 
   // Render
   return (
-    <div className="container-fluid">
-      <div className="content">
-        <div className="header ">
+    <>
+      <div>
+        <div className="header">
           <h2>Usuarios</h2>
         </div>
         <div className="row mb-3 mt-4 justify-content-center"></div>
@@ -259,11 +259,6 @@ const Usuarios = () => {
                   setIdUsuario(selectedUsuario.id);
                   setUsername(selectedUsuario.username);
                   setTipo(selectedUsuario.tipo);
-                  // setFormData({
-                  //   id: selectedUsuario.id,
-                  //   nombre: selectedUsuario.nombre,
-                  //   carrera: selectedUsuario.carrera,
-                  // });
                   setShowContextMenu(false); // Cierra el menú contextual
                   setIsEditing(true);
                   handleShowModal();
@@ -338,7 +333,7 @@ const Usuarios = () => {
           </Form>
         </Modal.Body>
       </Modal>
-    </div>
+    </>
   );
 };
 
