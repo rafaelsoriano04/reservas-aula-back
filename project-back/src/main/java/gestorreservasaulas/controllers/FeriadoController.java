@@ -19,7 +19,7 @@ public class FeriadoController {
 
     @PostMapping
     public FeriadoDto save(@RequestBody FeriadoDto feriadoDto) throws NotFoundException, ConflictException {
-        return servicioFeriado.save(espacioDto);
+        return servicioFeriado.save(feriadoDto);
     }
 
     @PutMapping("/{id}")
@@ -33,8 +33,8 @@ public class FeriadoController {
     }
 
     @GetMapping
-    public List<FeriadoDto> getAllFeriados() {
-        return servicioFeriado.findAll();
+    public List<FeriadoDto> getAllFeriados() throws NotFoundException {
+        return servicioFeriado.getAllFeriados();
     }
 
 }

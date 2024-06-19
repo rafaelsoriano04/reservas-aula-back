@@ -6,22 +6,21 @@ import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 const Usuarios = () => {
-  const [username, setUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [tipo, setTipo] = useState("");
-  const [idUsuario, setIdUsuario] = useState("");
-  const [filtroUsername, setFiltroUsername] = useState("");
-  const [filtroTipo, setFiltroTipo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
-  const [usuarios, setUsuarios] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
   });
+  const [nombre, setNombre] = useState("");
+  const [inicio, setInicio] = useState("");
+  const [fin, setFin] = useState("");
+  const [idFeriado, setIdFeriado] = useState("");
+  const [feriados, setFeriados] = useState([]);
+  const [filtroInicio, setFiltroInicio] = useState();
+  const [filtroFin, setFiltroFin] = useState();
 
   // useEffects
   useEffect(() => {
@@ -32,18 +31,18 @@ const Usuarios = () => {
   }, []);
 
   useEffect(() => {
-    getUsuarios();
+    getFeriados();
   }, []);
 
-  const getUsuarios = async () => {
-    const url = `http://localhost:8080/usuario`;
+  const getFeriados = async () => {
+    const url = `http://localhost:8080/feriado`;
     try {
       const response = await axios.get(url);
-      setUsuarios(response.data);
+      setFeriados(response.data);
     } catch (error) {
       if (error.response) {
         const { message } = error.response.data;
-        if (message == "No hay usuarios") {
+        if (message == "No hay feriados") {
           oops(message);
         } else {
           oops("Error al conectar con el servidor.");
@@ -51,17 +50,17 @@ const Usuarios = () => {
       } else {
         oops("Error al conectar con el servidor.");
       }
-      setUsuarios([]); // Limpia los datos si la petición falla
+      setFeriados([]); // Limpia los datos si la petición falla
     }
   };
 
-  const eliminarUsuario = async id => {
-    const url = `http://localhost:8080/usuario/${id}`;
+  const eliminarFeriado = async id => {
+    const url = `http://localhost:8080/feriado/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
         await axios.delete(url);
-        getUsuarios();
+        getFeriados();
         ok("Registro eliminado exitosamente.");
       }
     } catch (error) {
@@ -70,9 +69,9 @@ const Usuarios = () => {
   };
 
   // Handlers
-  const handleRowClick = (e, usuario) => {
+  const handleRowClick = (e, feriado) => {
     e.stopPropagation();
-    setSelectedRow(usuario.id);
+    setSelectedRow(feriado.id);
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
     setShowContextMenu(true);
   };
@@ -84,63 +83,59 @@ const Usuarios = () => {
     }
   };
 
-  const cargarUsuarios = () => {
-    const usuariosFiltrados = usuarios.filter(usuario => {
+  const cargarFeriados = () => {
+    const feriadosFiltrados = feriados.filter(feriado => {
       return (
-        (filtroTipo === "" || usuario.tipo === filtroTipo) &&
-        (filtroUsername === "" ||
-          usuario.username.toLowerCase().includes(filtroUsername.toLowerCase()))
+        (feriado.inicio >= filtroInicio && feriado.inicio <= filtroFin) ||
+        (feriado.fechaFin >= filtroInicio && feriado.fechaFin <= filtroFin) ||
+        (feriado.inicio <= filtroInicio && feriado.fechaFin >= filtroFin)
       );
     });
 
-    const usuariosOrdenados = usuariosFiltrados.sort((a, b) =>
-      a.username.localeCompare(b.username)
-    );
+    const feriadosOrdenados = feriadosFiltrados.sort((a, b) => {
+      return new Date(a.fecha).getTime() - new Date(b.fecha).getTime();
+    });
 
-    return usuariosOrdenados.map(usuario => (
-      <tr key={usuario.id} onClick={e => handleRowClick(e, usuario)}>
-        <td>{usuario.username}</td>
-        <td>{usuario.tipo}</td>
+    return feriadosOrdenados.map(feriado => (
+      <tr key={feriado.id} onClick={e => handleRowClick(e, feriado)}>
+        <td>{feriado.nombre}</td>
+        <td>{feriado.inicio}</td>
+        <td>{feriado.fin}</td>
       </tr>
     ));
   };
 
   const limpiar = () => {
-    setUsername("");
-    setTipo("");
-    setNewPassword("");
+    setNombre("");
+    setInicio("");
+    setFin("");
   };
 
   const handleCloseModal = () => setShowModal(false);
   const handleShowModal = () => setShowModal(true);
 
-  const saveUsuario = async () => {
+  const saveFeriado = async () => {
     try {
-      const usuario = { username, newPassword, tipo };
-      await axios.post("http://localhost:8080/usuario", usuario);
+      const feriado = { nombre, inicio, fin };
+      await axios.post("http://localhost:8080/feriado", feriado);
       ok("Registro guardado exitosamente.");
-      getUsuarios();
+      getFeriados();
       handleCloseModal();
       limpiar();
     } catch (error) {
       if (error.response) {
-        const { message } = error.response.data;
-        if (message == "El usuario ya existe") {
-          oops(message);
-        } else {
-          oops("Error al conectar con el servidor.");
-        }
+        oops("Error al conectar con el servidor.");
       } else {
         oops("Error al conectar con el servidor.");
       }
     }
   };
 
-  const editUsuario = async () => {
+  const editFeriado = async () => {
     try {
-      const usuario = { username, newPassword, tipo };
-      await axios.put(`http://localhost:8080/usuario/${idUsuario}`, usuario);
-      getUsuarios();
+      const feriado = { nombre, inicio, fin };
+      await axios.put(`http://localhost:8080/feriado/${idFeriado}`, feriado);
+      getFeriados();
       ok("Registro actualizado exitosamente.");
       handleCloseModal();
       limpiar();
@@ -158,32 +153,32 @@ const Usuarios = () => {
     }
   };
 
-  const handleUsernameChange = e => {
-    setUsername(e.target.value);
+  const nombreChange = e => {
+    setNombre(e.target.value);
   };
 
-  const handleNewPassword = e => {
-    setNewPassword(e.target.value);
+  const inicioChange = e => {
+    setInicio(e.target.value);
   };
 
-  const handleTipoChange = e => {
-    setTipo(e.target.value); // Actualiza el estado tipo con el valor seleccionado
+  const finChange = e => {
+    setFin(e.target.value); // Actualiza el estado tipo con el valor seleccionado
   };
 
-  const handleFiltroUsername = e => {
-    setFiltroUsername(e.target.value);
+  const handleFiltroInicio = e => {
+    setFiltroInicio(e.target.value);
   };
 
-  const handleFiltroTipo = e => {
-    setFiltroTipo(e.target.value);
+  const handleFiltroFin = e => {
+    setFiltroFin(e.target.value);
   };
 
   const handleSubmit = e => {
     e.preventDefault();
     if (!isEditing) {
-      saveUsuario();
+      saveFeriado();
     } else {
-      editUsuario();
+      editFeriado();
     }
   };
 
@@ -198,45 +193,42 @@ const Usuarios = () => {
         <div className="row justify-content-center mb-2">
           <div className="col-auto">
             <button className="btn" onClick={handleShowModal}>
-              Nuevo usuario
+              Nuevo feriado
             </button>
           </div>
         </div>
         <div className="row mb-0 mt-3 justify-content-center">
           <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Buscar:</label>
+            <label className="me-2">Desde:</label>
             <input
-              type="text"
-              className="form-control"
-              placeholder="Username"
-              value={filtroUsername}
-              onChange={handleFiltroUsername}
-              maxLength={30}
+              type="date"
+              value={filtroInicio}
+              onChange={handleFiltroInicio}
+              style={{ padding: "8px", width: "100%", boxSizing: "border-box" }}
             />
           </div>
+        </div>
+        <div className="row mb-0 mt-3 justify-content-center">
           <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Estado:</label>
-            <select
-              className="form-select"
-              value={filtroTipo}
-              onChange={handleFiltroTipo}
-            >
-              <option value="">Todos</option>
-              <option value="Administrador">Administrador</option>
-              <option value="Usuario">Usuario</option>
-            </select>
+            <label className="me-2">Hasta:</label>
+            <input
+              type="date"
+              value={filtroFin}
+              onChange={handleFiltroFin}
+              style={{ padding: "8px", width: "100%", boxSizing: "border-box" }}
+            />
           </div>
         </div>
-
         <div className="mt-0">
           <table className="table table-bordered mt-3">
             <thead>
               <tr>
-                <th>Username</th>
-                <th>Tipo</th>
+                <th>Nombre</th>
+                <th>Fecha de Inicio</th>
+                <th>Fecha de Fin</th>
               </tr>
             </thead>
-            <tbody>{cargarUsuarios()}</tbody>
+            <tbody>{cargarFeriados()}</tbody>
           </table>
           <div
             className="context-menu"
@@ -252,13 +244,14 @@ const Usuarios = () => {
               variant="custom"
               id="editar-btn"
               onClick={() => {
-                const selectedUsuario = usuarios.find(
-                  usuario => usuario.id === selectedRow
+                const selectedFeriado = feriados.find(
+                  feriado => feriado.id === selectedRow
                 );
-                if (selectedUsuario) {
-                  setIdUsuario(selectedUsuario.id);
-                  setUsername(selectedUsuario.username);
-                  setTipo(selectedUsuario.tipo);
+                if (selectedFeriado) {
+                  setIdFeriado(selectedFeriado.id);
+                  setNombre(selectedFeriado.nombre);
+                  setInicio(selectedFeriado.inicio);
+                  setFin(selectedFeriado.fin);
                   setShowContextMenu(false); // Cierra el menú contextual
                   setIsEditing(true);
                   handleShowModal();
@@ -270,7 +263,7 @@ const Usuarios = () => {
             <Button
               variant="custom"
               id="eliminar-btn"
-              onClick={() => eliminarUsuario(selectedRow)}
+              onClick={() => eliminarFeriado(selectedRow)}
             >
               Eliminar
             </Button>
@@ -287,39 +280,27 @@ const Usuarios = () => {
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicNombre">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Nombre</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Ingrese el nombre de usuario"
-                maxLength="30"
-                value={username}
-                onChange={handleUsernameChange}
+                placeholder="Ingrese el nombre del feriado"
+                maxLength="40"
+                value={nombre}
+                onChange={nombreChange}
                 required
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicApellido">
-              <Form.Label>Contraseña</Form.Label>
+              <Form.Label>Fecha de inicio</Form.Label>
               <Form.Control
-                type="password"
-                placeholder="Ingrese la contraseña"
-                maxLength="30"
-                value={newPassword}
-                onChange={handleNewPassword}
-                required
+                type="date"
+                value={inicio}
+                onChange={inicioChange}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Tipo</Form.Label>
-              <Form.Select
-                placeholder="Seleccione un tipo"
-                value={tipo}
-                onChange={handleTipoChange} // Asegúrate de pasar la referencia de la función
-                required
-              >
-                <option value="">Seleccione un tipo</option>
-                <option value="Administrador">Administrador</option>
-                <option value="Usuario">Usuario</option>
-              </Form.Select>
+              <Form.Label>Fecha de fin</Form.Label>
+              <Form.Control type="date" value={fin} onChange={finChange} />
             </Form.Group>
             <div className="container d-flex justify-content-center">
               <Button
