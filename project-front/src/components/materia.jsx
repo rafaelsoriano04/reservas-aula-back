@@ -185,8 +185,7 @@ const [filtroCarrera, setFiltroCarrera] = useState("");
   };
 
   return (
-    <div className="container-fluid">
-      <div className="content">
+    <>
         <div className="header">
           <h2>Materias</h2>
         </div>
@@ -378,8 +377,7 @@ const [filtroCarrera, setFiltroCarrera] = useState("");
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+        </>
   );
   
   }

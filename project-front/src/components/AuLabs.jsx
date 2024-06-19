@@ -166,10 +166,8 @@ function AuLabs() {
   const fetchAulasLabs = async () => {
     try {
       const response = await axios.get("http://localhost:8080/espacio");
-      setAulas(response.data.filter(item => item.tipo === "Aula"));
-      setLaboratorios(
-        response.data.filter(item => item.tipo === "Laboratorio")
-      );
+      setAulas(response.data);
+      
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
@@ -213,7 +211,7 @@ function AuLabs() {
   };
 
   const cargarTabla = () => {
-    console.log(aulas);
+  
     const aulasFiltradas = aulas.filter(aula => {
       return (
         (filtroTipo === "" || aula.tipo === filtroTipo) &&

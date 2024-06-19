@@ -187,8 +187,8 @@ function Docentes() {
   };
 
   return (
-    <div className="container-fluid">
-      <div className="content">
+
+   <>
         <div className="header">
           <h2>Docentes</h2>
         </div>
@@ -363,8 +363,7 @@ function Docentes() {
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+        </>
   );
   
 }
