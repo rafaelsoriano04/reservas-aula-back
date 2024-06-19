@@ -1,21 +1,23 @@
+/* usuarios.css */
 body,
 html {
     height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
+    width: 100%;
 }
 
-.content {
-    flex-grow: 1;
+.usuarios-container {
+    width: 100%;
+    /* Asegura que ocupe todo el ancho disponible */
     padding: 20px;
-    display: flex;
-    flex-direction: column;
 }
 
 .header {
     background-color: #8B0000;
     color: white;
     text-align: center;
+    width: 100%;
 }
 
 .btn-custom {
