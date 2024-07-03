@@ -352,15 +352,15 @@ const LabReservations = () => {
   const handleCellClick = (event, dia, hora) => {
     const text = event.target.textContent.trim();
     setSelectedCell({ dia, hora });
-  
+
     const index = dias.indexOf(dia);
     const selectedDay = new Date(weekDates[index]);
-  
+
     const formattedDate = formatDate(selectedDay);
     const horaInicioStr = hora.split("-")[0].trim();
     const startHour = parseInt(horaInicioStr.split(":")[0], 10);
     const startMinute = parseInt(horaInicioStr.split(":")[1], 10) || 0;
-  
+
     // Verificar si startHour es un número
     if (isNaN(startHour)) {
       console.error(
@@ -368,32 +368,35 @@ const LabReservations = () => {
       );
       return;
     }
-  
+
     const reserva = reservas.find(
       reserva =>
         reserva.fecha === formattedDate && parseInt(reserva.hora) === startHour
     );
-  
+
     const isFeriado = feriados.some(
       feriado =>
         new Date(feriado.inicio) <= new Date(formattedDate) &&
         new Date(feriado.fin) >= new Date(formattedDate)
     );
-  
+
     if (isFeriado) {
       oops("No puedes reservar en un día de feriado.");
       return;
     }
-  
+
     const now = new Date();
     const isSameDay = selectedDay.toDateString() === now.toDateString();
     const nowHours = now.getHours();
     const nowMinutes = now.getMinutes();
-  
+
     // Verificar si la reserva es pasada
-    const isPastReservation = selectedDay < now.setHours(0, 0, 0, 0) ||
-      (isSameDay && (startHour < nowHours || (startHour === nowHours && startMinute < nowMinutes)));
-  
+    const isPastReservation =
+      selectedDay < now.setHours(0, 0, 0, 0) ||
+      (isSameDay &&
+        (startHour < nowHours ||
+          (startHour === nowHours && startMinute < nowMinutes)));
+
     if (reserva) {
       setReservationDetails({
         encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
@@ -405,7 +408,7 @@ const LabReservations = () => {
         editable: false,
         id: reserva.id,
       });
-  
+
       if (isPastReservation) {
         setShowModal(true);
       } else {
@@ -418,12 +421,16 @@ const LabReservations = () => {
         oops("No puedes reservar en una fecha pasada.");
         return;
       }
-  
-      if (isSameDay && (nowHours > startHour || (nowHours === startHour && nowMinutes >= startMinute))) {
+
+      if (
+        isSameDay &&
+        (nowHours > startHour ||
+          (nowHours === startHour && nowMinutes >= startMinute))
+      ) {
         oops("No puedes reservar una hora pasada.");
         return;
       }
-  
+
       if (text === "Disponible") {
         setSelectedDate(selectedDay);
         setNewReservation({
@@ -445,9 +452,6 @@ const LabReservations = () => {
       }
     }
   };
-  
-  
-  
 
   const enableEditing = () => {
     setReservationDetails(prev => ({
@@ -551,6 +555,11 @@ const LabReservations = () => {
 
   //GUARDA LA RESERVA
   const saveNewReservation = async () => {
+    if (!newReservation.asunto || !newReservation.descripcion || !responsible.cedula || !responsible.nombre || !responsible.apellido || !responsible.telefono || !responsible.tipo) {
+      oops("Todos los campos deben estar llenos.");
+      return;
+    }
+    
     if (selectedCell && selectedAulaLab) {
       const formattedDate = selectedDate.toISOString();
 
@@ -820,264 +829,41 @@ const LabReservations = () => {
 
       {/* Modal para detalles de reserva */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-  <Modal.Header closeButton>
-    <Modal.Title>Detalles de la Reserva</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <form id="reservationForm">
-      <section>
-        <h5>Información de la Reserva</h5>
-        <div className="row mt-3 mb-2">
-          <div className="col-md-6">
-            <label htmlFor="encargado" className="form-label">
-              Responsable
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="encargado"
-              value={reservationDetails.encargado}
-              disabled
-            />
-          </div>
-          <div className="col-md-6">
-            <label htmlFor="tipo" className="form-label">
-              Tipo
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="tipo"
-              value={reservationDetails.tipo}
-              disabled
-            />
-          </div>
-        </div>
-        <div className="row mb-3">
-          <div className="col-md-4">
-            <label htmlFor="dayName" className="form-label">
-              Día
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="dayName"
-              value={
-                reservationDetails.fecha
-                  ? getDayNameFromDateR(reservationDetails.fecha)
-                  : ""
-              }
-              disabled
-            />
-          </div>
-          <div className="col-md-4">
-            <label htmlFor="fecha" className="form-label">
-              Fecha
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="fecha"
-              value={reservationDetails.fecha}
-              disabled
-            />
-          </div>
-          <div className="col-md-4">
-            <label htmlFor="hora" className="form-label">
-              Hora
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="hora"
-              value={reservationDetails.hora}
-              disabled
-            />
-          </div>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="asunto" className="form-label">
-            Asunto
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="asunto"
-            value={reservationDetails.asunto}
-            onChange={e =>
-              setReservationDetails({
-                ...reservationDetails,
-                asunto: e.target.value,
-              })
-            }
-            disabled={!reservationDetails.editable}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className="form-control"
-            id="descripcion"
-            value={reservationDetails.descripcion}
-            onChange={e =>
-              setReservationDetails({
-                ...reservationDetails,
-                descripcion: e.target.value,
-              })
-            }
-            disabled={!reservationDetails.editable}
-          />
-        </div>
-      </section>
-    </form>
-  </Modal.Body>
-  <Modal.Footer>
-    {reservationDetails.editable ? (
-      <>
-        <Button variant="success" onClick={updateReservation}>
-          Guardar
-        </Button>
-      </>
-    ) : null}
-    <Button variant="secondary" onClick={() => setShowModal(false)}>
-      Cerrar
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
-      <Modal
-        show={showAddModal}
-        onHide={() => setShowAddModal(false)}
-        size="md"
-      >
         <Modal.Header closeButton>
-          <Modal.Title>Agregar Reserva</Modal.Title>
+          <Modal.Title>Detalles de la Reserva</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form id="newReservationForm">
+          <form id="reservationForm">
             <section>
-              <h5>Responsable</h5>
-              <div className="mb-3">
-                <label htmlFor="cedula" className="form-label">
-                  Cédula
-                </label>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="cedula"
-                    name="cedula"
-                    value={responsible.cedula}
-                    onChange={handleCedulaChange}
-                  />
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    onClick={searchResponsible}
-                  >
-                    Buscar
-                  </button>
-                </div>
-              </div>
-              {isExistingResponsible && (
-                <div className="mb-3">
-                  <label htmlFor="newEncargado" className="form-label">
-                    Nombre
+              <h5>Información de la Reserva</h5>
+              <div className="row mt-3 mb-2">
+                <div className="col-md-6">
+                  <label htmlFor="encargado" className="form-label">
+                    Responsable
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="newEncargado"
-                    value={newReservation.encargado}
-                    readOnly
+                    id="encargado"
+                    value={reservationDetails.encargado}
+                    disabled
                   />
                 </div>
-              )}
-              {showAdditionalFields && (
-                <>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label htmlFor="nombre" className="form-label">
-                          Nombre
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={30}
-                          className="form-control"
-                          id="nombre"
-                          name="nombre"
-                          value={responsible.nombre}
-                          onChange={handleResponsibleChange}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label htmlFor="apellido" className="form-label">
-                          Apellido
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={30}
-                          className="form-control"
-                          id="apellido"
-                          name="apellido"
-                          value={responsible.apellido}
-                          onChange={handleResponsibleChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label htmlFor="telefono" className="form-label">
-                          Teléfono
-                        </label>
-                        <input
-                          maxLength={10}
-                          type="text"
-                          className="form-control"
-                          id="telefono"
-                          name="telefono"
-                          value={responsible.telefono}
-                          onChange={handleResponsibleChange}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label htmlFor="tipo" className="form-label">
-                          Tipo
-                        </label>
-                        <Form.Select
-                          className="form-control"
-                          id="tipo"
-                          name="tipo"
-                          value={responsible.tipo}
-                          onChange={handleResponsibleChange}
-                        >
-                          <option value="">Seleccione un tipo</option>
-                          <option value="Administrativo">Administrativo</option>
-                          <option value="Estudiante">Estudiante</option>
-                          <option value="Docente">Docente</option>
-                          <option value="Invitado">Invitado</option>
-                        </Form.Select>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </section>
-            <hr />
-            <section>
-              <h5>Reserva</h5>
-              <div className="mb-3 row">
                 <div className="col-md-6">
+                  <label htmlFor="tipo" className="form-label">
+                    Tipo
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="tipo"
+                    value={reservationDetails.tipo}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-4">
                   <label htmlFor="dayName" className="form-label">
                     Día
                   </label>
@@ -1085,80 +871,269 @@ const LabReservations = () => {
                     type="text"
                     className="form-control"
                     id="dayName"
-                    value={selectedDate ? getDayNameFromDate(selectedDate) : ""}
+                    value={
+                      reservationDetails.fecha
+                        ? getDayNameFromDateR(reservationDetails.fecha)
+                        : ""
+                    }
                     disabled
                   />
                 </div>
-                <div className="col-md-6">
-                  <label htmlFor="newDate" className="form-label">
+                <div className="col-md-4">
+                  <label htmlFor="fecha" className="form-label">
                     Fecha
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="newDate"
-                    value={selectedDate ? formatDate(selectedDate) : ""}
+                    id="fecha"
+                    value={reservationDetails.fecha}
                     disabled
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="newHora" className="form-label">
+                <div className="col-md-4">
+                  <label htmlFor="hora" className="form-label">
                     Hora
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="newHora"
-                    value={newReservation.hora}
+                    id="hora"
+                    value={reservationDetails.hora}
                     disabled
                   />
                 </div>
               </div>
               <div className="mb-3">
-                <label htmlFor="newAsunto" className="form-label">
+                <label htmlFor="asunto" className="form-label">
                   Asunto
                 </label>
                 <input
                   type="text"
                   className="form-control"
-                  id="newAsunto"
-                  value={newReservation.asunto}
+                  id="asunto"
+                  value={reservationDetails.asunto}
                   onChange={e =>
-                    setNewReservation(prev => ({
-                      ...prev,
+                    setReservationDetails({
+                      ...reservationDetails,
                       asunto: e.target.value,
-                    }))
+                    })
                   }
+                  disabled={!reservationDetails.editable}
                 />
               </div>
               <div className="mb-3">
-                <label htmlFor="newDescripcion" className="form-label">
+                <label htmlFor="descripcion" className="form-label">
                   Descripción
                 </label>
                 <textarea
                   className="form-control"
-                  id="newDescripcion"
-                  value={newReservation.descripcion}
+                  id="descripcion"
+                  value={reservationDetails.descripcion}
                   onChange={e =>
-                    setNewReservation(prev => ({
-                      ...prev,
+                    setReservationDetails({
+                      ...reservationDetails,
                       descripcion: e.target.value,
-                    }))
+                    })
                   }
+                  disabled={!reservationDetails.editable}
                 />
               </div>
             </section>
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="success" onClick={saveNewReservation}>
-            Agregar
-          </Button>
-          <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+          {reservationDetails.editable ? (
+            <>
+              <Button variant="success" onClick={updateReservation}>
+                Guardar
+              </Button>
+            </>
+          ) : null}
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>Agregar Reserva</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <form id="newReservationForm">
+      <section>
+        <h5>Responsable</h5>
+        <div className="mb-3">
+          <label htmlFor="cedula" className="form-label">Cédula</label>
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              id="cedula"
+              name="cedula"
+              value={responsible.cedula}
+              onChange={handleCedulaChange}
+            />
+            <button className="btn btn-secondary" type="button" onClick={searchResponsible}>
+              Buscar
+            </button>
+          </div>
+        </div>
+        {isExistingResponsible && (
+          <div className="mb-3">
+            <label htmlFor="newEncargado" className="form-label">Nombre</label>
+            <input
+              type="text"
+              className="form-control"
+              id="newEncargado"
+              value={newReservation.encargado}
+              readOnly
+            />
+          </div>
+        )}
+        {showAdditionalFields && (
+          <>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label htmlFor="nombre" className="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    maxLength={30}
+                    className="form-control"
+                    id="nombre"
+                    name="nombre"
+                    value={responsible.nombre}
+                    onChange={handleResponsibleChange}
+                  />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label htmlFor="apellido" className="form-label">Apellido</label>
+                  <input
+                    type="text"
+                    maxLength={30}
+                    className="form-control"
+                    id="apellido"
+                    name="apellido"
+                    value={responsible.apellido}
+                    onChange={handleResponsibleChange}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label htmlFor="telefono" className="form-label">Teléfono</label>
+                  <input
+                    maxLength={10}
+                    type="text"
+                    className="form-control"
+                    id="telefono"
+                    name="telefono"
+                    value={responsible.telefono}
+                    onChange={handleResponsibleChange}
+                  />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label htmlFor="tipo" className="form-label">Tipo</label>
+                  <Form.Select
+                    className="form-control"
+                    id="tipo"
+                    name="tipo"
+                    value={responsible.tipo}
+                    onChange={handleResponsibleChange}
+                  >
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="Estudiante">Estudiante</option>
+                    <option value="Docente">Docente</option>
+                    <option value="Invitado">Invitado</option>
+                  </Form.Select>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+      <hr />
+      <section>
+        <h5>Reserva</h5>
+        <div className="row mb-3">
+          <div className="col-md-4 expand">
+            <label htmlFor="dayName" className="form-label">Día</label>
+            <input
+              type="text"
+              className="form-control"
+              id="dayName"
+              value={selectedDate ? getDayNameFromDate(selectedDate) : ""}
+              disabled
+            />
+          </div>
+          <div className="col-md-4 expand">
+            <label htmlFor="newDate" className="form-label">Fecha</label>
+            <input
+              type="text"
+              className="form-control"
+              id="newDate"
+              value={selectedDate ? formatDate(selectedDate) : ""}
+              disabled
+            />
+          </div>
+          <div className="col-md-4 expand">
+            <label htmlFor="newHora" className="form-label">Hora</label>
+            <input
+              type="text"
+              className="form-control"
+              id="newHora"
+              value={newReservation.hora}
+              disabled
+            />
+          </div>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="newAsunto" className="form-label">Asunto</label>
+          <input
+            type="text"
+            className="form-control"
+            id="newAsunto"
+            value={newReservation.asunto}
+            onChange={e =>
+              setNewReservation(prev => ({
+                ...prev,
+                asunto: e.target.value,
+              }))
+            }
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="newDescripcion" className="form-label">Descripción</label>
+          <textarea
+            className="form-control"
+            id="newDescripcion"
+            value={newReservation.descripcion}
+            onChange={e =>
+              setNewReservation(prev => ({
+                ...prev,
+                descripcion: e.target.value,
+              }))
+            }
+          />
+        </div>
+      </section>
+    </form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="success" onClick={saveNewReservation}>Agregar</Button>
+    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cerrar</Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 };
