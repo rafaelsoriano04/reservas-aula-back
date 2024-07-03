@@ -5,6 +5,7 @@ import "../styles/usuarios.css";
 import axios from "axios";
 import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 
 const Usuarios = () => {
   const [username, setUsername] = useState("");
@@ -35,10 +36,6 @@ const Usuarios = () => {
       document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
-
-  useEffect(() => {
-    getUsuarios();
-  }, [paginaActual]);
 
   useEffect(() => {
     if (filtroUsername === "" && filtroTipo === "") {
@@ -172,7 +169,9 @@ const Usuarios = () => {
     }
   };
 
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () =>{
+  setUsername("");
+   setShowModal(false)};
 
   const handleShowModal = () => setShowModal(true);
 
@@ -286,12 +285,13 @@ const Usuarios = () => {
                 handleShowModal();
               }}
             >
+              <FaPlus style={{ marginRight: "5px" }} />
               Nuevo usuario
             </button>
           </div>
         </div>
         <div className="mt-0">
-          <table className="table table-bordered mt-3">
+          <table className="table table-bordered table-hover mt-3">
             <thead>
               <tr>
                 <th>Username</th>
