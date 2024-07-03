@@ -9,9 +9,12 @@ import gestorreservasaulas.servicios.ServicioPersona;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ServicioPersonaImpl implements ServicioPersona {
@@ -32,13 +35,11 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
     @Override
     public PersonaDto buscar(String cedula) throws NotFoundException {
-
         Persona persona = repositorioPersona.findByCedula(cedula).orElseThrow(() -> new NotFoundException("Persona not found"));
         return personToDto(persona);
     }
 
     @Override
-
     public PersonaDto guardar(PersonaDto nuevaPersona) throws NotFoundException {
         if (this.existePorCedula(nuevaPersona.getCedula())) {
             PersonaDto personaExistente = buscar(nuevaPersona.getCedula());
@@ -46,7 +47,6 @@ public class ServicioPersonaImpl implements ServicioPersona {
             personaExistente.setApellido(nuevaPersona.getApellido());
             personaExistente.setTelefono(nuevaPersona.getTelefono());
             personaExistente.setTipo(nuevaPersona.getTipo());
-
             return personToDto(repositorioPersona.save(dtoToPerson(personaExistente)));
         } else {
             Persona nueva = dtoToPerson(nuevaPersona);
@@ -58,22 +58,32 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
     @Override
     public List<PersonaDto> listarDocentes() {
-
-        List<Persona> docentes = repositorioPersona.findAll();
-        List<PersonaDto> nuevaLista= new ArrayList<>();
-        for (Persona persona: docentes) {
-            if (persona.getTipo().equals("Docente")){
-                nuevaLista.add(personToDto(persona));
-            }
-        }
-            return nuevaLista;
+        return repositorioPersona.findAllByTipo("Docente", Sort.by("apellido")).stream().map(this::personToDto).collect(Collectors.toList());
     }
 
     @Override
-    public void eliminarPersona(Long id)  throws ConflictException{
-        try{
+    public List<PersonaDto> getByCedula(String cedula) {
+        return repositorioPersona.findAllByTipoAndCedulaStartsWith("Docente", cedula, Sort.by("apellido")).stream().map(this::personToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PersonaDto> getByNombreApellido(String nombre) {
+        return repositorioPersona
+                .findAllByTipoAndNombreContainsOrApellidoContains("Docente", nombre, nombre, Sort.by("apellido"))
+                .stream().map(this::personToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PersonaDto> getByCedulaNombreApellido(String cedula, String nombre) {
+        return repositorioPersona.findAllByTipoAndCedulaStartsWithAndNombreContainsOrApellidoContains("Docente", cedula, nombre, nombre, Sort.by("apellido"))
+                .stream().map(this::personToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void eliminarPersona(Long id) throws ConflictException {
+        try {
             repositorioPersona.deleteById(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ConflictException("Persona Asociada a Horario");
         }
 
