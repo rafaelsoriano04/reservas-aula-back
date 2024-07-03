@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/horario")
 @CrossOrigin(origins = "http://localhost:5173")
 public class HorarioController {
-
     @Autowired
     private ServicioHorario servicioHorario;
 
