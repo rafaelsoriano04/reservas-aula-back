@@ -819,133 +819,134 @@ const LabReservations = () => {
       </div>
 
       {/* Modal para detalles de reserva */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="md">
-        <Modal.Header closeButton>
-          <Modal.Title>Detalles de la Reserva</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <form id="reservationForm">
-            <section>
-              <h5>Información de la Reserva</h5>
-              <div className="row">
-                <div className="col-md-6">
-                  <label htmlFor="dayName" className="form-label">
-                    Día
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="dayName"
-                    value={
-                      reservationDetails.fecha
-                        ? getDayNameFromDateR(reservationDetails.fecha)
-                        : ""
-                    }
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="fecha" className="form-label">
-                    Fecha
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="fecha"
-                    value={reservationDetails.fecha}
-                    disabled
-                  />
-                </div>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="hora" className="form-label">
-                  Hora
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="hora"
-                  value={reservationDetails.hora}
-                  disabled
-                />
-              </div>
-              <div className="row">
-                <div className="col-md-6">
-                  <label htmlFor="encargado" className="form-label">
-                    Responsable
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="encargado"
-                    value={reservationDetails.encargado}
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="tipo" className="form-label">
-                    Tipo
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="tipo"
-                    value={reservationDetails.tipo}
-                    disabled
-                  />
-                </div>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="asunto" className="form-label">
-                  Asunto
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="asunto"
-                  value={reservationDetails.asunto}
-                  onChange={e =>
-                    setReservationDetails({
-                      ...reservationDetails,
-                      asunto: e.target.value,
-                    })
-                  }
-                  disabled={!reservationDetails.editable} // Asegúrate de que esto depende de `editable`
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="descripcion" className="form-label">
-                  Descripción
-                </label>
-                <textarea
-                  className="form-control"
-                  id="descripcion"
-                  value={reservationDetails.descripcion}
-                  onChange={e =>
-                    setReservationDetails({
-                      ...reservationDetails,
-                      descripcion: e.target.value,
-                    })
-                  }
-                  disabled={!reservationDetails.editable} // Asegúrate de que esto depende de `editable`
-                />
-              </div>
-            </section>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          {reservationDetails.editable ? (
-            <>
-              <Button variant="success" onClick={updateReservation}>
-                Guardar
-              </Button>
-            </>
-          ) : null}
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>Detalles de la Reserva</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <form id="reservationForm">
+      <section>
+        <h5>Información de la Reserva</h5>
+        <div className="row mt-3 mb-2">
+          <div className="col-md-6">
+            <label htmlFor="encargado" className="form-label">
+              Responsable
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="encargado"
+              value={reservationDetails.encargado}
+              disabled
+            />
+          </div>
+          <div className="col-md-6">
+            <label htmlFor="tipo" className="form-label">
+              Tipo
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="tipo"
+              value={reservationDetails.tipo}
+              disabled
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col-md-4">
+            <label htmlFor="dayName" className="form-label">
+              Día
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="dayName"
+              value={
+                reservationDetails.fecha
+                  ? getDayNameFromDateR(reservationDetails.fecha)
+                  : ""
+              }
+              disabled
+            />
+          </div>
+          <div className="col-md-4">
+            <label htmlFor="fecha" className="form-label">
+              Fecha
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="fecha"
+              value={reservationDetails.fecha}
+              disabled
+            />
+          </div>
+          <div className="col-md-4">
+            <label htmlFor="hora" className="form-label">
+              Hora
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="hora"
+              value={reservationDetails.hora}
+              disabled
+            />
+          </div>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="asunto" className="form-label">
+            Asunto
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="asunto"
+            value={reservationDetails.asunto}
+            onChange={e =>
+              setReservationDetails({
+                ...reservationDetails,
+                asunto: e.target.value,
+              })
+            }
+            disabled={!reservationDetails.editable}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="descripcion" className="form-label">
+            Descripción
+          </label>
+          <textarea
+            className="form-control"
+            id="descripcion"
+            value={reservationDetails.descripcion}
+            onChange={e =>
+              setReservationDetails({
+                ...reservationDetails,
+                descripcion: e.target.value,
+              })
+            }
+            disabled={!reservationDetails.editable}
+          />
+        </div>
+      </section>
+    </form>
+  </Modal.Body>
+  <Modal.Footer>
+    {reservationDetails.editable ? (
+      <>
+        <Button variant="success" onClick={updateReservation}>
+          Guardar
+        </Button>
+      </>
+    ) : null}
+    <Button variant="secondary" onClick={() => setShowModal(false)}>
+      Cerrar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
 
       <Modal
         show={showAddModal}

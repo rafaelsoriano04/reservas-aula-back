@@ -47,4 +47,23 @@ body { background-color: #f4f4f4; }
           .context-menu .btn-link {
             text-align: left;
           }
+
+ 
+
+          label[for="asunto"], 
+label[for="descripcion"], 
+#asunto, 
+#descripcion {
+  margin-left: 10px; /* Ajusta este valor según sea necesario */
+}
+
+         
+
+          #asunto {
+            width: 97%; 
+          }
+          
+          #descripcion {
+            width: 97%; 
+          }
           
