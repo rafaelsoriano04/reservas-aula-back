@@ -352,15 +352,15 @@ const LabReservations = () => {
   const handleCellClick = (event, dia, hora) => {
     const text = event.target.textContent.trim();
     setSelectedCell({ dia, hora });
-
+  
     const index = dias.indexOf(dia);
     const selectedDay = new Date(weekDates[index]);
-
+  
     const formattedDate = formatDate(selectedDay);
     const horaInicioStr = hora.split("-")[0].trim();
     const startHour = parseInt(horaInicioStr.split(":")[0], 10);
     const startMinute = parseInt(horaInicioStr.split(":")[1], 10) || 0;
-
+  
     // Verificar si startHour es un número
     if (isNaN(startHour)) {
       console.error(
@@ -368,35 +368,35 @@ const LabReservations = () => {
       );
       return;
     }
-
+  
     const reserva = reservas.find(
       reserva =>
         reserva.fecha === formattedDate && parseInt(reserva.hora) === startHour
     );
-
+  
     const isFeriado = feriados.some(
       feriado =>
         new Date(feriado.inicio) <= new Date(formattedDate) &&
         new Date(feriado.fin) >= new Date(formattedDate)
     );
-
+  
     if (isFeriado) {
       oops("No puedes reservar en un día de feriado.");
       return;
     }
-
+  
     const now = new Date();
     const isSameDay = selectedDay.toDateString() === now.toDateString();
     const nowHours = now.getHours();
     const nowMinutes = now.getMinutes();
-
+  
     // Verificar si la reserva es pasada
     const isPastReservation =
       selectedDay < now.setHours(0, 0, 0, 0) ||
       (isSameDay &&
         (startHour < nowHours ||
           (startHour === nowHours && startMinute < nowMinutes)));
-
+  
     if (reserva) {
       setReservationDetails({
         encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
@@ -408,12 +408,19 @@ const LabReservations = () => {
         editable: false,
         id: reserva.id,
       });
-
+  
       if (isPastReservation) {
         setShowModal(true);
       } else {
-        setContextMenuPosition({ top: event.pageY, left: event.pageX });
-        setShowContextMenu(true);
+        const rect = event.target.getBoundingClientRect();
+        setShowContextMenu(false); // Ocultar el menú contextual antes de mostrarlo nuevamente
+        setTimeout(() => {
+          setContextMenuPosition({
+            top: rect.bottom + window.scrollY - 40, // Ajusta estos valores según sea necesario
+            left: rect.right + window.scrollX - 70, // Ajusta estos valores según sea necesario
+          });
+          setShowContextMenu(true);
+        }, 0);
       }
       return;
     } else {
@@ -421,7 +428,7 @@ const LabReservations = () => {
         oops("No puedes reservar en una fecha pasada.");
         return;
       }
-
+  
       if (
         isSameDay &&
         (nowHours > startHour ||
@@ -430,7 +437,7 @@ const LabReservations = () => {
         oops("No puedes reservar una hora pasada.");
         return;
       }
-
+  
       if (text === "Disponible") {
         setSelectedDate(selectedDay);
         setNewReservation({
@@ -452,13 +459,7 @@ const LabReservations = () => {
       }
     }
   };
-
-  const enableEditing = () => {
-    setReservationDetails(prev => ({
-      ...prev,
-      editable: true,
-    }));
-  };
+  
 
   const confirmDelete = async () => {
     deleteReservation();
