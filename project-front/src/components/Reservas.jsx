@@ -15,7 +15,6 @@ const LabReservations = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [noHorariosMessage, setNoHorariosMessage] = useState("");
 
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: "",
     asunto: "",
@@ -193,20 +192,6 @@ const LabReservations = () => {
     }
   };
 
-  const handleNombreChange = event => {
-    const value = event.target.value;
-    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible(prev => ({ ...prev, nombre: value }));
-    }
-  };
-
-  const handleApellidoChange = event => {
-    const value = event.target.value;
-    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible(prev => ({ ...prev, apellido: value }));
-    }
-  };
-
   const handleBloqueChange = event => {
     setSelectedBloque(event.target.value);
   };
@@ -365,110 +350,111 @@ const LabReservations = () => {
   };
 
   const handleCellClick = (event, dia, hora) => {
-  const text = event.target.textContent.trim();
-  setSelectedCell({ dia, hora });
+    const text = event.target.textContent.trim();
+    setSelectedCell({ dia, hora });
 
-  const index = dias.indexOf(dia);
-  const selectedDay = weekDates[index];
+    const index = dias.indexOf(dia);
+    const selectedDay = weekDates[index];
 
-  const formattedDate = formatDate(selectedDay);
-  const horaInicioStr = hora.split("-")[0].trim();
-  const startHour = parseInt(horaInicioStr, 10);
+    const formattedDate = formatDate(selectedDay);
+    const horaInicioStr = hora.split("-")[0].trim();
+    const startHour = parseInt(horaInicioStr, 10);
 
-  // Verificar si startHour es un número
-  if (isNaN(startHour)) {
-    console.error(`Error: No se pudo convertir la hora de inicio a número. horaInicioStr: ${horaInicioStr}`);
-    return;
-  }
-
-  const reserva = reservas.find(
-    reserva =>
-      reserva.fecha === formattedDate &&
-      parseInt(reserva.hora) === startHour
-  );
-
-  const isFeriado = feriados.some(
-    feriado =>
-      new Date(feriado.inicio) <= new Date(formattedDate) &&
-      new Date(feriado.fin) >= new Date(formattedDate)
-  );
-
-  if (isFeriado) {
-    oops("No puedes reservar en un día de feriado.");
-    return;
-  }
-
-  if (reserva) {
-    const now = new Date();
-    if (
-      selectedDay > now.setHours(0, 0, 0, 0) ||
-      (selectedDay.toDateString() === new Date().toDateString() &&
-        startHour > now.getHours())
-    ) {
-      setReservationDetails({
-        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
-        asunto: reserva.asunto,
-        descripcion: reserva.descripcion || "Descripción aquí",
-        hora: hora,
-        fecha: formattedDate,
-        tipo: reserva.persona.tipo || "N/A",
-        editable: false,
-        id: reserva.id,
-      });
-      setContextMenuPosition({ top: event.pageY, left: event.pageX });
-      setShowContextMenu(true);
-      return;
-    } else {
-      setReservationDetails({
-        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
-        asunto: reserva.asunto,
-        descripcion: reserva.descripcion || "Descripción aquí",
-        hora: hora,
-        fecha: reserva.fecha,
-        tipo: reserva.persona.tipo || "N/A",
-        editable: false,
-        id: reserva.id,
-      });
-      setShowModal(true);
-      return;
-    }
-  } else {
-    const now = new Date();
-    if (selectedDay < now.setHours(0, 0, 0, 0)) {
-      oops("No puedes reservar en una fecha pasada.");
+    // Verificar si startHour es un número
+    if (isNaN(startHour)) {
+      console.error(
+        `Error: No se pudo convertir la hora de inicio a número. horaInicioStr: ${horaInicioStr}`
+      );
       return;
     }
 
-    if (selectedDay.toDateString() === new Date().toDateString()) {
-      const currentTime = new Date();
-      if (currentTime.getHours() >= startHour) {
-        console.log("No puedes reservar una hora pasada.");
-        oops("No puedes reservar una hora pasada.");
+    const reserva = reservas.find(
+      reserva =>
+        reserva.fecha === formattedDate && parseInt(reserva.hora) === startHour
+    );
+
+    const isFeriado = feriados.some(
+      feriado =>
+        new Date(feriado.inicio) <= new Date(formattedDate) &&
+        new Date(feriado.fin) >= new Date(formattedDate)
+    );
+
+    if (isFeriado) {
+      oops("No puedes reservar en un día de feriado.");
+      return;
+    }
+
+    if (reserva) {
+      const now = new Date();
+      if (
+        selectedDay > now.setHours(0, 0, 0, 0) ||
+        (selectedDay.toDateString() === new Date().toDateString() &&
+          startHour > now.getHours())
+      ) {
+        setReservationDetails({
+          encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+          asunto: reserva.asunto,
+          descripcion: reserva.descripcion || "Descripción aquí",
+          hora: hora,
+          fecha: formattedDate,
+          tipo: reserva.persona.tipo || "N/A",
+          editable: false,
+          id: reserva.id,
+        });
+        setContextMenuPosition({ top: event.pageY, left: event.pageX });
+        setShowContextMenu(true);
+        return;
+      } else {
+        setReservationDetails({
+          encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
+          asunto: reserva.asunto,
+          descripcion: reserva.descripcion || "Descripción aquí",
+          hora: hora,
+          fecha: reserva.fecha,
+          tipo: reserva.persona.tipo || "N/A",
+          editable: false,
+          id: reserva.id,
+        });
+        setShowModal(true);
         return;
       }
-    }
+    } else {
+      const now = new Date();
+      if (selectedDay < now.setHours(0, 0, 0, 0)) {
+        oops("No puedes reservar en una fecha pasada.");
+        return;
+      }
 
-    if (text === "Disponible") {
-      setSelectedDate(selectedDay);
-      setNewReservation({
-        encargado: "",
-        asunto: "",
-        descripcion: "",
-        hora: startHour.toString(),
-      });
-      setResponsible({
-        cedula: "",
-        nombre: "",
-        apellido: "",
-        telefono: "",
-        tipo: "",
-      });
-      setIsExistingResponsible(false);
-      setShowAdditionalFields(false);
-      setShowAddModal(true);
+      if (selectedDay.toDateString() === new Date().toDateString()) {
+        const currentTime = new Date();
+        if (currentTime.getHours() >= startHour) {
+          console.log("No puedes reservar una hora pasada.");
+          oops("No puedes reservar una hora pasada.");
+          return;
+        }
+      }
+
+      if (text === "Disponible") {
+        setSelectedDate(selectedDay);
+        setNewReservation({
+          encargado: "",
+          asunto: "",
+          descripcion: "",
+          hora: startHour.toString(),
+        });
+        setResponsible({
+          cedula: "",
+          nombre: "",
+          apellido: "",
+          telefono: "",
+          tipo: "",
+        });
+        setIsExistingResponsible(false);
+        setShowAdditionalFields(false);
+        setShowAddModal(true);
+      }
     }
-  }
-};
+  };
 
   const enableEditing = () => {
     setReservationDetails(prev => ({
@@ -498,7 +484,6 @@ const LabReservations = () => {
           prev.filter(reserva => reserva.id !== reservationId)
         );
         ok("Registro eliminado exitosamente.");
-        setShowConfirmDelete(false);
         setShowModal(false);
       }
     } catch (error) {
@@ -611,10 +596,7 @@ const LabReservations = () => {
       console.log(reserva);
 
       try {
-        const response = await axios.post(
-          "http://localhost:8080/reservas",
-          reserva
-        );
+        await axios.post("http://localhost:8080/reservas", reserva);
         await getHorarios();
         const newHorarios = [
           ...horarios,

@@ -5,15 +5,14 @@ import "../styles/materias.css";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 
 function Materias() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
-  const [materias, setMateria] = useState([]);
+  const [materias, setMaterias] = useState([]);
   const [formData, setFormData] = useState({ id: "", nombre: "", carrera: "" });
   const [isEditing, setIsEditing] = useState(false);
-  const [cancel, setCancel] = useState(false);
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroCarrera, setFiltroCarrera] = useState("");
 
@@ -31,21 +30,10 @@ function Materias() {
   const carreraRef = useRef(null);
 
   const [selectedCarrera, setSelectedCarrera] = useState("");
-  const handleFiltroNombreChange = e => {
-    setFiltroNombre(e.target.value);
-  };
-
-  const handleFiltroCarreraChange = e => {
-    setFiltroCarrera(e.target.value);
-  };
-
-  useEffect(() => {
-    getMaterias();
-  }, [filtroNombre, filtroCarrera]);
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(0);
-  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+  const [itemsPorPagina] = useState(10);
 
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
@@ -58,24 +46,39 @@ function Materias() {
     getMaterias();
   }, []);
 
+  useEffect(() => {
+    if (filtroNombre === "" && filtroCarrera === "") {
+      getMaterias();
+    }
+  }, [filtroNombre, filtroCarrera]);
+
   const getMaterias = async () => {
-    const url = `http://localhost:8080/materia/todos`;
+    let url;
+    if (!filtroNombre && !filtroCarrera) {
+      url = `http://localhost:8080/materia`;
+    } else if (filtroNombre && !filtroCarrera) {
+      url = `http://localhost:8080/materia/filter-nombre/${filtroNombre}`;
+    } else if (!filtroNombre && filtroCarrera) {
+      url = `http://localhost:8080/materia/filter-carrera/${filtroCarrera}`;
+    } else {
+      url = `http://localhost:8080/materia/filter/${filtroNombre}/${filtroCarrera}`;
+    }
+
     try {
       const response = await axios.get(url);
-      const data = Array.isArray(response.data) ? response.data : [];
-      const filteredData = data.filter(materia => {
-        return (
-          (filtroNombre === "" ||
-            materia.nombre
-              .toLowerCase()
-              .includes(filtroNombre.toLowerCase())) &&
-          (filtroCarrera === "" || materia.carrera === filtroCarrera)
-        );
-      });
-      setMateria(filteredData);
+      setMaterias(response.data);
     } catch (error) {
-      oops("Error al cargar materias.");
-      setMateria([]); // Limpia los datos si la petición falla
+      if (error.response) {
+        const { message } = error.response.data;
+        if (message === "No hay materias") {
+          info(message);
+        } else {
+          oops("Error al conectar con el servidor.");
+        }
+      } else {
+        oops("Error al conectar con el servidor.");
+      }
+      setMaterias([]); // Limpia los datos si la petición falla
     }
   };
 
@@ -97,7 +100,6 @@ function Materias() {
 
   const limpiar = () => {
     setIsEditing(false);
-    setCancel(true);
     setFormData({ id: "", nombre: "", carrera: "" });
     setSelectedCarrera(""); // Limpiar selección de carrera
   };
@@ -140,7 +142,6 @@ function Materias() {
       if (response.status === 200) {
         getMaterias();
         setIsEditing(false);
-        setCancel(false);
         setFormData({ id: "", nombre: "", carrera: "" });
         setSelectedCarrera(""); // Limpiar selección de carrera
         ok("Registro actualizado exitosamente.");
@@ -186,11 +187,78 @@ function Materias() {
     ));
   };
 
+  const handleSearch = () => {
+    getMaterias();
+  };
+
+  const handleRefresh = () => {
+    setFiltroNombre("");
+    setFiltroCarrera("");
+  };
+
   return (
     <>
-      <div className="header">
-        <h2>Materias</h2>
+      <div>
+        <div className="header">
+          <h2>Materias</h2>
+        </div>
+        <div className="row mb-0 mt-3 justify-content-between">
+          <div className="col d-flex align-items-center">
+            <label className="d-flex align-items-center fw-bold me-4">
+              Filtros:
+            </label>
+            <div className="col-auto d-flex align-items-center">
+              <label className="me-2">Nombre:</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Nombre"
+                value={filtroNombre}
+                onChange={e => setFiltroNombre(e.target.value)}
+                maxLength={30}
+              />
+            </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <label className="me-2">Carrera:</label>
+              <select
+                className="form-select"
+                value={filtroCarrera}
+                onChange={e => setFiltroCarrera(e.target.value)}
+              >
+                <option value="">Todas</option>
+                {carreras.map(carrera => (
+                  <option key={carrera.nombre} value={carrera.nombre}>
+                    {carrera.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <button className="btn" onClick={handleSearch}>
+                <i className="fas fa-search"></i>
+              </button>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-1">
+              <button className="btn" onClick={handleRefresh}>
+                <i className="fas fa-refresh"></i>
+              </button>
+            </div>
+          </div>
+          <div className="col-auto">
+            <button
+              className="btn"
+              onClick={() => {
+                setIsEditing(false);
+                // handleShowModal();
+              }}
+            >
+              Nueva materia
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Quitar */}
       <div className="mt-4">
         <Button
           className="btn btn-primary d-flex align-items-center justify-content-center"
@@ -275,34 +343,7 @@ function Materias() {
             </div>
           </Form>
         </div>
-        <div className="row mb-3 mt-4 justify-content-center">
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Buscar:</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Nombre"
-              value={filtroNombre}
-              onChange={e => setFiltroNombre(e.target.value)}
-              maxLength={30}
-            />
-          </div>
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Carrera:</label>
-            <select
-              className="form-select"
-              value={filtroCarrera}
-              onChange={e => setFiltroCarrera(e.target.value)}
-            >
-              <option value="">Todos</option>
-              {carreras.map(carrera => (
-                <option key={carrera.nombre} value={carrera.nombre}>
-                  {carrera.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+
         <table className="table table-bordered mt-4">
           <thead>
             <tr>

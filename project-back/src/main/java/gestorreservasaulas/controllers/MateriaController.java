@@ -13,8 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/materia")
 @CrossOrigin(origins = "http://localhost:5173")
-public class MateriaController
-{
+public class MateriaController  {
     @Autowired
     private ServicioMateria servicioMateria;
 
@@ -23,15 +22,28 @@ public class MateriaController
         return servicioMateria.save(materiaDto);
     }
 
-    @GetMapping("/todos")
+    @GetMapping
     public List<MateriaDto> getAll() throws NotFoundException {
         return servicioMateria.findTodos();
+    }
+
+    @GetMapping("/filter/{nombre}/{carrera}")
+    public List<MateriaDto> getByNombreAndCarrera(@PathVariable String nombre, @PathVariable String carrera) throws NotFoundException {
+        return servicioMateria.getByNombreAndCarrera(nombre, carrera);
+    }
+
+    @GetMapping("/filter-nombre/{nombre}")
+    public List<MateriaDto> getByNombre(@PathVariable String nombre) throws NotFoundException {
+        return servicioMateria.getByNombre(nombre);
+    }
+
+    @GetMapping("/filter-carrera/{carrera}")
+    public List<MateriaDto> getByCarrera(@PathVariable String carrera) throws NotFoundException {
+        return servicioMateria.getByCarrera(carrera);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) throws ConflictException {
         servicioMateria.eliminarMateria(id);
     }
-
-   
 }
