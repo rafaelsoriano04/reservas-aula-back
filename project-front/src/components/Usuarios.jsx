@@ -38,10 +38,6 @@ const Usuarios = () => {
   }, []);
 
   useEffect(() => {
-    getUsuarios();
-  }, [paginaActual]);
-
-  useEffect(() => {
     if (filtroUsername === "" && filtroTipo === "") {
       getUsuarios();
     }

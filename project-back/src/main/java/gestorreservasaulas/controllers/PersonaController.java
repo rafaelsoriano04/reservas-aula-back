@@ -3,6 +3,7 @@ package gestorreservasaulas.controllers;
 import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.dtos.LaboratorioDto;
 import gestorreservasaulas.dtos.PersonaDto;
+import gestorreservasaulas.dtos.UsuarioDto;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
@@ -39,6 +40,21 @@ public class PersonaController {
     @GetMapping("/docente")
     public List<PersonaDto> getAll() {
         return servicioPersona.listarDocentes();
+    }
+
+    @GetMapping("/docente-nombre/{nombre}")
+    public List<PersonaDto> getByNombreApellido(@PathVariable String nombre) {
+        return servicioPersona.getByNombreApellido(nombre);
+    }
+
+    @GetMapping("/docente-cedula/{cedula}")
+    public List<PersonaDto> getByTipoOrUsernameStartingWith(@PathVariable String cedula) {
+        return servicioPersona.getByCedula(cedula);
+    }
+
+    @GetMapping("/docente/{cedula}/{nombre}")
+    public List<PersonaDto> getByTipoOrUsernameStartingWith(@PathVariable String cedula, @PathVariable String nombre) {
+        return servicioPersona.getByCedulaNombreApellido(cedula, nombre);
     }
 
     @DeleteMapping("/{id}")

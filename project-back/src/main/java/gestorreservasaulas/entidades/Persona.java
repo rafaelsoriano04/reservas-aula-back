@@ -15,7 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Persona {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -28,5 +27,4 @@ public class Persona {
     
     @OneToMany(mappedBy = "persona", orphanRemoval = true)
     private List<Reserva> listaHorarios = new ArrayList<>();
-    
 }
