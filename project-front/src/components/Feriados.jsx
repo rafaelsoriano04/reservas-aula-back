@@ -5,6 +5,7 @@ import "../styles/usuarios.css";
 import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 
 const Feriados = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -275,12 +276,13 @@ const Feriados = () => {
                 handleShowModal();
               }}
             >
+              <FaPlus style={{ marginRight: "5px" }} />
               Nuevo feriado
             </button>
           </div>
         </div>
         <div className="mt-0">
-          <table className="table table-bordered mt-3">
+          <table className="table table-bordered table-hover mt-3">
             <thead>
               <tr>
                 <th>Nombre</th>
