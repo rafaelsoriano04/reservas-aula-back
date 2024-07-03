@@ -102,14 +102,7 @@ function Materias() {
     limpiar();
     setShowModal(false);
   };
-  const handleSubmit = e => {
-    e.preventDefault();
-    if (!isEditing) {
-      saveFeriado();
-    } else {
-      editFeriado();
-    }
-  };
+  
 
   const handleShowModal = () => {
     setShowModal(true);
