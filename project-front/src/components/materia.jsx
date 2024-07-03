@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/materias.css";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
@@ -15,7 +15,7 @@ function Materias() {
   const [isEditing, setIsEditing] = useState(false);
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroCarrera, setFiltroCarrera] = useState("");
-
+  const [showModal, setShowModal] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
@@ -98,6 +98,15 @@ function Materias() {
     }
   };
 
+  const handleCloseModal = () => {
+    limpiar();
+    setShowModal(false);
+  };
+  
+
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
   const limpiar = () => {
     setIsEditing(false);
     setFormData({ id: "", nombre: "", carrera: "" });
@@ -249,102 +258,20 @@ function Materias() {
               className="btn"
               onClick={() => {
                 setIsEditing(false);
-                // handleShowModal();
+                handleShowModal();
               }}
             >
-              Nueva materia
+              <FaPlus style={{ marginRight: "5px" }} />
+              Nueva Materia
             </button>
           </div>
         </div>
       </div>
 
-      {/* Quitar */}
-      <div className="mt-4">
-        <Button
-          className="btn btn-primary d-flex align-items-center justify-content-center"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#collapseForm"
-          aria-expanded="false"
-          aria-controls="collapseForm"
-          style={{
-            fontWeight: "bold",
-          }}
-        >
-          <FaPlus style={{ marginRight: "5px" }} />
-          Agregar
-        </Button>
-        <div className="collapse" id="collapseForm">
-          <Form id="form-reservas">
-            <div className="row">
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="nombre"
-                    className="form-control"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={e =>
-                      setFormData({ ...formData, nombre: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="carrera">Carrera:</Form.Label>
-                  <Form.Select
-                    id="carrera"
-                    className="form-control"
-                    value={selectedCarrera}
-                    ref={carreraRef}
-                    onChange={e => setSelectedCarrera(e.target.value)}
-                  >
-                    <option value="">Seleccione una opción</option>
-                    {carreras.map(carrera => (
-                      <option key={carrera.nombre} value={carrera.nombre}>
-                        {carrera.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            </div>
-            <div className="button-group mt-4 text-center">
-              {!isEditing ? (
-                <Button
-                  type="button"
-                  className="btn btn-custom"
-                  onClick={() => guardarMateria()}
-                >
-                  Crear
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    className="btn btn-custom"
-                    id="guardar-btn"
-                    onClick={() => editarMateria(selectedRow)}
-                  >
-                    Guardar
-                  </Button>
-                  <Button
-                    type="button"
-                    className="btn btn-danger ml-2"
-                    onClick={limpiar}
-                  >
-                    Cancelar
-                  </Button>
-                </>
-              )}
-            </div>
-          </Form>
-        </div>
 
-        <table className="table table-bordered mt-4">
+      <div className="mt-4">
+
+        <table className="table table-bordered table-hover mt-4">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -401,8 +328,9 @@ function Materias() {
                   carrera: selectedMateria.carrera,
                 });
                 setSelectedCarrera(selectedMateria.carrera);
-                setShowContextMenu(false); // Cierra el menú contextual
+                setShowContextMenu(false);
                 setIsEditing(true);
+                handleShowModal();
               }
             }}
           >
@@ -417,6 +345,87 @@ function Materias() {
           </Button>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {!isEditing ? "Crear Materia" : "Editar Materia"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form id="form-reservas">
+            <div className="row">
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    id="nombre"
+                    className="form-control"
+                    name="nombre"
+                    placeholder="Ingrese el nombre de la materia"
+                    value={formData.nombre}
+                    onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                  />
+                </Form.Group>
+              </div>
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="carrera">Carrera:</Form.Label>
+                  <Form.Select
+                    id="carrera"
+                    className="form-control"
+                    value={selectedCarrera}
+                    ref={carreraRef}
+                    onChange={e => setSelectedCarrera(e.target.value)}
+                  >
+                    <option value="">Seleccione una opción</option>
+                    {carreras.map(carrera => (
+                      <option key={carrera.nombre} value={carrera.nombre}>
+                        {carrera.nombre}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            </div>
+
+            <div className="button-group mt-4 text-center">
+              {!isEditing ? (
+                <Button
+                  type="button"
+                  className="btn btn-custom"
+                  onClick={() => guardarMateria()}
+                >
+                  Crear
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    className="btn btn-custom"
+                    id="guardar-btn"
+                    onClick={() => {
+                      editarMateria(selectedRow);
+                      handleCloseModal();
+                    }}
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    type="button"
+                    className="btn btn-danger ml-2"
+                    onClick={ () => {
+                      limpiar;
+                      handleCloseModal()}}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              )}
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }

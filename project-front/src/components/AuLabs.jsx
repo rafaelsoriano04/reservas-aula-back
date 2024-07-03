@@ -443,7 +443,7 @@ function AuLabs() {
               </select>
             </div>
           </div>
-          <table className="table table-bordered mt-4">
+          <table className="table table-bordered table-hover mt-4">
             <thead>
               <tr>
                 <th>Nombre</th>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/docentes.css";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
@@ -22,7 +22,7 @@ function Docentes() {
     telefono: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-
+  const [showModal, setShowModal] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
@@ -51,7 +51,6 @@ function Docentes() {
 
   // Funciones
   const crearDocente = async () => {
-    formData.cedula = generarCodigoCedula();
     try {
       let docente = {
         cedula: formData.cedula,
@@ -168,6 +167,13 @@ function Docentes() {
   const handlePageClick = data => {
     setPaginaActual(data.selected);
   };
+  const handleCloseModal = () => {
+    limpiar();
+    setShowModal(false);
+  };
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
 
   const generarCodigoCedula = () => {
     const inicialNombre = formData.nombre.charAt(0).toUpperCase();
@@ -228,6 +234,7 @@ function Docentes() {
               />
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
+            <label className="me-2">Nombres:</label>
               <input
                 type="text"
                 className="form-control"
@@ -253,10 +260,11 @@ function Docentes() {
               className="btn"
               onClick={() => {
                 setIsEditing(false);
-                // handleShowModal();
+                handleShowModal();
               }}
             >
-              Nuevo usuario
+              <FaPlus style={{ marginRight: "5px" }} />
+              Nuevo Docente
             </button>
           </div>
         </div>
@@ -264,8 +272,8 @@ function Docentes() {
           <table className="table table-bordered table-sm">
             <thead>
               <tr>
-                <th style={{ width: "20%" }}>Código</th>
-                <th style={{ width: "80%" }}>Nombre</th>
+                <th style={{ width: "20%" }}>Cédula:</th>
+                <th style={{ width: "80%" }}>Nombres</th>
               </tr>
             </thead>
             <tbody>
@@ -321,8 +329,9 @@ function Docentes() {
                     apellido: selectedDocente.apellido,
                     telefono: selectedDocente.telefono,
                   });
-                  setShowContextMenu(false); // Cierra el menú contextual
+                  setShowContextMenu(false); 
                   setIsEditing(true);
+                  handleShowModal();
                 }
               }}
             >
@@ -338,6 +347,101 @@ function Docentes() {
           </div>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {!isEditing ? "Crear Docente" : "Editar Docente"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <Form id="form-reservas">
+            <div className="row">
+            <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="cedula">Cédula:</Form.Label>
+                  <Form.Control
+                    type="number"
+                    id="cedula"
+                    className="form-control"
+                    name="cedula"
+                    value={formData.cedula}
+                    placeholder="Ingrese su cédula"
+                    onChange={e =>
+                      setFormData({ ...formData, cedula: e.target.value })
+                    }
+                  />
+                </Form.Group>
+              </div>
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    id="nombre"
+                    className="form-control"
+                    name="nombre"
+                    value={formData.nombre}
+                    placeholder="Ingrese su nombre"
+                    onChange={e =>
+                      setFormData({ ...formData, nombre: e.target.value })
+                    }
+                  />
+                </Form.Group>
+              </div>
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="apellido">Apellido:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    id="apellido"
+                    className="form-control"
+                    name="apellido"
+                    value={formData.apellido}
+                    placeholder="Ingrese su apellido"
+                    onChange={e =>
+                      setFormData({ ...formData, apellido: e.target.value })
+                    }
+                  />
+                </Form.Group>
+              </div>
+            </div>
+            <div className="button-group mt-4 text-center">
+              {!isEditing ? (
+                <Button
+                  type="button"
+                  className="btn btn-custom"
+                  onClick={ () => {
+                    crearDocente();
+                    handleCloseModal();
+                  }}
+                >
+                  Crear
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    className="btn btn-custom"
+                    id="guardar-btn"
+                    onClick={editarDocente}
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    type="button"
+                    className="btn btn-danger ml-2"
+                    onClick={()=>{limpiar();
+                      handleCloseModal();
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              )}
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
