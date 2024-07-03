@@ -7,6 +7,7 @@ import gestorreservasaulas.servicios.ServicioFeriado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.List;
 
 @RestController
@@ -35,6 +36,21 @@ public class FeriadoController {
     @GetMapping
     public List<FeriadoDto> getAllFeriados() throws NotFoundException {
         return servicioFeriado.getAllFeriados();
+    }
+
+    @GetMapping("/filter-inicio/{inicio}")
+    public List<FeriadoDto> getAfterInicio(@PathVariable Date inicio) throws NotFoundException {
+        return servicioFeriado.getAfterInicio(inicio);
+    }
+
+    @GetMapping("/filter-fin/{fin}")
+    public List<FeriadoDto> getBeforeFin(@PathVariable Date fin) throws NotFoundException {
+        return servicioFeriado.getBeforeFin(fin);
+    }
+
+    @GetMapping("/filter/{inicio}/{fin}")
+    public List<FeriadoDto> getBetween(@PathVariable Date inicio, @PathVariable Date fin) throws NotFoundException {
+        return servicioFeriado.getBetweenDates(inicio, fin);
     }
 
 }

@@ -8,6 +8,7 @@ import gestorreservasaulas.respositorios.RepositorioFeriado;
 import gestorreservasaulas.servicios.ServicioFeriado;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -30,7 +31,7 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
 
     @Override
     public List<FeriadoDto> getAllFeriados() throws NotFoundException {
-        List<Feriado> listaFeriados = repositorioFeriado.findAll();
+        List<Feriado> listaFeriados = repositorioFeriado.findAll(Sort.by(Sort.Direction.ASC, "inicio"));
 
         if (listaFeriados.isEmpty()) {
             throw new NotFoundException("No hay feriados");
@@ -73,6 +74,33 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
                 .orElseThrow(() -> new NotFoundException("Feriado not found"));
 
         repositorioFeriado.deleteById(id);
+    }
+
+    @Override
+    public List<FeriadoDto> getAfterInicio(java.util.Date inicio) throws NotFoundException {
+        List<Feriado> listaFeriados = repositorioFeriado.findByInicioAfter(inicio, Sort.by(Sort.Direction.ASC, "inicio"));
+        if (listaFeriados.isEmpty()) {
+            throw new NotFoundException("No hay feriados");
+        }
+        return listaFeriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FeriadoDto> getBeforeFin(java.util.Date fin) throws NotFoundException {
+        List<Feriado> listaFeriados = repositorioFeriado.findByFinBefore(fin, Sort.by(Sort.Direction.ASC, "inicio"));
+        if (listaFeriados.isEmpty()) {
+            throw new NotFoundException("No hay feriados");
+        }
+        return listaFeriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FeriadoDto> getBetweenDates(java.util.Date inicio, java.util.Date fin) throws NotFoundException {
+        List<Feriado> listaFeriados = repositorioFeriado.findByInicioAfterAndFinBefore(inicio, fin, Sort.by(Sort.Direction.ASC, "inicio"));
+        if (listaFeriados.isEmpty()) {
+            throw new NotFoundException("No hay feriados");
+        }
+        return listaFeriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
     }
 
     private Feriado dtoToFeriado(FeriadoDto feriadoDto) {
