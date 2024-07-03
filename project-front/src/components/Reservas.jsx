@@ -489,6 +489,10 @@ const LabReservations = () => {
   };
 
   const updateReservation = async () => {
+    if (!reservationDetails.asunto || !reservationDetails.descripcion) {
+      oops("Todos los campos deben estar llenos.");
+      return;
+    }
     const updatedReservation = {
       id: reservationDetails.id,
       asunto: reservationDetails.asunto,
@@ -559,7 +563,7 @@ const LabReservations = () => {
       oops("Todos los campos deben estar llenos.");
       return;
     }
-    
+
     if (selectedCell && selectedAulaLab) {
       const formattedDate = selectedDate.toISOString();
 
