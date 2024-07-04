@@ -269,7 +269,8 @@ function Docentes() {
           </div>
         </div>
         <div className="mt-4">
-          <table className="table table-bordered table-hover table-sm">
+          <table className="table table-bordered table-hover table-sm caption-top">
+          <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th style={{ width: "20%" }}>Cédula:</th>

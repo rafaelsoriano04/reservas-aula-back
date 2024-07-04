@@ -271,7 +271,8 @@ function Materias() {
 
       <div className="mt-4">
 
-        <table className="table table-bordered table-hover mt-4">
+        <table className="table table-bordered table-hover mt-4 caption-top">
+        <caption>Seleccione una fila para ver sus opciones</caption>
           <thead>
             <tr>
               <th>Nombre</th>
