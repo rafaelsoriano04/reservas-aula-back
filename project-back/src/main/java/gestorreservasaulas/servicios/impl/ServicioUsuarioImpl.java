@@ -84,7 +84,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
 
     @Override
     public List<UsuarioDto> getByTipoOrUsernameStartingWith(String tipo, String username) throws NotFoundException {
-        List<Usuario> listaUsuarios = repositorioUsuario.findByTipoAndUsernameStartingWith(tipo, username, Sort.by(Sort.Direction.ASC, "username"));
+        List<Usuario> listaUsuarios = repositorioUsuario.findByTipoAndUsernameContains(tipo, username, Sort.by(Sort.Direction.ASC, "username"));
         if (listaUsuarios.isEmpty()) {
             throw new NotFoundException("No hay usuarios");
         }
@@ -101,8 +101,8 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     }
 
     @Override
-    public List<UsuarioDto> getByUsernameStartingWith(String username) throws NotFoundException {
-        List<Usuario> listaUsuarios = repositorioUsuario.findByUsernameStartingWith(username, Sort.by(Sort.Direction.ASC, "username"));
+    public List<UsuarioDto> getByUsername(String username) throws NotFoundException {
+        List<Usuario> listaUsuarios = repositorioUsuario.findByUsernameContains(username, Sort.by(Sort.Direction.ASC, "username"));
         if (listaUsuarios.isEmpty()) {
             throw new NotFoundException("No hay usuarios");
         }
