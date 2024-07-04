@@ -269,7 +269,7 @@ function Docentes() {
           </div>
         </div>
         <div className="mt-4">
-          <table className="table table-bordered table-sm">
+          <table className="table table-bordered table-hover table-sm">
             <thead>
               <tr>
                 <th style={{ width: "20%" }}>Cédula:</th>

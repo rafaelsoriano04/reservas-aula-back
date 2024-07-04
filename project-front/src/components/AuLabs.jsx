@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert, Modal } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
@@ -22,6 +22,7 @@ function AuLabs() {
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroNombre, setFiltroNombre] = useState("");
   const [aulasLabsToShow, setAulasLabsToShow] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   const [formData, setFormData] = useState({
     id_bloque: "1",
@@ -60,6 +61,9 @@ function AuLabs() {
       document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
+  useEffect(() => {
+    setAulasLabsToShow([...aulas, ...laboratorios]);
+  }, [aulas, laboratorios]);
 
   // Funciones
   const getBloques = async () => {
@@ -84,7 +88,7 @@ function AuLabs() {
         setNombreError("Ingrese un nombre");
         return;
       }
-      if (espacio.capacidad === "") {
+      if (espacio.capacidad === "" ) {
         setCapacidadError("Ingrese la capacidad");
         return;
       }
@@ -95,6 +99,7 @@ function AuLabs() {
     } catch (error) {
       oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
     }
+    handleCloseModal();
   };
 
   const limpiar = async () => {
@@ -126,6 +131,7 @@ function AuLabs() {
     } catch (error) {
       oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
     }
+    handleCloseModal();
   };
 
   const eliminarEspacio = async () => {
@@ -198,7 +204,10 @@ function AuLabs() {
 
   const handleEditClick = () => {
     const selectedAulaLab = aulasLabsToShow.find(d => d.id === selectedRow);
+    console.log (selectedRow)
+
     if (selectedAulaLab) {
+      
       setFormData({
         id_bloque: selectedAulaLab.id_bloque,
         tipo: selectedAulaLab.tipo,
@@ -241,6 +250,14 @@ function AuLabs() {
     setFiltroNombre("");
     setFiltroBloque("");
     setFiltroTipo("");
+  };
+
+  const handleCloseModal = () => {
+    limpiar();
+    setShowModal(false);
+  };
+  const handleShowModal = () => {
+    setShowModal(true);
   };
 
   return (
@@ -308,15 +325,16 @@ function AuLabs() {
               className="btn"
               onClick={() => {
                 setIsEditing(false);
-                // handleShowModal();
+                handleShowModal();
               }}
             >
+              <FaPlus style={{ marginRight: "5px" }} />
               Nuevo Espacio
             </button>
           </div>
         </div>
         <div className="mt-1">
-          <table className="table table-bordered mt-4">
+          <table className="table table-bordered table-hover mt-4">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -364,7 +382,12 @@ function AuLabs() {
               left: contextMenuPosition.left,
             }}
           >
-            <Button variant="custom" id="editar-btn" onClick={handleEditClick}>
+            <Button variant="custom" id="editar-btn"
+              onClick={() => {
+                handleEditClick();
+                handleShowModal();
+              }}
+            >
               Editar
             </Button>
             <Button
@@ -377,8 +400,148 @@ function AuLabs() {
           </div>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {!isEditing ? "Crear Espacio" : "Editar Espacio"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form id="form-reservas">
+            <div className="row">
+              <div className="col-md-6">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="bloque">Bloque:</Form.Label>
+                  <Form.Select
+                    id="bloque"
+                    className="form-control"
+                    value={selectedBloque}
+                    onChange={e => setSelectedBloque(e.target.value)}
+                  >
+                    {bloques.map(bloque => (
+                      <option key={bloque.id} value={bloque.id}>
+                        {bloque.nombre}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </div>
+              <div className="col-md-6">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="tipo">Tipo:</Form.Label>
+                  <Form.Select
+                    id="tipo"
+                    className="form-control"
+                    value={selectedTipo}
+                    onChange={e => setSelectedTipo(e.target.value)}
+                  >
+                    <option value="Aula">Aula</option>
+                    <option value="Laboratorio">Laboratorio</option>
+                    <option value="Especial">Especial</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="piso">Piso:</Form.Label>
+                  <Form.Select
+                    id="piso"
+                    className="form-control"
+                    name="piso"
+                    value={formData.piso}
+                    onChange={e =>
+                      setFormData({ ...formData, piso: e.target.value })
+                    }
+                  >
+                    <option value="1">Piso 1</option>
+                    <option value="2">Piso 2</option>
+                    <option value="3">Piso 3</option>
+                    <option value="4">Piso 4</option>
+                    <option value="5">Piso 5</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+              <div className="col-md-6">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="capacidad">Capacidad:</Form.Label>
+                  <Form.Control
+                    type="number"
+                    id="capacidad"
+                    className="form-control"
+                    name="capacidad"
+                    min="1"
+                    max="100"
+                    value={formData.capacidad}
+                    onChange={e => {
+                      setFormData({ ...formData, capacidad: e.target.value });
+                      setCapacidadError("");
+                    }}
+                  />
+                  {capacidadError && (
+                    <Alert variant="danger">{capacidadError}</Alert>
+                  )}
+                </Form.Group>
+              </div>
+
+              <div className="col-md-12">
+
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    id="nombre"
+                    className="form-control"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={e => {
+                      setFormData({ ...formData, nombre: e.target.value });
+                      setNombreError("");
+                    }}
+                  />
+                  {nombreError && (
+                    <Alert variant="danger">{nombreError}</Alert>
+                  )}
+                </Form.Group>
+              </div>
+            </div>
+            <div className="button-group mt-4 text-center">
+              {!isEditing ? (
+                <Button
+                  type="button"
+                  className="btn btn-custom"
+                  onClick={crearEspacio}
+                >
+                  Crear
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    className="btn btn-custom"
+                    id="guardar-btn"
+                    onClick={() => editarespacio()}
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    type="button"
+                    className="btn btn-danger ml-2"
+                    onClick={limpiar}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              )}
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
+
   );
+
 }
 
 export default AuLabs;
