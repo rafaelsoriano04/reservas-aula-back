@@ -144,7 +144,7 @@ function Horarios() {
   };
 
   const getMaterias = async () => {
-    const url = "http://localhost:8080/materia/todos";
+    const url = "http://localhost:8080/materia";
     try {
       const respuesta = await axios.get(url);
       const materiasopciones= respuesta.data.map(materia => ({
