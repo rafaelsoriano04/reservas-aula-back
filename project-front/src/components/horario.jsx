@@ -37,6 +37,7 @@ function Horarios() {
     "10-11",
     "11-12",
     "12-13",
+    "13-14",
     "14-15",
     "15-16",
     "16-17",
@@ -44,6 +45,21 @@ function Horarios() {
     "18-19",
     "19-20",
   ];
+
+  const horas2 = [
+    "7-8",
+    "8-9",
+    "9-10",
+    "10-11",
+    "11-12",
+    "12-13",
+    "14-15",
+    "15-16",
+    "16-17",
+    "17-18",
+    "18-19",
+    "19-20",
+  ]
   const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
   const [showModal, setShowModal] = useState(false);
 
@@ -466,13 +482,7 @@ function Horarios() {
     
     let hora = "";
     const fila = celdaSeleccionada.rowIndex;
-    if (fila < 6) {
-      //sumar 7
       hora = (parseInt(fila) + 7) +"-" + (parseInt(fila) + 8);
-    }else{
-      //sumar 8
-      hora = (parseInt(fila) + 8) +"-" + (parseInt(fila) + 9);
-    }
     setSelectedHora(hora);
   }
 
@@ -678,7 +688,7 @@ function Horarios() {
                     value={selectedHora}
                     onChange={e => setSelectedHora(e.target.value)}
                   >
-                    {horas.map(hora => (
+                    {horas2.map(hora => (
                       <option key={hora} value={hora}>
                         {formatHora(hora)}
                       </option>
