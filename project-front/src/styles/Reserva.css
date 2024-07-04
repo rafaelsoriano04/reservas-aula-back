@@ -96,3 +96,10 @@ label[for="descripcion"],
     flex: 3;
   }
   
+  /* Reserva.css */
+.no-horarios-message {
+    background-color: rgb(218, 213, 213); 
+    color: rgb(43, 42, 42);
+    border: gray; /* Opcional: hace que el texto sea negrita */
+  }
+  
