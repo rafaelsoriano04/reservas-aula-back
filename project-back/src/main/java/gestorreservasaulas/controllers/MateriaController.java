@@ -27,6 +27,10 @@ public class MateriaController  {
         return servicioMateria.findTodos();
     }
 
+    @GetMapping("/todos")
+    public List<MateriaDto> getAllMaterias()throws NotFoundException{
+        return servicioMateria.findTodos();
+    }
     @GetMapping("/filter/{nombre}/{carrera}")
     public List<MateriaDto> getByNombreAndCarrera(@PathVariable String nombre, @PathVariable String carrera) throws NotFoundException {
         return servicioMateria.getByNombreAndCarrera(nombre, carrera);

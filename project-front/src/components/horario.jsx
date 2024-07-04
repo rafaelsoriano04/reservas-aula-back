@@ -36,7 +36,6 @@ function Horarios() {
     "10-11",
     "11-12",
     "12-13",
-    "13-14",
     "14-15",
     "15-16",
     "16-17",
@@ -135,13 +134,30 @@ function Horarios() {
     }
   };
 
+  const carreras = {
+    "Ingeniería en Software": "SW",
+    "Ingeniería Industrial": "II",
+    "Ingeniería en Telecomunicaciones": "IT",
+    "Ingeniería en Tecnologías de la Información": "TI",
+    "Ingeniería en Automatización y Robotica": "RA",
+   
+  };
+
   const getMaterias = async () => {
     const url = "http://localhost:8080/materia/todos";
     try {
       const respuesta = await axios.get(url);
-      setMaterias(respuesta.data);
+      const materiasopciones= respuesta.data.map(materia => ({
+        value: materia.id,
+        label:  carreras[materia.carrera]
+            ? `${materia.nombre} - ${carreras[materia.carrera]}`
+           :`${materia.nombre} - ${materia.carrera}`,
+      }));
+
+      setMaterias(materiasopciones);
     } catch (error) {
       oops("Error al cargar materias.");
+      setMaterias([]);
     }
   };
 
@@ -211,6 +227,9 @@ function Horarios() {
       setShowContextMenu(false);
     }
   };
+  const handleMateriaChange = selectedOption => {
+    setSelectedMateria(selectedOption);
+  };
 
   const handleDocenteChange = selectedOption => {
     setSelectedDocente(selectedOption);
@@ -256,10 +275,11 @@ function Horarios() {
     const nuevoHorario = {
       dia: selectedDia,
       hora: selectedHora.split("-")[0],
-      id_materia: selectedMateria,
+      id_materia: selectedMateria.value,
       id_persona: nada,
       id_espacio: selectedAulaLab,
     };
+    console.log(selectedMateria)
 
     try {
       if (horarioExiste) {
@@ -275,6 +295,7 @@ function Horarios() {
       handleCancelEdit();
     } catch (error) {
       oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
+      console.log(nuevoHorario)
     }
   };
 
@@ -291,11 +312,11 @@ function Horarios() {
       return;
     }
 
-    const url = `http://localhost:8080/horario`; // URL para crear o actualizar horario
+    const url = `http://localhost:8080/horario`; 
 
     const nada = selectedDocente.value;
     const horarioActualizado = {
-      id: selectedHorario, // Incluye el ID para que el backend pueda identificar si debe crear o actualizar
+      id: selectedHorario, 
       dia: selectedDia,
       hora: selectedHora.split("-")[0],
       id_materia: selectedMateria,
@@ -469,21 +490,23 @@ function Horarios() {
                   </Form.Group>
                   <Form.Group className="form-group">
                     <Form.Label htmlFor="materia">Materia:</Form.Label>
-                    <Form.Select
+                    <Select
                       id="materia"
-                      className="form-control"
                       value={selectedMateria}
-                      onChange={e => {
-                        setSelectedMateria(e.target.value);
-                        console.log(selectedMateria);
-                      }}
+                      onChange={handleMateriaChange}
+                      options={materias}
+                      placeholder="Seleccione una materia"
+                      isClearable={true}
+                      isSearchable={true}
+                      className="react-select-container"
+                      classNamePrefix="react-select"
                     >
                       {materias.map(materia => (
                         <option key={materia.id} value={materia.id}>
                           {materia.nombre}
                         </option>
                       ))}
-                    </Form.Select>
+                    </Select>
                   </Form.Group>
                   <div className="form-group docente-container me-2">
                     <Form.Label htmlFor="docente" className="me-2">
@@ -555,7 +578,7 @@ function Horarios() {
               <tbody>
                 {horas.map((hora, rowIndex) => (
                   <tr key={hora}>
-                    {/* Renderiza la celda de la hora con el color de fondo si es hora de receso */}
+                   
                     <td
                       style={
                         hora === "13-14"
