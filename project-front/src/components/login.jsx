@@ -30,6 +30,7 @@ function Login() {
         if (resp.data) {
           setMensajeError("");
           localStorage.setItem("tipoUsuario", resp.data.tipo);
+          localStorage.setItem("jwtToken", "tokenizado");
           navigate(`/menu`);
         }
       } catch (error) {
