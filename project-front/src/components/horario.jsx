@@ -524,6 +524,7 @@ function Horarios() {
                   >
                     <option value="Aula">Aulas</option>
                     <option value="Laboratorio">Laboratorios</option>
+                    <option value="Especial">Especial</option>
                   </Form.Select>
                 </Form.Group>
 
