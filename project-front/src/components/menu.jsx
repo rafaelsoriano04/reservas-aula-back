@@ -26,6 +26,8 @@ const SidebarMenu = () => {
   const handleLogout = event => {
     event.preventDefault();
     localStorage.removeItem("tipoUsuario");
+    localStorage.removeItem("jwtToken");
+
     navigate("/");
   };
 

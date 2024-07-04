@@ -10,14 +10,21 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import SidebarMenu from "./components/menu";
 import Login from "./components/login";
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/menu" element={<SidebarMenu />} />
+        <Route>
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Route>
+        <Route >
+          <Route path="/login" element={<Login />} />
+        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route path="/menu" element={<SidebarMenu />} />
+        </Route>
       </Routes>
     </Router>
   );

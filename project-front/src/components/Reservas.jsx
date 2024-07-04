@@ -781,7 +781,8 @@ const LabReservations = () => {
         {noHorariosMessage}
       </div>
       ) : (
-        <table className="table table-bordered mt-4 table-centered">
+        <table className="table table-bordered mt-4 table-centered caption-top">
+         <caption>Seleccione una celda para realizar una acción</caption>
           <thead>
             <tr>
               <th>Horas</th>

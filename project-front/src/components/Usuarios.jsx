@@ -290,7 +290,8 @@ const Usuarios = () => {
           </div>
         </div>
         <div className="mt-0">
-          <table className="table table-bordered table-hover mt-3">
+          <table className="table table-bordered table-hover mt-3 caption-top">
+            <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th>Username</th>
