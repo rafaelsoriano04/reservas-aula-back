@@ -10,6 +10,8 @@ import gestorreservasaulas.respositorios.RepositorioUsuario;
 import gestorreservasaulas.servicios.ServicioUsuario;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
 
@@ -23,9 +25,12 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
 
     private final ModelMapper modelMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     public ServicioUsuarioImpl() {
         this.modelMapper = new ModelMapper();
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     @Override
@@ -34,7 +39,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
         if (usuario == null) {
             throw new UnauthorizedException("Credenciales inválidas");
         }
-        if (!usuario.getContrasenia().equals(authDto.getPassword())) {
+        if (!passwordEncoder.matches(authDto.getPassword(), usuario.getContrasenia())) {
             throw new UnauthorizedException("Credenciales inválidas");
         }
         return usuarioToDto(usuario);
@@ -43,6 +48,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     @Override
     public UsuarioDto save(UsuarioDto usuarioDto) throws ConflictException {
         Usuario usuario = repositorioUsuario.getByUsername(usuarioDto.getUsername()).orElse(null);
+        usuarioDto.setNewPassword(passwordEncoder.encode(usuarioDto.getNewPassword()));
         if (usuario != null) {
             throw new ConflictException("El usuario ya existe");
         }
