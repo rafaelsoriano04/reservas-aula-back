@@ -97,7 +97,6 @@ function Horarios() {
 
   // Funciones
   const handleCloseModal = () => {
-    limpiar();
     setShowModal(false);
   };
   const handleShowModal = () => {
@@ -299,7 +298,8 @@ function Horarios() {
       id_persona: nada,
       id_espacio: selectedAulaLab,
     };
-    console.log(selectedMateria)
+   
+  
 
     try {
       if (horarioExiste) {
@@ -335,15 +335,16 @@ function Horarios() {
     const url = `http://localhost:8080/horario`;
 
     const nada = selectedDocente.value;
+    const materia = selectedMateria.value;
     const horarioActualizado = {
       id: selectedHorario,
       dia: selectedDia,
       hora: selectedHora.split("-")[0],
-      id_materia: selectedMateria,
+      id_materia: materia,
       id_persona: nada,
       id_espacio: selectedAulaLab,
     };
-
+    console.log(horarioActualizado);
     try {
       const response = await axios.post(url, horarioActualizado, {
         headers: {
@@ -376,7 +377,8 @@ function Horarios() {
       if (horario) {
         setSelectedDia(horario.dia);
         setSelectedHora(horario.hora + "-" + (parseInt(horario.hora) + 1)); // Ajuste para establecer la hora correctamente
-        setSelectedMateria(horario.id_materia);
+        const materia = materias.find(d => d.value === horario.id_materia);
+        setSelectedMateria(materia);
         const docente = docentes.find(d => d.value === horario.id_persona);
         setSelectedDocente(docente);
         setSelectedAulaLab(horario.id_espacio);
@@ -396,6 +398,7 @@ function Horarios() {
     setSelectedDocente("");
     setIsEditing(false);
     setShowContextMenu(false);
+    handleCloseModal();
   };
 
   const handleCellClick = (e, rowIndex, cellIndex) => {
@@ -469,63 +472,63 @@ function Horarios() {
                 {noHorariosMessage}
               </div>
             ) : (
-            <table className="table table-bordered  mt-4 table-centered caption-top">
-            <caption>Seleccione una celda para realizar una acción</caption>
-              <thead>
-                <tr>
-                  <th>Horas</th>
-                  <th>Lunes</th>
-                  <th>Martes</th>
-                  <th>Miércoles</th>
-                  <th>Jueves</th>
-                  <th>Viernes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {horas.map((hora, rowIndex) => (
-                  <tr key={hora}>
+              <table className="table table-bordered  mt-4 table-centered caption-top">
+                <caption>Seleccione una celda para realizar una acción</caption>
+                <thead>
+                  <tr>
+                    <th>Horas</th>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miércoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {horas.map((hora, rowIndex) => (
+                    <tr key={hora}>
 
-                    <td
-                      style={
-                        hora === "13-14"
-                          ? { backgroundColor: "#ffcccb", textAlign: "center" }
-                          : {}
-                      }
-                    >
-                      {formatHora(hora)}
-                    </td>
-                    {dias.map((dia, cellIndex) => (
                       <td
-                        key={`${dia}-${hora}`}
                         style={
                           hora === "13-14"
-                            ? {
-                              backgroundColor: "#ffcccb",
-                              textAlign: "center",
-                            }
+                            ? { backgroundColor: "#ffcccb", textAlign: "center" }
                             : {}
                         }
-                        onClick={e =>
-                          hora !== "13-14" &&
-                          handleCellClick(e, rowIndex, cellIndex)
-                        }
-                        className={
-                          selectedCell &&
-                            selectedCell.rowIndex === rowIndex &&
-                            selectedCell.cellIndex === cellIndex
-                            ? "selected"
-                            : ""
-                        }
                       >
-                        {hora === "13-14"
-                          ? "Receso"
-                          : renderTableCell(dia, hora)}
+                        {formatHora(hora)}
                       </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>)}
+                      {dias.map((dia, cellIndex) => (
+                        <td
+                          key={`${dia}-${hora}`}
+                          style={
+                            hora === "13-14"
+                              ? {
+                                backgroundColor: "#ffcccb",
+                                textAlign: "center",
+                              }
+                              : {}
+                          }
+                          onClick={e =>
+                            hora !== "13-14" &&
+                            handleCellClick(e, rowIndex, cellIndex)
+                          }
+                          className={
+                            selectedCell &&
+                              selectedCell.rowIndex === rowIndex &&
+                              selectedCell.cellIndex === cellIndex
+                              ? "selected"
+                              : ""
+                          }
+                        >
+                          {hora === "13-14"
+                            ? "Receso"
+                            : renderTableCell(dia, hora)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>)}
             <div
               className="context-menu"
               id="context-menu"
@@ -562,63 +565,68 @@ function Horarios() {
         <Modal.Body>
           {/*Aqui va todo lo que se utilizo para crear */}
           <Form id="form-horario">
-            <div className="form-container">
-              <Form.Group className="form-group">
-                <Form.Label htmlFor="dia">Día:</Form.Label>
-                <Form.Select
-                  id="dia"
-                  className="form-control"
-                  value={selectedDia}
-                  onChange={e => setSelectedDia(e.target.value)}
-                >
-                  <option>Lunes</option>
-                  <option>Martes</option>
-                  <option>Miercoles</option>
-                  <option>Jueves</option>
-                  <option>Viernes</option>
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="form-group">
-                <Form.Label htmlFor="hora">Hora:</Form.Label>
-                <Form.Select
-                  id="hora"
-                  className="form-control"
-                  value={selectedHora}
-                  onChange={e => setSelectedHora(e.target.value)}
-                >
-                  {horas.map(hora => (
-                    <option key={hora} value={hora}>
-                      {formatHora(hora)}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="form-group">
-                <Form.Label htmlFor="materia">Materia:</Form.Label>
-                <Select
-                  id="materia"
-                  value={selectedMateria}
-                  onChange={handleMateriaChange}
-                  options={materias}
-                  placeholder="Seleccione una materia"
-                  isClearable={true}
-                  isSearchable={true}
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                >
-                  {materias.map(materia => (
-                    <option key={materia.id} value={materia.id}>
-                      {materia.nombre}
-                    </option>
-                  ))}
-                </Select>
-              </Form.Group>
-              <div className="form-group docente-container me-2">
-                <Form.Label htmlFor="docente" className="me-2">
-                  Docente
-                </Form.Label>
-                <div className="fixed-width-select">
+            <div className="row">
+              <div className="col-md-6">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="dia">Día:</Form.Label>
+                  <Form.Select
+                    id="dia"
+                    className="form-control"
+                    value={selectedDia}
+                    onChange={e => setSelectedDia(e.target.value)}
+                  >
+                    <option>Lunes</option>
+                    <option>Martes</option>
+                    <option>Miercoles</option>
+                    <option>Jueves</option>
+                    <option>Viernes</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+              <div className="col-md-6">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="hora">Hora:</Form.Label>
+                  <Form.Select
+                    id="hora"
+                    className="form-control"
+                    value={selectedHora}
+                    onChange={e => setSelectedHora(e.target.value)}
+                  >
+                    {horas.map(hora => (
+                      <option key={hora} value={hora}>
+                        {formatHora(hora)}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </div>
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="materia">Materia:</Form.Label>
                   <Select
+                    id="materia"
+                    value={selectedMateria}
+                    onChange={handleMateriaChange}
+                    options={materias}
+                    placeholder="Seleccione una materia"
+                    isClearable={true}
+                    isSearchable={true}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  >
+                    {materias.map(materia => (
+                      <option key={materia.id} value={materia.id}>
+                        {materia.nombre}
+                      </option>
+                    ))}
+                  </Select>
+                </Form.Group>
+              </div>
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="docente">Docente:</Form.Label>
+                  <Select
+                  id="docente"
                     value={selectedDocente}
                     onChange={handleDocenteChange}
                     options={docentes}
@@ -627,45 +635,45 @@ function Horarios() {
                     isSearchable={true}
                     className="react-select-container"
                     classNamePrefix="react-select"
-                  />
-                </div>
-                {docentes.map(docente => (
-                  <option key={docente.id} value={docente.id}>
-                    {docente.nombre}
-                  </option>
-                ))}
+                  >
+                  {docentes.map(docente => (
+                    <option key={docente.id} value={docente.id}>
+                      {docente.nombre}
+                    </option>
+                  ))}
+                  </Select>
+                </Form.Group>
               </div>
             </div>
-            <div className="form-container">
-              <div className="button-group mt-4 text-center">
-                {isEditing ? (
-                  <>
-                    <Button
-                      variant="custom"
-                      id="save-btn"
-                      onClick={handleSaveChanges}
-                    >
-                      Guardar
-                    </Button>
-                    <Button
-                      variant="custom"
-                      id="cancel-btn"
-                      onClick={handleCancelEdit}
-                      className="ml-2"
-                    >
-                      Cancelar
-                    </Button>
-                  </>
-                ) : (
+
+            <div className="button-group mt-4 text-center">
+              {isEditing ? (
+                <>
                   <Button
                     variant="custom"
-                    id="create-btn"
-                    onClick={handleCreateHorario}
+                    id="save-btn"
+                    onClick={handleSaveChanges}
                   >
-                    Crear
+                    Guardar
                   </Button>
-                )}
-              </div>
+                  <Button
+                    variant="custom"
+                    id="cancel-btn"
+                    onClick={handleCancelEdit}
+                    className="ml-2"
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="custom"
+                  id="create-btn"
+                  onClick={handleCreateHorario}
+                >
+                  Crear
+                </Button>
+              )}
             </div>
 
           </Form>
