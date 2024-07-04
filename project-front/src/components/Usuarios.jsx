@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
 import axios from "axios";
-import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
 
@@ -49,7 +49,7 @@ const Usuarios = () => {
       url = `http://localhost:8080/usuario/filter/${filtroTipo}/${filtroUsername}`;
     } else if (!filtroUsername && filtroTipo) {
       url = `http://localhost:8080/usuario/filter-tipo/${filtroTipo}`;
-    } else if (filtroUsername && filtroTipo === "Todos") {
+    } else if (filtroUsername && !filtroTipo) {
       url = `http://localhost:8080/usuario/filter-username/${filtroUsername}`;
     } else {
       url = `http://localhost:8080/usuario`;
@@ -61,9 +61,7 @@ const Usuarios = () => {
     } catch (error) {
       if (error.response) {
         const { message } = error.response.data;
-        if (message === "No hay usuarios") {
-          info(message);
-        } else {
+        if (message !== "No hay usuarios") {
           oops("Error al conectar con el servidor.");
         }
       } else {
@@ -169,9 +167,10 @@ const Usuarios = () => {
     }
   };
 
-  const handleCloseModal = () =>{
-  setUsername("");
-   setShowModal(false)};
+  const handleCloseModal = () => {
+    setUsername("");
+    setShowModal(false);
+  };
 
   const handleShowModal = () => setShowModal(true);
 
@@ -298,7 +297,15 @@ const Usuarios = () => {
                 <th>Tipo</th>
               </tr>
             </thead>
-            <tbody>{cargarUsuarios()}</tbody>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="2">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarUsuarios()
+              )}
+            </tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}

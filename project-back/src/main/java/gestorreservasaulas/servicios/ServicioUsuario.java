@@ -25,5 +25,5 @@ public interface ServicioUsuario {
 
     List<UsuarioDto> getByTipo(String tipo) throws NotFoundException;
 
-    List<UsuarioDto> getByUsernameStartingWith(String tipo) throws NotFoundException;
+    List<UsuarioDto> getByUsername(String username) throws NotFoundException;
 }

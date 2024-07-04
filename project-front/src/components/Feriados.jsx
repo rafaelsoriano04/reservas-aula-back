@@ -290,7 +290,15 @@ const Feriados = () => {
                 <th>Fin</th>
               </tr>
             </thead>
-            <tbody>{cargarFeriados()}</tbody>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="3">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarFeriados()
+              )}
+            </tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}

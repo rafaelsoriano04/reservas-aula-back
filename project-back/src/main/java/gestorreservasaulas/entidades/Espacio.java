@@ -34,6 +34,4 @@ public class Espacio {
 
     @OneToMany(mappedBy = "espacio",orphanRemoval = true)
     private List<Horario> listaHorario= new ArrayList<>();
-
-
 }

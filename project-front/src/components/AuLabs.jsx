@@ -5,7 +5,7 @@ import "../styles/AulaLabs.css";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 
 function AuLabs() {
   // Variables \
@@ -40,7 +40,7 @@ function AuLabs() {
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(0);
-  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+  const [itemsPorPagina] = useState(10);
 
   // useEffects
   useEffect(() => {
@@ -48,26 +48,11 @@ function AuLabs() {
     fetchAulasLabs();
   }, []);
 
-  ////filtros
-  const handleFiltroBloqueChange = e => {
-    setFiltroBloque(e.target.value);
-  };
-
-  const handleFiltroTipoChange = e => {
-    setFiltroTipo(e.target.value);
-  };
-
-  const handleFiltroNombreChange = e => {
-    setFiltroNombre(e.target.value);
-  };
-
   useEffect(() => {
-    setAulasLabsToShow([...aulas, ...laboratorios]);
-  }, [aulas, laboratorios]);
-
-  useEffect(() => {
-    fetchAulasLabs();
-  }, [selectedBloque]);
+    if (filtroBloque === "" && filtroNombre === "" && filtroTipo === "") {
+      fetchAulasLabs();
+    }
+  }, [filtroBloque, filtroNombre, filtroTipo]);
 
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
@@ -164,9 +149,32 @@ function AuLabs() {
   };
 
   const fetchAulasLabs = async () => {
+    let url;
+    if (!filtroNombre && !filtroBloque && !filtroTipo) {
+      url = "http://localhost:8080/espacio";
+    } else if (filtroNombre && !filtroBloque && !filtroTipo) {
+      url = `http://localhost:8080/espacio/filter-nombre/${filtroNombre}`;
+    } else if (!filtroNombre && filtroBloque && !filtroTipo) {
+      url = `http://localhost:8080/espacio/bloque/${filtroBloque}`;
+    } else if (!filtroNombre && !filtroBloque && filtroTipo) {
+      url = `http://localhost:8080/espacio/filter-tipo/${filtroTipo}`;
+    } else if (filtroNombre && filtroBloque && !filtroTipo) {
+      url = `http://localhost:8080/espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
+    } else if (!filtroNombre && filtroBloque && filtroTipo) {
+      url = `http://localhost:8080/espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
+    } else if (filtroNombre && !filtroBloque && filtroTipo) {
+      url = `http://localhost:8080/espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
+    } else {
+      url = `http://localhost:8080/espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
+    }
+
     try {
-      const response = await axios.get("http://localhost:8080/espacio");
-      setAulas(response.data);
+      const response = await axios.get(url);
+      if (!response.data) {
+        info("No hay coincidencias");
+      } else {
+        setAulas(response.data);
+      }
     } catch (error) {
       oops("No se pudo cargar los espacios. Por favor, inténtelo de nuevo.");
       setAulas([]);
@@ -178,20 +186,8 @@ function AuLabs() {
   };
 
   const offset = paginaActual * itemsPorPagina;
-  const currentPageData = aulasLabsToShow.slice(
-    offset,
-    offset + itemsPorPagina
-  );
-  const pageCount = Math.ceil(aulasLabsToShow.length / itemsPorPagina);
-
-  // Handlers
-  const handleBloqueChange = event => {
-    setSelectedBloque(event.target.value);
-  };
-
-  const handleTipoChange = event => {
-    setSelectedTipo(event.target.value);
-  };
+  const currentPageData = aulas.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(aulas.length / itemsPorPagina);
 
   const handleRowClick = (e, aula) => {
     e.stopPropagation();
@@ -226,22 +222,7 @@ function AuLabs() {
   };
 
   const cargarTabla = () => {
-    const aulasFiltradas = aulas.filter(aula => {
-      return (
-        (filtroTipo === "" || aula.tipo === filtroTipo) &&
-        (filtroBloque === "" ||
-          bloques.find(b => b.id === aula.id_bloque)?.nombre ===
-            filtroBloque) &&
-        (filtroNombre === "" ||
-          aula.nombre.toLowerCase().includes(filtroNombre.toLowerCase()))
-      );
-    });
-
-    const aulasOrdenadas = aulasFiltradas.sort((a, b) =>
-      a.nombre.localeCompare(b.nombre)
-    );
-
-    return aulasOrdenadas.slice(offset, offset + itemsPorPagina).map(aula => (
+    return aulas.slice(offset, offset + itemsPorPagina).map(aula => (
       <tr key={aula.id} onClick={e => handleRowClick(e, aula)}>
         <td>{aula.nombre}</td>
         <td>{aula.piso}</td>
@@ -252,198 +233,90 @@ function AuLabs() {
     ));
   };
 
+  const handleSearch = () => {
+    fetchAulasLabs();
+  };
+
+  const handleRefresh = () => {
+    setFiltroNombre("");
+    setFiltroBloque("");
+    setFiltroTipo("");
+  };
+
   return (
     <div className="container">
       <div className="content">
         <div className="header">
           <h2>Aulas/Laboratorios</h2>
         </div>
-        <div className="mt-4">
-          <Button
-            className="btn btn-primary d-flex align-items-center justify-content-center"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapseForm"
-            aria-expanded="false"
-            aria-controls="collapseForm"
-            style={{
-              fontWeight: "bold",
-            }}
-          >
-            <FaPlus style={{ marginRight: "5px" }} />
-            Agregar
-          </Button>
-          <div className="collapse" id="collapseForm">
-            <Form id="form-reservas">
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="form-group">
-                    <Form.Label htmlFor="bloque">Bloque:</Form.Label>
-                    <Form.Select
-                      id="bloque"
-                      className="form-control"
-                      value={selectedBloque}
-                      onChange={e => setSelectedBloque(e.target.value)}
-                    >
-                      {bloques.map(bloque => (
-                        <option key={bloque.id} value={bloque.id}>
-                          {bloque.nombre}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="form-group">
-                    <Form.Label htmlFor="tipo">Tipo:</Form.Label>
-                    <Form.Select
-                      id="tipo"
-                      className="form-control"
-                      value={selectedTipo}
-                      onChange={e => setSelectedTipo(e.target.value)}
-                    >
-                      <option value="Aula">Aula</option>
-                      <option value="Laboratorio">Laboratorio</option>
-                      <option value="Especial">Especial</option>
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="form-group">
-                    <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                    <Form.Control
-                      type="text"
-                      id="nombre"
-                      className="form-control"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={e => {
-                        setFormData({ ...formData, nombre: e.target.value });
-                        setNombreError("");
-                      }}
-                    />
-                    {nombreError && (
-                      <Alert variant="danger">{nombreError}</Alert>
-                    )}
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="form-group">
-                    <Form.Label htmlFor="piso">Piso:</Form.Label>
-                    <Form.Select
-                      id="piso"
-                      className="form-control"
-                      name="piso"
-                      value={formData.piso}
-                      onChange={e =>
-                        setFormData({ ...formData, piso: e.target.value })
-                      }
-                    >
-                      <option value="1">Piso 1</option>
-                      <option value="2">Piso 2</option>
-                      <option value="3">Piso 3</option>
-                      <option value="4">Piso 4</option>
-                      <option value="5">Piso 5</option>
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-                <div className="col-md-6">
-                  <Form.Group className="form-group">
-                    <Form.Label htmlFor="capacidad">Capacidad:</Form.Label>
-                    <Form.Control
-                      type="number"
-                      id="capacidad"
-                      className="form-control"
-                      name="capacidad"
-                      min="1"
-                      max="100"
-                      value={formData.capacidad}
-                      onChange={e => {
-                        setFormData({ ...formData, capacidad: e.target.value });
-                        setCapacidadError("");
-                      }}
-                    />
-                    {capacidadError && (
-                      <Alert variant="danger">{capacidadError}</Alert>
-                    )}
-                  </Form.Group>
-                </div>
-              </div>
-              <div className="button-group mt-4 text-center">
-                {!isEditing ? (
-                  <Button
-                    type="button"
-                    className="btn btn-custom"
-                    onClick={crearEspacio}
-                  >
-                    Crear
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      className="btn btn-custom"
-                      id="guardar-btn"
-                      onClick={() => editarespacio()}
-                    >
-                      Guardar
-                    </Button>
-                    <Button
-                      type="button"
-                      className="btn btn-danger ml-2"
-                      onClick={limpiar}
-                    >
-                      Cancelar
-                    </Button>
-                  </>
-                )}
-              </div>
-            </Form>
-          </div>
-          <div className="row mb-3 mt-4 justify-content-center">
+        <div className="row mb-0 mt-1 justify-content-between">
+          <div className="col d-flex align-items-center">
+            <label className="d-flex align-items-center fw-bold me-4">
+              Filtros:
+            </label>
             <div className="col-auto d-flex align-items-center">
-              <label className="me-2">Buscar:</label>
               <input
                 type="text"
                 className="form-control"
                 placeholder="Nombre"
                 value={filtroNombre}
-                onChange={handleFiltroNombreChange}
-                maxLength={25}
+                onChange={e => setFiltroNombre(e.target.value)}
+                maxLength={30}
               />
             </div>
-            <div className="col-auto d-flex align-items-center">
+            <div className="col-auto d-flex align-items-center ms-4">
+              <label className="me-2">Tipo:</label>
+              <select
+                className="form-select"
+                value={filtroTipo}
+                onChange={e => setFiltroTipo(e.target.value)}
+              >
+                <option value="">Todos</option>
+                <option value="Laboratorio">Laboratorio</option>
+                <option value="Aula">Aula</option>
+                <option value="Especial">Especial</option>
+              </select>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-4">
               <label className="me-2">Bloque:</label>
               <select
                 className="form-select"
                 value={filtroBloque}
-                onChange={handleFiltroBloqueChange}
+                onChange={e => setFiltroBloque(e.target.value)}
               >
                 <option value="">Todos</option>
                 {bloques.map(bloque => (
-                  <option key={bloque.id} value={bloque.nombre}>
+                  <option key={bloque.id} value={bloque.id}>
                     {bloque.nombre}
                   </option>
                 ))}
               </select>
             </div>
-            <div className="col-auto d-flex align-items-center">
-              <label className="me-2">Tipo:</label>
-              <select
-                className="form-select"
-                value={filtroTipo}
-                onChange={handleFiltroTipoChange}
-              >
-                <option value="">Todos</option>
-                <option value="Aula">Aula</option>
-                <option value="Laboratorio">Laboratorio</option>
-                <option value="Especial">Especial</option>
-              </select>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <button className="btn" onClick={handleSearch}>
+                <i className="fas fa-search"></i>
+              </button>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-1">
+              <button className="btn" onClick={handleRefresh}>
+                <i className="fas fa-refresh"></i>
+              </button>
             </div>
           </div>
-          <table className="table table-bordered table-hover mt-4">
+          <div className="col-auto">
+            <button
+              className="btn"
+              onClick={() => {
+                setIsEditing(false);
+                // handleShowModal();
+              }}
+            >
+              Nuevo Espacio
+            </button>
+          </div>
+        </div>
+        <div className="mt-1">
+          <table className="table table-bordered mt-4">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -453,7 +326,15 @@ function AuLabs() {
                 <th>Tipo</th>
               </tr>
             </thead>
-            <tbody>{cargarTabla()}</tbody>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="5">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarTabla()
+              )}
+            </tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}

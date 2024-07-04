@@ -48,7 +48,7 @@ public class UsuarioController {
 
     @GetMapping("/filter-username/{username}")
     public List<UsuarioDto> getByUsernameStartingWith(@PathVariable String username) throws NotFoundException {
-        return servicioUsuario.getByUsernameStartingWith(username);
+        return servicioUsuario.getByUsername(username);
     }
 
     @PutMapping("/{id}")

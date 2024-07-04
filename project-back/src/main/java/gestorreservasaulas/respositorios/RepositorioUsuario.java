@@ -11,8 +11,9 @@ import java.util.Optional;
 @Repository
 public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
     Optional<Usuario> getByUsername(String username);
-    List<Usuario> findByTipoAndUsernameStartingWith(String tipo, String username, Sort sort);
+    List<Usuario> findByTipoAndUsernameContains(String tipo, String username, Sort sort);
     List<Usuario> findByTipo(String tipo, Sort sort);
-    List<Usuario> findByUsernameStartingWith(String username, Sort sort);
+    List<Usuario> findByUsernameContains(String username, Sort sort);
 }
+
 
