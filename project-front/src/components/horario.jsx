@@ -24,6 +24,7 @@ function Horarios() {
   const [selectedHorario, setSelectedHorario] = useState("");
   const [selectedCell, setSelectedCell] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
+  const [showContextCrear, setShowContextCrear] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
@@ -97,6 +98,13 @@ function Horarios() {
 
   // Funciones
   const handleCloseModal = () => {
+    //limpiar los datos
+    setSelectedHora("7-8");
+    setSelectedDia("Lunes");
+    setSelectedMateria("");
+    setSelectedDocente("");
+    setIsEditing(false);
+
     setShowModal(false);
   };
   const handleShowModal = () => {
@@ -244,6 +252,7 @@ function Horarios() {
     if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
       setSelectedCell(null);
       setShowContextMenu(false);
+      setShowContextCrear(false);
     }
   };
   const handleMateriaChange = selectedOption => {
@@ -298,8 +307,8 @@ function Horarios() {
       id_persona: nada,
       id_espacio: selectedAulaLab,
     };
-   
-  
+
+
 
     try {
       if (horarioExiste) {
@@ -345,6 +354,7 @@ function Horarios() {
       id_espacio: selectedAulaLab,
     };
     console.log(horarioActualizado);
+
     try {
       const response = await axios.post(url, horarioActualizado, {
         headers: {
@@ -402,10 +412,69 @@ function Horarios() {
   };
 
   const handleCellClick = (e, rowIndex, cellIndex) => {
-    setSelectedCell({ rowIndex, cellIndex });
+    const celdaSeleccionada = { rowIndex, cellIndex };
+    setSelectedCell(celdaSeleccionada);
     setContextMenuPosition({ top: e.pageY, left: e.pageX });
-    setShowContextMenu(true);
+
+    const diaIndex = cellIndex;
+
+    const horario = horarios.find(
+      h =>
+        h.dia === dias[diaIndex] &&
+        h.hora.startsWith(rowIndex + 7 + "")
+    );
+
+    
+    if (horario) {
+      // Contextual para editar y eliminar
+      setShowContextMenu(true);
+      setShowContextCrear(false);
+    } else {
+      // Contextual para crear
+      //Logica para que se selecciona automaticamente el dia y la hora en los combos
+      //de acuerdo a lo seleccionado
+      seleccionDiaHora(celdaSeleccionada);
+      setShowContextCrear(true);
+      setShowContextMenu(false);
+    }
   };
+
+  const seleccionDiaHora = (celdaSeleccionada) => {
+    //logica para utilizar los set de dia y hora
+    let dia = "";
+    switch (celdaSeleccionada.cellIndex) {
+      case 0:
+        dia = "Lunes";
+        break;
+      case 1:
+        dia = "Martes";
+        break;
+      case 2:
+        dia = "Miercoles";
+        break;
+      case 3:
+        dia = "Jueves";
+        break;
+      case 4:
+        dia = "Viernes";
+        break;
+      case 5:
+        dia = "Sabado";
+        break;
+    }
+    setSelectedDia(dia);
+    
+    let hora = "";
+    const fila = celdaSeleccionada.rowIndex;
+    if (fila < 6) {
+      //sumar 7
+      hora = (parseInt(fila) + 7) +"-" + (parseInt(fila) + 8);
+    }else{
+      //sumar 8
+      hora = (parseInt(fila) + 8) +"-" + (parseInt(fila) + 9);
+    }
+    setSelectedHora(hora);
+  }
 
   // Render
   return (
@@ -553,6 +622,23 @@ function Horarios() {
                 Eliminar
               </Button>
             </div>
+            <div
+              className="context-menu"
+              id="context-menu"
+              style={{
+                display: showContextCrear ? "block" : "none",
+                top: contextMenuPosition.top,
+                left: contextMenuPosition.left,
+              }}
+            >
+              <Button
+                variant="custom"
+                id="editar-btn"
+                onClick={handleShowModal}
+              >
+                Crear
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -626,7 +712,7 @@ function Horarios() {
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="docente">Docente:</Form.Label>
                   <Select
-                  id="docente"
+                    id="docente"
                     value={selectedDocente}
                     onChange={handleDocenteChange}
                     options={docentes}
@@ -636,11 +722,11 @@ function Horarios() {
                     className="react-select-container"
                     classNamePrefix="react-select"
                   >
-                  {docentes.map(docente => (
-                    <option key={docente.id} value={docente.id}>
-                      {docente.nombre}
-                    </option>
-                  ))}
+                    {docentes.map(docente => (
+                      <option key={docente.id} value={docente.id}>
+                        {docente.nombre}
+                      </option>
+                    ))}
                   </Select>
                 </Form.Group>
               </div>
