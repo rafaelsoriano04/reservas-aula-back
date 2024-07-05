@@ -19,7 +19,7 @@ function Docentes() {
     nombre: "",
     cedula: "",
     apellido: "",
-    telefono: "",
+    telefono: "0999999999",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
