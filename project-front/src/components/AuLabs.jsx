@@ -16,8 +16,6 @@ function AuLabs() {
   const [aulas, setAulas] = useState([]);
   const [nombreError, setNombreError] = useState("");
   const [capacidadError, setCapacidadError] = useState("");
-  const [laboratorios, setLaboratorios] = useState([]);
-  const [cancel, setCancel] = useState(false);
   const [filtroBloque, setFiltroBloque] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroNombre, setFiltroNombre] = useState("");
@@ -62,8 +60,8 @@ function AuLabs() {
     };
   }, []);
   useEffect(() => {
-    setAulasLabsToShow([...aulas, ...laboratorios]);
-  }, [aulas, laboratorios]);
+    setAulasLabsToShow([...aulas]);
+  }, [aulas]);
 
   // Funciones
   const getBloques = async () => {
@@ -88,7 +86,7 @@ function AuLabs() {
         setNombreError("Ingrese un nombre");
         return;
       }
-      if (espacio.capacidad === "" ) {
+      if (espacio.capacidad === "") {
         setCapacidadError("Ingrese la capacidad");
         return;
       }
@@ -104,7 +102,6 @@ function AuLabs() {
 
   const limpiar = async () => {
     setIsEditing(false);
-    setCancel(true);
     setFormData({ nombre: "", capacidad: "", id: "" });
   };
 
@@ -204,10 +201,9 @@ function AuLabs() {
 
   const handleEditClick = () => {
     const selectedAulaLab = aulasLabsToShow.find(d => d.id === selectedRow);
-    console.log (selectedRow)
+    console.log(selectedRow);
 
     if (selectedAulaLab) {
-      
       setFormData({
         id_bloque: selectedAulaLab.id_bloque,
         tipo: selectedAulaLab.tipo,
@@ -335,7 +331,7 @@ function AuLabs() {
         </div>
         <div className="mt-1">
           <table className="table table-bordered table-hover mt-4 caption-top">
-          <caption>Seleccione una fila para ver sus opciones</caption>
+            <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -383,7 +379,9 @@ function AuLabs() {
               left: contextMenuPosition.left,
             }}
           >
-            <Button variant="custom" id="editar-btn"
+            <Button
+              variant="custom"
+              id="editar-btn"
               onClick={() => {
                 handleEditClick();
                 handleShowModal();
@@ -487,7 +485,6 @@ function AuLabs() {
               </div>
 
               <div className="col-md-12">
-
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="nombre">Nombre:</Form.Label>
                   <Form.Control
@@ -501,9 +498,7 @@ function AuLabs() {
                       setNombreError("");
                     }}
                   />
-                  {nombreError && (
-                    <Alert variant="danger">{nombreError}</Alert>
-                  )}
+                  {nombreError && <Alert variant="danger">{nombreError}</Alert>}
                 </Form.Group>
               </div>
             </div>
@@ -540,9 +535,7 @@ function AuLabs() {
         </Modal.Body>
       </Modal>
     </div>
-
   );
-
 }
 
 export default AuLabs;

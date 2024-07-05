@@ -283,7 +283,7 @@ const Feriados = () => {
         </div>
         <div className="mt-0">
           <table className="table table-bordered table-hover caption-top mt-3">
-          <caption>Seleccione una fila para ver sus opciones</caption>
+            <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th>Nombre</th>

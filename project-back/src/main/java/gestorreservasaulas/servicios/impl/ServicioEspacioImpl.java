@@ -151,7 +151,7 @@ public class ServicioEspacioImpl implements ServicioEspacio {
 
     @Override
     public List<EspacioDto> findAll() {
-        List<Espacio> listaEspacios = repositorioEspacio.findAll();
+        List<Espacio> listaEspacios = repositorioEspacio.findAll(Sort.by(Sort.Direction.ASC, "nombre"));
         return listaEspacios.stream().map(this::espacioToDto).collect(Collectors.toList());
     }
 
