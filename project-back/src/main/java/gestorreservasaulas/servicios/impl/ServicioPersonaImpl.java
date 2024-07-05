@@ -41,19 +41,23 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
     @Override
     public PersonaDto guardar(PersonaDto nuevaPersona) throws NotFoundException {
-        if (this.existePorCedula(nuevaPersona.getCedula())) {
-            PersonaDto personaExistente = buscar(nuevaPersona.getCedula());
-            personaExistente.setNombre(nuevaPersona.getNombre());
-            personaExistente.setApellido(nuevaPersona.getApellido());
-            personaExistente.setTelefono(nuevaPersona.getTelefono());
-            personaExistente.setTipo(nuevaPersona.getTipo());
-            return personToDto(repositorioPersona.save(dtoToPerson(personaExistente)));
-        } else {
+        if (nuevaPersona.getCedula().equals("editando")){
+            Persona p = findById(nuevaPersona.getId());
             Persona nueva = dtoToPerson(nuevaPersona);
+            nueva.setCedula(p.getCedula());
             Persona personaGuardada = repositorioPersona.save(nueva);
             return personToDto(personaGuardada);
         }
 
+        if (this.existePorCedula(nuevaPersona.getCedula())) {
+            throw new NotFoundException("cedula existe");
+
+        } else {
+                //nueva persona
+            Persona nueva = dtoToPerson(nuevaPersona);
+            Persona personaGuardada = repositorioPersona.save(nueva);
+            return personToDto(personaGuardada);
+        }
     }
 
     @Override
