@@ -578,7 +578,7 @@ const LabReservations = () => {
       !responsible.telefono ||
       !responsible.tipo
     ) {
-      oops("Todos los campos deben estar llenos.");
+      oops("Existe algún campo vacío o no has buscado un responsable.");
       return;
     }
 
