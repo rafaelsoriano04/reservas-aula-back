@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/materias.css";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
@@ -10,13 +10,12 @@ import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 function Materias() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
-  const [materias, setMateria] = useState([]);
+  const [materias, setMaterias] = useState([]);
   const [formData, setFormData] = useState({ id: "", nombre: "", carrera: "" });
   const [isEditing, setIsEditing] = useState(false);
-  const [cancel, setCancel] = useState(false);
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroCarrera, setFiltroCarrera] = useState("");
-
+  const [showModal, setShowModal] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     top: 0,
     left: 0,
@@ -31,21 +30,10 @@ function Materias() {
   const carreraRef = useRef(null);
 
   const [selectedCarrera, setSelectedCarrera] = useState("");
-  const handleFiltroNombreChange = e => {
-    setFiltroNombre(e.target.value);
-  };
-
-  const handleFiltroCarreraChange = e => {
-    setFiltroCarrera(e.target.value);
-  };
-
-  useEffect(() => {
-    getMaterias();
-  }, [filtroNombre, filtroCarrera]);
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(0);
-  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+  const [itemsPorPagina] = useState(10);
 
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
@@ -58,24 +46,37 @@ function Materias() {
     getMaterias();
   }, []);
 
+  useEffect(() => {
+    if (filtroNombre === "" && filtroCarrera === "") {
+      getMaterias();
+    }
+  }, [filtroNombre, filtroCarrera]);
+
   const getMaterias = async () => {
-    const url = `http://localhost:8080/materia/todos`;
+    let url;
+    if (!filtroNombre && !filtroCarrera) {
+      url = `http://localhost:8080/materia`;
+    } else if (filtroNombre && !filtroCarrera) {
+      url = `http://localhost:8080/materia/filter-nombre/${filtroNombre}`;
+    } else if (!filtroNombre && filtroCarrera) {
+      url = `http://localhost:8080/materia/filter-carrera/${filtroCarrera}`;
+    } else {
+      url = `http://localhost:8080/materia/filter/${filtroNombre}/${filtroCarrera}`;
+    }
+
     try {
       const response = await axios.get(url);
-      const data = Array.isArray(response.data) ? response.data : [];
-      const filteredData = data.filter(materia => {
-        return (
-          (filtroNombre === "" ||
-            materia.nombre
-              .toLowerCase()
-              .includes(filtroNombre.toLowerCase())) &&
-          (filtroCarrera === "" || materia.carrera === filtroCarrera)
-        );
-      });
-      setMateria(filteredData);
+      setMaterias(response.data);
     } catch (error) {
-      oops("Error al cargar materias.");
-      setMateria([]); // Limpia los datos si la petición falla
+      if (error.response) {
+        const { message } = error.response.data;
+        if (message !== "No hay materias") {
+          oops("Error al conectar con el servidor.");
+        }
+      } else {
+        oops("Error al conectar con el servidor.");
+      }
+      setMaterias([]); // Limpia los datos si la petición falla
     }
   };
 
@@ -95,9 +96,16 @@ function Materias() {
     }
   };
 
+  const handleCloseModal = () => {
+    limpiar();
+    setShowModal(false);
+  };
+
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
   const limpiar = () => {
     setIsEditing(false);
-    setCancel(true);
     setFormData({ id: "", nombre: "", carrera: "" });
     setSelectedCarrera(""); // Limpiar selección de carrera
   };
@@ -140,7 +148,6 @@ function Materias() {
       if (response.status === 200) {
         getMaterias();
         setIsEditing(false);
-        setCancel(false);
         setFormData({ id: "", nombre: "", carrera: "" });
         setSelectedCarrera(""); // Limpiar selección de carrera
         ok("Registro actualizado exitosamente.");
@@ -186,124 +193,81 @@ function Materias() {
     ));
   };
 
+  const handleSearch = () => {
+    getMaterias();
+  };
+
+  const handleRefresh = () => {
+    setFiltroNombre("");
+    setFiltroCarrera("");
+  };
+
   return (
     <>
-      <div className="header">
-        <h2>Materias</h2>
-      </div>
-      <div className="mt-4">
-        <Button
-          className="btn btn-primary d-flex align-items-center justify-content-center"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#collapseForm"
-          aria-expanded="false"
-          aria-controls="collapseForm"
-          style={{
-            fontWeight: "bold",
-          }}
-        >
-          <FaPlus style={{ marginRight: "5px" }} />
-          Agregar
-        </Button>
-        <div className="collapse" id="collapseForm">
-          <Form id="form-reservas">
-            <div className="row">
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="nombre"
-                    className="form-control"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={e =>
-                      setFormData({ ...formData, nombre: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-4">
-                <Form.Group className="form-group">
-                  <Form.Label htmlFor="carrera">Carrera:</Form.Label>
-                  <Form.Select
-                    id="carrera"
-                    className="form-control"
-                    value={selectedCarrera}
-                    ref={carreraRef}
-                    onChange={e => setSelectedCarrera(e.target.value)}
-                  >
-                    <option value="">Seleccione una opción</option>
-                    {carreras.map(carrera => (
-                      <option key={carrera.nombre} value={carrera.nombre}>
-                        {carrera.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            </div>
-            <div className="button-group mt-4 text-center">
-              {!isEditing ? (
-                <Button
-                  type="button"
-                  className="btn btn-custom"
-                  onClick={() => guardarMateria()}
-                >
-                  Crear
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    className="btn btn-custom"
-                    id="guardar-btn"
-                    onClick={() => editarMateria(selectedRow)}
-                  >
-                    Guardar
-                  </Button>
-                  <Button
-                    type="button"
-                    className="btn btn-danger ml-2"
-                    onClick={limpiar}
-                  >
-                    Cancelar
-                  </Button>
-                </>
-              )}
-            </div>
-          </Form>
+      <div>
+        <div className="header">
+          <h2>Materias</h2>
         </div>
-        <div className="row mb-3 mt-4 justify-content-center">
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Buscar:</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Nombre"
-              value={filtroNombre}
-              onChange={e => setFiltroNombre(e.target.value)}
-              maxLength={30}
-            />
+        <div className="row mb-0 mt-3 justify-content-between">
+          <div className="col d-flex align-items-center">
+            <label className="d-flex align-items-center fw-bold me-4">
+              Filtros:
+            </label>
+            <div className="col-auto d-flex align-items-center">
+              <label className="me-2">Nombre:</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Nombre"
+                value={filtroNombre}
+                onChange={e => setFiltroNombre(e.target.value)}
+                maxLength={30}
+              />
+            </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <label className="me-2">Carrera:</label>
+              <select
+                className="form-select"
+                value={filtroCarrera}
+                onChange={e => setFiltroCarrera(e.target.value)}
+              >
+                <option value="">Todas</option>
+                {carreras.map(carrera => (
+                  <option key={carrera.nombre} value={carrera.nombre}>
+                    {carrera.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <button className="btn" onClick={handleSearch}>
+                <i className="fas fa-search"></i>
+              </button>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-1">
+              <button className="btn" onClick={handleRefresh}>
+                <i className="fas fa-refresh"></i>
+              </button>
+            </div>
           </div>
-          <div className="col-auto d-flex align-items-center">
-            <label className="me-2">Carrera:</label>
-            <select
-              className="form-select"
-              value={filtroCarrera}
-              onChange={e => setFiltroCarrera(e.target.value)}
+          <div className="col-auto">
+            <button
+              className="btn"
+              onClick={() => {
+                setIsEditing(false);
+                handleShowModal();
+              }}
             >
-              <option value="">Todos</option>
-              {carreras.map(carrera => (
-                <option key={carrera.nombre} value={carrera.nombre}>
-                  {carrera.nombre}
-                </option>
-              ))}
-            </select>
+              <FaPlus style={{ marginRight: "5px" }} />
+              Nueva Materia
+            </button>
           </div>
         </div>
-        <table className="table table-bordered mt-4">
+      </div>
+
+      <div className="mt-4">
+        <table className="table table-bordered table-hover mt-4 caption-top">
+          <caption>Seleccione una fila para ver sus opciones</caption>
           <thead>
             <tr>
               <th>Nombre</th>
@@ -360,8 +324,9 @@ function Materias() {
                   carrera: selectedMateria.carrera,
                 });
                 setSelectedCarrera(selectedMateria.carrera);
-                setShowContextMenu(false); // Cierra el menú contextual
+                setShowContextMenu(false);
                 setIsEditing(true);
+                handleShowModal();
               }
             }}
           >
@@ -376,6 +341,90 @@ function Materias() {
           </Button>
         </div>
       </div>
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {!isEditing ? "Crear Materia" : "Editar Materia"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form id="form-reservas">
+            <div className="row">
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="nombre">Nombre:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    id="nombre"
+                    className="form-control"
+                    name="nombre"
+                    placeholder="Ingrese el nombre de la materia"
+                    value={formData.nombre}
+                    onChange={e =>
+                      setFormData({ ...formData, nombre: e.target.value })
+                    }
+                  />
+                </Form.Group>
+              </div>
+              <div className="col-12">
+                <Form.Group className="form-group">
+                  <Form.Label htmlFor="carrera">Carrera:</Form.Label>
+                  <Form.Select
+                    id="carrera"
+                    className="form-control"
+                    value={selectedCarrera}
+                    ref={carreraRef}
+                    onChange={e => setSelectedCarrera(e.target.value)}
+                  >
+                    <option value="">Seleccione una opción</option>
+                    {carreras.map(carrera => (
+                      <option key={carrera.nombre} value={carrera.nombre}>
+                        {carrera.nombre}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            </div>
+
+            <div className="button-group mt-4 text-center">
+              {!isEditing ? (
+                <Button
+                  type="button"
+                  className="btn btn-custom"
+                  onClick={() => guardarMateria()}
+                >
+                  Crear
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    className="btn btn-custom"
+                    id="guardar-btn"
+                    onClick={() => {
+                      editarMateria(selectedRow);
+                      handleCloseModal();
+                    }}
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    type="button"
+                    className="btn btn-danger ml-2"
+                    onClick={() => {
+                      limpiar;
+                      handleCloseModal();
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              )}
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }

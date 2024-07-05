@@ -15,7 +15,6 @@ const LabReservations = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [noHorariosMessage, setNoHorariosMessage] = useState("");
 
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [reservationDetails, setReservationDetails] = useState({
     encargado: "",
     asunto: "",
@@ -193,20 +192,6 @@ const LabReservations = () => {
     }
   };
 
-  const handleNombreChange = event => {
-    const value = event.target.value;
-    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible(prev => ({ ...prev, nombre: value }));
-    }
-  };
-
-  const handleApellidoChange = event => {
-    const value = event.target.value;
-    if (/^[a-zA-Z\s]*$/.test(value) && value.length <= 50) {
-      setResponsible(prev => ({ ...prev, apellido: value }));
-    }
-  };
-
   const handleBloqueChange = event => {
     setSelectedBloque(event.target.value);
   };
@@ -296,9 +281,17 @@ const LabReservations = () => {
     }
 
     const colorFondo = horario.reservado ? "#ffcccc" : "#cce7ff";
-    const textoCelda = horario.reservado
-      ? `Reservado - ${horario.asunto}`
-      : horario.nombre;
+    let textoCelda;
+    if (horario.nombre.includes(" - ")) {
+      const [materia, profesor] = horario.nombre.split(" - ");
+      textoCelda = (
+        <>
+          {materia} - <strong>{profesor}</strong>
+        </>
+      );
+    } else {
+      textoCelda = horario.nombre;
+    }
 
     return (
       <td
@@ -365,46 +358,54 @@ const LabReservations = () => {
   };
 
   const handleCellClick = (event, dia, hora) => {
-  const text = event.target.textContent.trim();
-  setSelectedCell({ dia, hora });
+    const text = event.target.textContent.trim();
+    setSelectedCell({ dia, hora });
 
-  const index = dias.indexOf(dia);
-  const selectedDay = weekDates[index];
+    const index = dias.indexOf(dia);
+    const selectedDay = new Date(weekDates[index]);
 
-  const formattedDate = formatDate(selectedDay);
-  const horaInicioStr = hora.split("-")[0].trim();
-  const startHour = parseInt(horaInicioStr, 10);
+    const formattedDate = formatDate(selectedDay);
+    const horaInicioStr = hora.split("-")[0].trim();
+    const startHour = parseInt(horaInicioStr.split(":")[0], 10);
+    const startMinute = parseInt(horaInicioStr.split(":")[1], 10) || 0;
 
-  // Verificar si startHour es un número
-  if (isNaN(startHour)) {
-    console.error(`Error: No se pudo convertir la hora de inicio a número. horaInicioStr: ${horaInicioStr}`);
-    return;
-  }
+    // Verificar si startHour es un número
+    if (isNaN(startHour)) {
+      console.error(
+        `Error: No se pudo convertir la hora de inicio a número. horaInicioStr: ${horaInicioStr}`
+      );
+      return;
+    }
 
-  const reserva = reservas.find(
-    reserva =>
-      reserva.fecha === formattedDate &&
-      parseInt(reserva.hora) === startHour
-  );
+    const reserva = reservas.find(
+      reserva =>
+        reserva.fecha === formattedDate && parseInt(reserva.hora) === startHour
+    );
 
-  const isFeriado = feriados.some(
-    feriado =>
-      new Date(feriado.inicio) <= new Date(formattedDate) &&
-      new Date(feriado.fin) >= new Date(formattedDate)
-  );
+    const isFeriado = feriados.some(
+      feriado =>
+        new Date(feriado.inicio) <= new Date(formattedDate) &&
+        new Date(feriado.fin) >= new Date(formattedDate)
+    );
 
-  if (isFeriado) {
-    oops("No puedes reservar en un día de feriado.");
-    return;
-  }
+    if (isFeriado) {
+      oops("No puedes reservar en un día de feriado.");
+      return;
+    }
 
-  if (reserva) {
     const now = new Date();
-    if (
-      selectedDay > now.setHours(0, 0, 0, 0) ||
-      (selectedDay.toDateString() === new Date().toDateString() &&
-        startHour > now.getHours())
-    ) {
+    const isSameDay = selectedDay.toDateString() === now.toDateString();
+    const nowHours = now.getHours();
+    const nowMinutes = now.getMinutes();
+
+    // Verificar si la reserva es pasada
+    const isPastReservation =
+      selectedDay < now.setHours(0, 0, 0, 0) ||
+      (isSameDay &&
+        (startHour < nowHours ||
+          (startHour === nowHours && startMinute < nowMinutes)));
+
+    if (reserva) {
       setReservationDetails({
         encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
         asunto: reserva.asunto,
@@ -415,66 +416,56 @@ const LabReservations = () => {
         editable: false,
         id: reserva.id,
       });
-      setContextMenuPosition({ top: event.pageY, left: event.pageX });
-      setShowContextMenu(true);
+
+      if (isPastReservation) {
+        setShowModal(true);
+      } else {
+        const rect = event.target.getBoundingClientRect();
+        setShowContextMenu(false); // Ocultar el menú contextual antes de mostrarlo nuevamente
+        setTimeout(() => {
+          setContextMenuPosition({
+            top: rect.bottom + window.scrollY - 40, // Ajusta estos valores según sea necesario
+            left: rect.right + window.scrollX - 70, // Ajusta estos valores según sea necesario
+          });
+          setShowContextMenu(true);
+        }, 0);
+      }
       return;
     } else {
-      setReservationDetails({
-        encargado: `${reserva.persona.nombre} ${reserva.persona.apellido}`,
-        asunto: reserva.asunto,
-        descripcion: reserva.descripcion || "Descripción aquí",
-        hora: hora,
-        fecha: reserva.fecha,
-        tipo: reserva.persona.tipo || "N/A",
-        editable: false,
-        id: reserva.id,
-      });
-      setShowModal(true);
-      return;
-    }
-  } else {
-    const now = new Date();
-    if (selectedDay < now.setHours(0, 0, 0, 0)) {
-      oops("No puedes reservar en una fecha pasada.");
-      return;
-    }
+      if (selectedDay < now.setHours(0, 0, 0, 0)) {
+        oops("No puedes reservar en una fecha pasada.");
+        return;
+      }
 
-    if (selectedDay.toDateString() === new Date().toDateString()) {
-      const currentTime = new Date();
-      if (currentTime.getHours() >= startHour) {
-        console.log("No puedes reservar una hora pasada.");
+      if (
+        isSameDay &&
+        (nowHours > startHour ||
+          (nowHours === startHour && nowMinutes >= startMinute))
+      ) {
         oops("No puedes reservar una hora pasada.");
         return;
       }
-    }
 
-    if (text === "Disponible") {
-      setSelectedDate(selectedDay);
-      setNewReservation({
-        encargado: "",
-        asunto: "",
-        descripcion: "",
-        hora: startHour.toString(),
-      });
-      setResponsible({
-        cedula: "",
-        nombre: "",
-        apellido: "",
-        telefono: "",
-        tipo: "",
-      });
-      setIsExistingResponsible(false);
-      setShowAdditionalFields(false);
-      setShowAddModal(true);
+      if (text === "Disponible") {
+        setSelectedDate(selectedDay);
+        setNewReservation({
+          encargado: "",
+          asunto: "",
+          descripcion: "",
+          hora: startHour.toString(),
+        });
+        setResponsible({
+          cedula: "",
+          nombre: "",
+          apellido: "",
+          telefono: "",
+          tipo: "",
+        });
+        setIsExistingResponsible(false);
+        setShowAdditionalFields(false);
+        setShowAddModal(true);
+      }
     }
-  }
-};
-
-  const enableEditing = () => {
-    setReservationDetails(prev => ({
-      ...prev,
-      editable: true,
-    }));
   };
 
   const confirmDelete = async () => {
@@ -497,8 +488,9 @@ const LabReservations = () => {
         setReservas(prev =>
           prev.filter(reserva => reserva.id !== reservationId)
         );
+
         ok("Registro eliminado exitosamente.");
-        setShowConfirmDelete(false);
+        await getHorarios();
         setShowModal(false);
       }
     } catch (error) {
@@ -507,6 +499,10 @@ const LabReservations = () => {
   };
 
   const updateReservation = async () => {
+    if (!reservationDetails.asunto || !reservationDetails.descripcion) {
+      oops("Todos los campos deben estar llenos.");
+      return;
+    }
     const updatedReservation = {
       id: reservationDetails.id,
       asunto: reservationDetails.asunto,
@@ -573,6 +569,19 @@ const LabReservations = () => {
 
   //GUARDA LA RESERVA
   const saveNewReservation = async () => {
+    if (
+      !newReservation.asunto ||
+      !newReservation.descripcion ||
+      !responsible.cedula ||
+      !responsible.nombre ||
+      !responsible.apellido ||
+      !responsible.telefono ||
+      !responsible.tipo
+    ) {
+      oops("Todos los campos deben estar llenos.");
+      return;
+    }
+
     if (selectedCell && selectedAulaLab) {
       const formattedDate = selectedDate.toISOString();
 
@@ -611,10 +620,7 @@ const LabReservations = () => {
       console.log(reserva);
 
       try {
-        const response = await axios.post(
-          "http://localhost:8080/reservas",
-          reserva
-        );
+        await axios.post("http://localhost:8080/reservas", reserva);
         await getHorarios();
         const newHorarios = [
           ...horarios,
@@ -768,11 +774,15 @@ const LabReservations = () => {
       </div>
 
       {noHorariosMessage ? (
-        <div className="alert alert-info text-center mt-3" role="alert">
+        <div
+          className="alert alert-info text-center mt-3 no-horarios-message"
+          role="alert"
+        >
           {noHorariosMessage}
         </div>
       ) : (
-        <table className="table table-bordered mt-4 table-centered">
+        <table className="table table-bordered mt-4 table-centered caption-top">
+          <caption>Seleccione una celda para realizar una acción</caption>
           <thead>
             <tr>
               <th>Horas</th>
@@ -823,7 +833,6 @@ const LabReservations = () => {
           variant="custom"
           id="editar-btn"
           onClick={() => {
-            enableEditing();
             setReservationDetails(prev => ({ ...prev, editable: true })); // Hace los campos editables
             setShowModal(true);
             setShowContextMenu(false);
@@ -831,6 +840,7 @@ const LabReservations = () => {
         >
           Editar
         </Button>
+
         <Button
           variant="custom"
           id="eliminar-btn"
@@ -844,7 +854,7 @@ const LabReservations = () => {
       </div>
 
       {/* Modal para detalles de reserva */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="md">
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Detalles de la Reserva</Modal.Title>
         </Modal.Header>
@@ -852,49 +862,7 @@ const LabReservations = () => {
           <form id="reservationForm">
             <section>
               <h5>Información de la Reserva</h5>
-              <div className="row">
-                <div className="col-md-6">
-                  <label htmlFor="dayName" className="form-label">
-                    Día
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="dayName"
-                    value={
-                      reservationDetails.fecha
-                        ? getDayNameFromDateR(reservationDetails.fecha)
-                        : ""
-                    }
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="fecha" className="form-label">
-                    Fecha
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="fecha"
-                    value={reservationDetails.fecha}
-                    disabled
-                  />
-                </div>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="hora" className="form-label">
-                  Hora
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="hora"
-                  value={reservationDetails.hora}
-                  disabled
-                />
-              </div>
-              <div className="row">
+              <div className="row mt-3 mb-2">
                 <div className="col-md-6">
                   <label htmlFor="encargado" className="form-label">
                     Responsable
@@ -920,6 +888,48 @@ const LabReservations = () => {
                   />
                 </div>
               </div>
+              <div className="row mb-3">
+                <div className="col-md-4">
+                  <label htmlFor="dayName" className="form-label">
+                    Día
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="dayName"
+                    value={
+                      reservationDetails.fecha
+                        ? getDayNameFromDateR(reservationDetails.fecha)
+                        : ""
+                    }
+                    disabled
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="fecha" className="form-label">
+                    Fecha
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="fecha"
+                    value={reservationDetails.fecha}
+                    disabled
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="hora" className="form-label">
+                    Hora
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="hora"
+                    value={reservationDetails.hora}
+                    disabled
+                  />
+                </div>
+              </div>
               <div className="mb-3">
                 <label htmlFor="asunto" className="form-label">
                   Asunto
@@ -935,7 +945,7 @@ const LabReservations = () => {
                       asunto: e.target.value,
                     })
                   }
-                  disabled={!reservationDetails.editable} // Asegúrate de que esto depende de `editable`
+                  disabled={!reservationDetails.editable}
                 />
               </div>
               <div className="mb-3">
@@ -952,7 +962,7 @@ const LabReservations = () => {
                       descripcion: e.target.value,
                     })
                   }
-                  disabled={!reservationDetails.editable} // Asegúrate de que esto depende de `editable`
+                  disabled={!reservationDetails.editable}
                 />
               </div>
             </section>
@@ -975,7 +985,7 @@ const LabReservations = () => {
       <Modal
         show={showAddModal}
         onHide={() => setShowAddModal(false)}
-        size="md"
+        size="lg"
       >
         <Modal.Header closeButton>
           <Modal.Title>Agregar Reserva</Modal.Title>
@@ -1100,8 +1110,8 @@ const LabReservations = () => {
             <hr />
             <section>
               <h5>Reserva</h5>
-              <div className="mb-3 row">
-                <div className="col-md-6">
+              <div className="row mb-3">
+                <div className="col-md-4 expand">
                   <label htmlFor="dayName" className="form-label">
                     Día
                   </label>
@@ -1113,7 +1123,7 @@ const LabReservations = () => {
                     disabled
                   />
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-4 expand">
                   <label htmlFor="newDate" className="form-label">
                     Fecha
                   </label>
@@ -1125,7 +1135,7 @@ const LabReservations = () => {
                     disabled
                   />
                 </div>
-                <div className="mb-3">
+                <div className="col-md-4 expand">
                   <label htmlFor="newHora" className="form-label">
                     Hora
                   </label>

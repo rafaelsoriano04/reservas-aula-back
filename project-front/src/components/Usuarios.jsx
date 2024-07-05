@@ -5,6 +5,7 @@ import "../styles/usuarios.css";
 import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 
 const Usuarios = () => {
   const [username, setUsername] = useState("");
@@ -37,30 +38,30 @@ const Usuarios = () => {
   }, []);
 
   useEffect(() => {
-    getUsuarios();
-  }, [filtroUsername, filtroTipo, paginaActual]);
+    if (filtroUsername === "" && filtroTipo === "") {
+      getUsuarios();
+    }
+  }, [filtroUsername, filtroTipo]);
 
   const getUsuarios = async () => {
-    const url = `http://localhost:8080/usuario`;
+    let url;
+    if (filtroUsername && filtroTipo) {
+      url = `http://localhost:8080/usuario/filter/${filtroTipo}/${filtroUsername}`;
+    } else if (!filtroUsername && filtroTipo) {
+      url = `http://localhost:8080/usuario/filter-tipo/${filtroTipo}`;
+    } else if (filtroUsername && !filtroTipo) {
+      url = `http://localhost:8080/usuario/filter-username/${filtroUsername}`;
+    } else {
+      url = `http://localhost:8080/usuario`;
+    }
+
     try {
       const response = await axios.get(url);
-      const data = Array.isArray(response.data) ? response.data : [];
-      const filteredData = data.filter(usuario => {
-        return (
-          (filtroUsername === "" ||
-            usuario.username
-              .toLowerCase()
-              .includes(filtroUsername.toLowerCase())) &&
-          (filtroTipo === "" || usuario.tipo === filtroTipo)
-        );
-      });
-      setUsuarios(filteredData);
+      setUsuarios(response.data);
     } catch (error) {
       if (error.response) {
         const { message } = error.response.data;
-        if (message === "No hay usuarios") {
-          oops(message);
-        } else {
+        if (message !== "No hay usuarios") {
           oops("Error al conectar con el servidor.");
         }
       } else {
@@ -84,21 +85,6 @@ const Usuarios = () => {
     }
   };
 
-  // Handlers
-  const handleRowClick = (e, usuario) => {
-    e.stopPropagation();
-    setSelectedRow(usuario.id);
-    setContextMenuPosition({ top: e.pageY, left: e.pageX });
-    setShowContextMenu(true);
-  };
-
-  const handleDocumentClick = e => {
-    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
-      setSelectedRow(null);
-      setShowContextMenu(false);
-    }
-  };
-
   const offset = paginaActual * itemsPorPagina;
   const currentPageData = usuarios.slice(offset, offset + itemsPorPagina);
   const pageCount = Math.ceil(usuarios.length / itemsPorPagina);
@@ -111,6 +97,7 @@ const Usuarios = () => {
       </tr>
     ));
   };
+
   const handlePageClick = data => {
     setPaginaActual(data.selected);
   };
@@ -120,9 +107,6 @@ const Usuarios = () => {
     setTipo("");
     setNewPassword("");
   };
-
-  const handleCloseModal = () => setShowModal(false);
-  const handleShowModal = () => setShowModal(true);
 
   const saveUsuario = async () => {
     try {
@@ -168,6 +152,28 @@ const Usuarios = () => {
     }
   };
 
+  // Handlers
+  const handleRowClick = (e, usuario) => {
+    e.stopPropagation();
+    setSelectedRow(usuario.id);
+    setContextMenuPosition({ top: e.pageY, left: e.pageX });
+    setShowContextMenu(true);
+  };
+
+  const handleDocumentClick = e => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setSelectedRow(null);
+      setShowContextMenu(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setUsername("");
+    setShowModal(false);
+  };
+
+  const handleShowModal = () => setShowModal(true);
+
   const handleUsernameChange = e => {
     setUsername(e.target.value);
   };
@@ -199,7 +205,6 @@ const Usuarios = () => {
 
   const handleShowPassword = () => {
     if (!isEditing) {
-      console.log("hola");
       return (
         <Form.Group className="mb-3" controlId="formBasicApellido">
           <Form.Label>Contraseña</Form.Label>
@@ -214,6 +219,15 @@ const Usuarios = () => {
         </Form.Group>
       );
     }
+  };
+
+  const handleSearch = () => {
+    getUsuarios();
+  };
+
+  const handleRefresh = () => {
+    setFiltroUsername("");
+    setFiltroTipo("");
   };
 
   // Render
@@ -240,7 +254,7 @@ const Usuarios = () => {
               />
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Estado:</label>
+              <label className="me-2">Tipo:</label>
               <select
                 className="form-select"
                 value={filtroTipo}
@@ -251,6 +265,16 @@ const Usuarios = () => {
                 <option value="Usuario">Usuario</option>
               </select>
             </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <button className="btn" onClick={handleSearch}>
+                <i className="fas fa-search"></i>
+              </button>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-1">
+              <button className="btn" onClick={handleRefresh}>
+                <i className="fas fa-refresh"></i>
+              </button>
+            </div>
           </div>
           <div className="col-auto">
             <button
@@ -260,19 +284,29 @@ const Usuarios = () => {
                 handleShowModal();
               }}
             >
+              <FaPlus style={{ marginRight: "5px" }} />
               Nuevo usuario
             </button>
           </div>
         </div>
         <div className="mt-0">
-          <table className="table table-bordered mt-3">
+          <table className="table table-bordered table-hover mt-3 caption-top">
+            <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th>Username</th>
                 <th>Tipo</th>
               </tr>
             </thead>
-            <tbody>{cargarUsuarios()}</tbody>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="2">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarUsuarios()
+              )}
+            </tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}
@@ -280,7 +314,7 @@ const Usuarios = () => {
             breakLabel={"..."}
             pageCount={pageCount}
             marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
+            pageRangeDisplayed={3}
             onPageChange={handlePageClick}
             containerClassName={"pagination"}
             activeClassName={"active"}

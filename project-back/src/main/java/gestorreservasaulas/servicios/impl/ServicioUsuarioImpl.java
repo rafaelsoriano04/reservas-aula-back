@@ -1,6 +1,5 @@
 package gestorreservasaulas.servicios.impl;
 
-
 import gestorreservasaulas.dtos.AuthDto;
 import gestorreservasaulas.dtos.UsuarioDto;
 import gestorreservasaulas.entidades.Usuario;
@@ -11,22 +10,27 @@ import gestorreservasaulas.respositorios.RepositorioUsuario;
 import gestorreservasaulas.servicios.ServicioUsuario;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ServicioUsuarioImpl implements ServicioUsuario {
-
     @Autowired
     RepositorioUsuario repositorioUsuario;
 
     private final ModelMapper modelMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     public ServicioUsuarioImpl() {
         this.modelMapper = new ModelMapper();
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     @Override
@@ -35,7 +39,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
         if (usuario == null) {
             throw new UnauthorizedException("Credenciales inválidas");
         }
-        if (!usuario.getContrasenia().equals(authDto.getPassword())) {
+        if (!passwordEncoder.matches(authDto.getPassword(), usuario.getContrasenia())) {
             throw new UnauthorizedException("Credenciales inválidas");
         }
         return usuarioToDto(usuario);
@@ -44,6 +48,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     @Override
     public UsuarioDto save(UsuarioDto usuarioDto) throws ConflictException {
         Usuario usuario = repositorioUsuario.getByUsername(usuarioDto.getUsername()).orElse(null);
+        usuarioDto.setNewPassword(passwordEncoder.encode(usuarioDto.getNewPassword()));
         if (usuario != null) {
             throw new ConflictException("El usuario ya existe");
         }
@@ -52,7 +57,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
 
     @Override
     public List<UsuarioDto> getAll() throws NotFoundException {
-        List<Usuario> listaUsuarios = repositorioUsuario.findAll();
+        List<Usuario> listaUsuarios = repositorioUsuario.findAll(Sort.by(Sort.Direction.ASC, "username"));
         if (listaUsuarios.isEmpty()) {
             throw new NotFoundException("No hay usuarios");
         }
@@ -81,6 +86,33 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
         repositorioUsuario.findById(id).orElseThrow(() -> new NotFoundException("No existe el usuario"));
 
         repositorioUsuario.deleteById(id);
+    }
+
+    @Override
+    public List<UsuarioDto> getByTipoOrUsernameStartingWith(String tipo, String username) throws NotFoundException {
+        List<Usuario> listaUsuarios = repositorioUsuario.findByTipoAndUsernameContains(tipo, username, Sort.by(Sort.Direction.ASC, "username"));
+        if (listaUsuarios.isEmpty()) {
+            throw new NotFoundException("No hay usuarios");
+        }
+        return listaUsuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> getByTipo(String tipo) throws NotFoundException {
+        List<Usuario> listaUsuarios = repositorioUsuario.findByTipo(tipo, Sort.by(Sort.Direction.ASC, "username"));
+        if (listaUsuarios.isEmpty()) {
+            throw new NotFoundException("No hay usuarios");
+        }
+        return listaUsuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> getByUsername(String username) throws NotFoundException {
+        List<Usuario> listaUsuarios = repositorioUsuario.findByUsernameContains(username, Sort.by(Sort.Direction.ASC, "username"));
+        if (listaUsuarios.isEmpty()) {
+            throw new NotFoundException("No hay usuarios");
+        }
+        return listaUsuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
     }
 
     private UsuarioDto usuarioToDto(Usuario usuario) {

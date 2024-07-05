@@ -5,6 +5,7 @@ import "../styles/usuarios.css";
 import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
+import { FaPlus } from "react-icons/fa";
 
 const Feriados = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -20,11 +21,11 @@ const Feriados = () => {
   const [fin, setFin] = useState();
   const [idFeriado, setIdFeriado] = useState("");
   const [feriados, setFeriados] = useState([]);
-  const [filtroInicio, setFiltroInicio] = useState();
-  const [filtroFin, setFiltroFin] = useState();
+  const [filtroInicio, setFiltroInicio] = useState("");
+  const [filtroFin, setFiltroFin] = useState("");
   // Paginación
   const [paginaActual, setPaginaActual] = useState(0);
-  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+  const [itemsPorPagina] = useState(10);
 
   // useEffects
   useEffect(() => {
@@ -35,27 +36,26 @@ const Feriados = () => {
   }, []);
 
   useEffect(() => {
-    getFeriados();
-  }, [filtroInicio, filtroFin, paginaActual]);
+    if (filtroInicio === "" && filtroFin === "") {
+      getFeriados();
+    }
+  }, [filtroInicio, filtroFin]);
 
   const getFeriados = async () => {
-    const url = `http://localhost:8080/feriado`;
+    let url;
+    if (!filtroInicio && !filtroFin) {
+      url = `http://localhost:8080/feriado`;
+    } else if (filtroInicio && !filtroFin) {
+      url = `http://localhost:8080/feriado/filter-inicio/${filtroInicio}`;
+    } else if (!filtroInicio && filtroFin) {
+      url = `http://localhost:8080/feriado/filter-fin/${filtroFin}`;
+    } else {
+      url = `http://localhost:8080/feriado/filter/${filtroInicio}/${filtroFin}`;
+    }
+
     try {
       const response = await axios.get(url);
-      const data = Array.isArray(response.data) ? response.data : [];
-      const filteredData = data.filter(feriado => {
-        return (
-          (!filtroInicio && !filtroFin) || // Ningún filtro
-          (filtroInicio && !filtroFin && feriado.inicio >= filtroInicio) || // Solo filtroInicio
-          (!filtroInicio && filtroFin && feriado.fin <= filtroFin) || // Solo filtroFin
-          (filtroInicio &&
-            filtroFin && // Ambos filtros
-            ((feriado.inicio >= filtroInicio && feriado.inicio <= filtroFin) ||
-              (feriado.fin >= filtroInicio && feriado.fin <= filtroFin) ||
-              (feriado.inicio <= filtroInicio && feriado.fin >= filtroFin)))
-        );
-      });
-      setFeriados(filteredData);
+      setFeriados(response.data);
     } catch (error) {
       setFeriados([]); // Limpia los datos si la petición falla
     }
@@ -72,21 +72,6 @@ const Feriados = () => {
       }
     } catch (error) {
       oops("No se pudo eliminar el registro. Por favor inténtelo de nuevo.");
-    }
-  };
-
-  // Handlers
-  const handleRowClick = (e, feriado) => {
-    e.stopPropagation();
-    setSelectedRow(feriado.id);
-    setContextMenuPosition({ top: e.pageY, left: e.pageX });
-    setShowContextMenu(true);
-  };
-
-  const handleDocumentClick = e => {
-    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
-      setSelectedRow(null);
-      setShowContextMenu(false);
     }
   };
 
@@ -111,6 +96,21 @@ const Feriados = () => {
     setNombre("");
     setInicio("");
     setFin("");
+  };
+
+  // Handlers
+  const handleRowClick = (e, feriado) => {
+    e.stopPropagation();
+    setSelectedRow(feriado.id);
+    setContextMenuPosition({ top: e.pageY, left: e.pageX });
+    setShowContextMenu(true);
+  };
+
+  const handleDocumentClick = e => {
+    if (!e.target.closest(".context-menu") && !e.target.closest("td")) {
+      setSelectedRow(null);
+      setShowContextMenu(false);
+    }
   };
 
   const handleCloseModal = () => {
@@ -207,6 +207,15 @@ const Feriados = () => {
     }
   };
 
+  const handleSearch = () => {
+    getFeriados();
+  };
+
+  const handleRefresh = () => {
+    setFiltroInicio("");
+    setFiltroFin("");
+  };
+
   // Render
   return (
     <>
@@ -248,6 +257,16 @@ const Feriados = () => {
                 min={filtroInicio}
               />
             </div>
+            <div className="col-auto d-flex align-items-center ms-4">
+              <button className="btn" onClick={handleSearch}>
+                <i className="fas fa-search"></i>
+              </button>
+            </div>
+            <div className="col-auto d-flex align-items-center ms-1">
+              <button className="btn" onClick={handleRefresh}>
+                <i className="fas fa-refresh"></i>
+              </button>
+            </div>
           </div>
           <div className="col-auto">
             <button
@@ -257,12 +276,14 @@ const Feriados = () => {
                 handleShowModal();
               }}
             >
+              <FaPlus style={{ marginRight: "5px" }} />
               Nuevo feriado
             </button>
           </div>
         </div>
         <div className="mt-0">
-          <table className="table table-bordered mt-3">
+          <table className="table table-bordered table-hover caption-top mt-3">
+            <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -270,7 +291,15 @@ const Feriados = () => {
                 <th>Fin</th>
               </tr>
             </thead>
-            <tbody>{cargarFeriados()}</tbody>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="3">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarFeriados()
+              )}
+            </tbody>
           </table>
           <ReactPaginate
             previousLabel={"<"}

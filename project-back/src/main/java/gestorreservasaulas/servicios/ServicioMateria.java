@@ -9,8 +9,16 @@ import java.util.List;
 
 public interface ServicioMateria {
     MateriaDto save(MateriaDto materiaDto) throws ConflictException;
-    List<MateriaDto> findTodos();
+
+    List<MateriaDto> findTodos() throws NotFoundException;
+
     void eliminarMateria(Long id) throws ConflictException;
+
     Materia buscarMateria(Long id) throws NotFoundException;
-    
+
+    List<MateriaDto> getByNombreAndCarrera(String nombre, String carrera) throws NotFoundException;
+
+    List<MateriaDto> getByNombre(String nombre) throws NotFoundException;
+
+    List<MateriaDto> getByCarrera(String carrera) throws NotFoundException;
 }

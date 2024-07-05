@@ -18,8 +18,38 @@ public class EspacioController {
     ServicioEspacio servicioEspacio;
 
     @GetMapping("/bloque/{id_bloque}")
-    public List<EspacioDto> getAllByBloque(@PathVariable Long id_bloque) throws NotFoundException {
-        return servicioEspacio.findAllByBloque(id_bloque);
+    public List<EspacioDto> getByBloque(@PathVariable Long id_bloque) throws NotFoundException {
+        return servicioEspacio.getByBloque(id_bloque);
+    }
+
+    @GetMapping("/filter-nombre/{nombre}")
+    public List<EspacioDto> getByNombre(@PathVariable String nombre) throws NotFoundException {
+        return servicioEspacio.getByNombre(nombre);
+    }
+
+    @GetMapping("/filter-tipo/{tipo}")
+    public List<EspacioDto> getByTipo(@PathVariable String tipo) throws NotFoundException {
+        return servicioEspacio.getByTipo(tipo);
+    }
+
+    @GetMapping("/filter-tipo-nombre/{tipo}/{nombre}")
+    public List<EspacioDto> getByTipoNombre(@PathVariable String tipo, @PathVariable String nombre) throws NotFoundException {
+        return servicioEspacio.getByTipoNombre(tipo, nombre);
+    }
+
+    @GetMapping("/filter-tipo-bloque/{tipo}/{id_bloque}")
+    public List<EspacioDto> getByTipoBloque(@PathVariable String tipo, @PathVariable Long id_bloque) throws NotFoundException {
+        return servicioEspacio.getByTipoBloque(tipo, id_bloque);
+    }
+
+    @GetMapping("/filter-bloque-nombre/{id_bloque}/{nombre}")
+    public List<EspacioDto> getByBloqueNombre(@PathVariable Long id_bloque, @PathVariable String nombre) throws NotFoundException {
+        return servicioEspacio.getByBloqueNombre(id_bloque, nombre);
+    }
+
+    @GetMapping("/filter-bloque-nombre-tipo/{id_bloque}/{nombre}/{tipo}")
+    public List<EspacioDto> getByBloqueNombreTipo(@PathVariable Long id_bloque, @PathVariable String nombre, @PathVariable String tipo) throws NotFoundException {
+        return servicioEspacio.getByBloqueNombreTipo(id_bloque, nombre, tipo);
     }
 
     @PostMapping

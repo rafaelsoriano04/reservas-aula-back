@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/login.css";
@@ -30,6 +31,7 @@ function Login() {
         if (resp.data) {
           setMensajeError("");
           localStorage.setItem("tipoUsuario", resp.data.tipo);
+          localStorage.setItem("jwtToken", "tokenizado");
           navigate(`/menu`);
         }
       } catch (error) {

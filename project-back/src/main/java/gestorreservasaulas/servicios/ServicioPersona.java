@@ -15,7 +15,14 @@ public interface ServicioPersona {
     PersonaDto guardar(PersonaDto persona) throws NotFoundException;
 
     boolean existePorCedula(String cedula);
-     List<PersonaDto> listarDocentes();
+
+    List<PersonaDto> listarDocentes();
+
+    List<PersonaDto> getByCedula(String cedula);
+
+    List<PersonaDto> getByNombreApellido(String nombre);
+
+    List<PersonaDto> getByCedulaNombreApellido(String cedula, String nombre);
 
     void eliminarPersona(Long id) throws ConflictException;
 }

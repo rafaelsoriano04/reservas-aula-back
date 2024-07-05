@@ -1,7 +1,6 @@
 package gestorreservasaulas.servicios;
 
 import gestorreservasaulas.dtos.AuthDto;
-import gestorreservasaulas.dtos.EspacioDto;
 import gestorreservasaulas.dtos.UsuarioDto;
 import gestorreservasaulas.entidades.Usuario;
 import gestorreservasaulas.exceptions.ConflictException;
@@ -21,4 +20,10 @@ public interface ServicioUsuario {
     UsuarioDto updateById(Long id, UsuarioDto request) throws NotFoundException;
 
     void deleteById(Long id) throws NotFoundException;
+
+    List<UsuarioDto> getByTipoOrUsernameStartingWith(String tipo, String username) throws NotFoundException;
+
+    List<UsuarioDto> getByTipo(String tipo) throws NotFoundException;
+
+    List<UsuarioDto> getByUsername(String username) throws NotFoundException;
 }
