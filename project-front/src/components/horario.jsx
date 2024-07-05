@@ -4,7 +4,6 @@ import { Button, Form, Modal } from "react-bootstrap";
 import Select from "react-select";
 import "../styles/horario.css";
 import axios from "axios";
-import { FaPlus } from "react-icons/fa";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Horarios() {
@@ -59,7 +58,7 @@ function Horarios() {
     "17-18",
     "18-19",
     "19-20",
-  ]
+  ];
   const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
   const [showModal, setShowModal] = useState(false);
 
@@ -183,7 +182,6 @@ function Horarios() {
     "Ingeniería en Telecomunicaciones": "IT",
     "Ingeniería en Tecnologías de la Información": "TI",
     "Ingeniería en Automatización y Robotica": "RA",
-
   };
 
   const getMaterias = async () => {
@@ -243,7 +241,6 @@ function Horarios() {
   };
 
   const renderTableCell = (dia, hora) => {
-    const formattedHora = formatHora(hora);
     if (hora === "13-14") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
@@ -324,8 +321,6 @@ function Horarios() {
       id_espacio: selectedAulaLab,
     };
 
-
-
     try {
       if (horarioExiste) {
         oops("Ya existe un horario en el mismo día y hora");
@@ -340,7 +335,7 @@ function Horarios() {
       handleCancelEdit();
     } catch (error) {
       oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
-      console.log(nuevoHorario)
+      console.log(nuevoHorario);
     }
   };
 
@@ -435,12 +430,9 @@ function Horarios() {
     const diaIndex = cellIndex;
 
     const horario = horarios.find(
-      h =>
-        h.dia === dias[diaIndex] &&
-        h.hora.startsWith(rowIndex + 7 + "")
+      h => h.dia === dias[diaIndex] && h.hora.startsWith(rowIndex + 7 + "")
     );
 
-    
     if (horario) {
       // Contextual para editar y eliminar
       setShowContextMenu(true);
@@ -455,7 +447,7 @@ function Horarios() {
     }
   };
 
-  const seleccionDiaHora = (celdaSeleccionada) => {
+  const seleccionDiaHora = celdaSeleccionada => {
     //logica para utilizar los set de dia y hora
     let dia = "";
     switch (celdaSeleccionada.cellIndex) {
@@ -479,12 +471,12 @@ function Horarios() {
         break;
     }
     setSelectedDia(dia);
-    
+
     let hora = "";
     const fila = celdaSeleccionada.rowIndex;
-      hora = (parseInt(fila) + 7) +"-" + (parseInt(fila) + 8);
+    hora = parseInt(fila) + 7 + "-" + (parseInt(fila) + 8);
     setSelectedHora(hora);
-  }
+  };
 
   // Render
   return (
@@ -548,7 +540,10 @@ function Horarios() {
             </Form>
 
             {noHorariosMessage ? (
-              <div className="alert alert-info text-center mt-3 no-horarios-message" role="alert">
+              <div
+                className="alert alert-info text-center mt-3 no-horarios-message"
+                role="alert"
+              >
                 {noHorariosMessage}
               </div>
             ) : (
@@ -567,11 +562,13 @@ function Horarios() {
                 <tbody>
                   {horas.map((hora, rowIndex) => (
                     <tr key={hora}>
-
                       <td
                         style={
                           hora === "13-14"
-                            ? { backgroundColor: "#ffcccb", textAlign: "center" }
+                            ? {
+                                backgroundColor: "#ffcccb",
+                                textAlign: "center",
+                              }
                             : {}
                         }
                       >
@@ -583,9 +580,9 @@ function Horarios() {
                           style={
                             hora === "13-14"
                               ? {
-                                backgroundColor: "#ffcccb",
-                                textAlign: "center",
-                              }
+                                  backgroundColor: "#ffcccb",
+                                  textAlign: "center",
+                                }
                               : {}
                           }
                           onClick={e =>
@@ -594,8 +591,8 @@ function Horarios() {
                           }
                           className={
                             selectedCell &&
-                              selectedCell.rowIndex === rowIndex &&
-                              selectedCell.cellIndex === cellIndex
+                            selectedCell.rowIndex === rowIndex &&
+                            selectedCell.cellIndex === cellIndex
                               ? "selected"
                               : ""
                           }
@@ -608,7 +605,8 @@ function Horarios() {
                     </tr>
                   ))}
                 </tbody>
-              </table>)}
+              </table>
+            )}
             <div
               className="context-menu"
               id="context-menu"
@@ -772,7 +770,6 @@ function Horarios() {
                 </Button>
               )}
             </div>
-
           </Form>
         </Modal.Body>
       </Modal>

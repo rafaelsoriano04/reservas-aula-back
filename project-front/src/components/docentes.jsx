@@ -175,13 +175,6 @@ function Docentes() {
     setShowModal(true);
   };
 
-  const generarCodigoCedula = () => {
-    const inicialNombre = formData.nombre.charAt(0).toUpperCase();
-    const inicialApellido = formData.apellido.charAt(0).toUpperCase();
-    const numeroAleatorio = Math.floor(Math.random() * 100);
-    return `DC${numeroAleatorio}-${inicialNombre}${inicialApellido}`;
-  };
-
   const offset = paginaActual * itemsPorPagina;
   const currentPageData = docentes.slice(offset, offset + itemsPorPagina);
   const pageCount = Math.ceil(docentes.length / itemsPorPagina);
@@ -234,7 +227,7 @@ function Docentes() {
               />
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
-            <label className="me-2">Nombres:</label>
+              <label className="me-2">Nombres:</label>
               <input
                 type="text"
                 className="form-control"
@@ -270,7 +263,7 @@ function Docentes() {
         </div>
         <div className="mt-4">
           <table className="table table-bordered table-hover table-sm caption-top">
-          <caption>Seleccione una fila para ver sus opciones</caption>
+            <caption>Seleccione una fila para ver sus opciones</caption>
             <thead>
               <tr>
                 <th style={{ width: "20%" }}>Cédula:</th>
@@ -330,7 +323,7 @@ function Docentes() {
                     apellido: selectedDocente.apellido,
                     telefono: selectedDocente.telefono,
                   });
-                  setShowContextMenu(false); 
+                  setShowContextMenu(false);
                   setIsEditing(true);
                   handleShowModal();
                 }
@@ -355,9 +348,9 @@ function Docentes() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form id="form-reservas">
+          <Form id="form-reservas">
             <div className="row">
-            <div className="col-12">
+              <div className="col-12">
                 <Form.Group className="form-group">
                   <Form.Label htmlFor="cedula">Cédula:</Form.Label>
                   <Form.Control
@@ -411,7 +404,7 @@ function Docentes() {
                 <Button
                   type="button"
                   className="btn btn-custom"
-                  onClick={ () => {
+                  onClick={() => {
                     crearDocente();
                     handleCloseModal();
                   }}
@@ -431,7 +424,8 @@ function Docentes() {
                   <Button
                     type="button"
                     className="btn btn-danger ml-2"
-                    onClick={()=>{limpiar();
+                    onClick={() => {
+                      limpiar();
                       handleCloseModal();
                     }}
                   >

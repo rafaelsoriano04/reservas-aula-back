@@ -5,7 +5,7 @@ import "../styles/materias.css";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
-import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 
 function Materias() {
   const [selectedRow, setSelectedRow] = useState(null);
@@ -70,9 +70,7 @@ function Materias() {
     } catch (error) {
       if (error.response) {
         const { message } = error.response.data;
-        if (message === "No hay materias") {
-          info(message);
-        } else {
+        if (message !== "No hay materias") {
           oops("Error al conectar con el servidor.");
         }
       } else {
@@ -102,7 +100,6 @@ function Materias() {
     limpiar();
     setShowModal(false);
   };
-  
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -268,11 +265,9 @@ function Materias() {
         </div>
       </div>
 
-
       <div className="mt-4">
-
         <table className="table table-bordered table-hover mt-4 caption-top">
-        <caption>Seleccione una fila para ver sus opciones</caption>
+          <caption>Seleccione una fila para ver sus opciones</caption>
           <thead>
             <tr>
               <th>Nombre</th>
@@ -365,7 +360,9 @@ function Materias() {
                     name="nombre"
                     placeholder="Ingrese el nombre de la materia"
                     value={formData.nombre}
-                    onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, nombre: e.target.value })
+                    }
                   />
                 </Form.Group>
               </div>
@@ -415,9 +412,10 @@ function Materias() {
                   <Button
                     type="button"
                     className="btn btn-danger ml-2"
-                    onClick={ () => {
+                    onClick={() => {
                       limpiar;
-                      handleCloseModal()}}
+                      handleCloseModal();
+                    }}
                   >
                     Cancelar
                   </Button>

@@ -74,8 +74,6 @@ const LabReservations = () => {
     getBloques();
   }, []);
 
-  
-
   useEffect(() => {
     if (selectedBloque && selectedTipo) {
       fetchAulasLabs();
@@ -231,14 +229,14 @@ const LabReservations = () => {
       default:
         index = -1;
     }
-  
+
     const fecha = formatDate(weekDates[index]);
     const isFeriado = feriados.some(
       feriado =>
         new Date(feriado.inicio) <= new Date(fecha) &&
         new Date(feriado.fin) >= new Date(fecha)
     );
-  
+
     if (isFeriado) {
       return (
         <td style={{ backgroundColor: "#d3d3d3", cursor: "not-allowed" }}>
@@ -246,20 +244,20 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     if (hora === "13:00 - 14:00") {
       return <td style={{ backgroundColor: "#ffcccb" }}>Receso</td>;
     }
-  
+
     const startHour = parseInt(hora.split(":")[0]);
     const horario = horarios.find(
       h => h.dia === dia && parseInt(h.hora) === startHour
     );
-  
+
     const reserva = reservas.find(
       reserva => reserva.fecha === fecha && parseInt(reserva.hora) === startHour
     );
-  
+
     if (reserva) {
       return (
         <td
@@ -270,7 +268,7 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     if (!horario) {
       return (
         <td
@@ -281,7 +279,7 @@ const LabReservations = () => {
         </td>
       );
     }
-  
+
     const colorFondo = horario.reservado ? "#ffcccc" : "#cce7ff";
     let textoCelda;
     if (horario.nombre.includes(" - ")) {
@@ -294,7 +292,7 @@ const LabReservations = () => {
     } else {
       textoCelda = horario.nombre;
     }
-  
+
     return (
       <td
         style={{ backgroundColor: colorFondo, cursor: "pointer" }}
@@ -305,7 +303,6 @@ const LabReservations = () => {
       </td>
     );
   };
-  
 
   const horas = [
     "07:00 - 08:00",
@@ -491,9 +488,9 @@ const LabReservations = () => {
         setReservas(prev =>
           prev.filter(reserva => reserva.id !== reservationId)
         );
-        
+
         ok("Registro eliminado exitosamente.");
-        await getHorarios(); 
+        await getHorarios();
         setShowModal(false);
       }
     } catch (error) {
@@ -777,12 +774,15 @@ const LabReservations = () => {
       </div>
 
       {noHorariosMessage ? (
-        <div className="alert alert-info text-center mt-3 no-horarios-message" role="alert">
-        {noHorariosMessage}
-      </div>
+        <div
+          className="alert alert-info text-center mt-3 no-horarios-message"
+          role="alert"
+        >
+          {noHorariosMessage}
+        </div>
       ) : (
         <table className="table table-bordered mt-4 table-centered caption-top">
-         <caption>Seleccione una celda para realizar una acción</caption>
+          <caption>Seleccione una celda para realizar una acción</caption>
           <thead>
             <tr>
               <th>Horas</th>
