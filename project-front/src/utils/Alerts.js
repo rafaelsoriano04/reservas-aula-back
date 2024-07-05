@@ -38,4 +38,15 @@ export const info = message => {
     text: message,
     confirmButtonText: "OK",
   });
+
+};
+export const warning = message => {
+  Swal.fire({
+    title: "Oops",
+    icon: "warning",
+    text: message,
+    showConfirmButton: false,
+    timer: 1500,
+  });
+
 };
