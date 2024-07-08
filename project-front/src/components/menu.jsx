@@ -39,7 +39,7 @@ const Menu = () => {
         return <Espacios />;
       case "docentes":
         return <Docentes />;
-      case "materia":
+      case "materias":
         return <Materias />;
       case "usuarios":
         return <Usuarios />;
@@ -92,7 +92,7 @@ const Menu = () => {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link onClick={() => setActiveComponent("materias")}>
-                <i className="fas fa-book me-2"></i>Materia
+                <i className="fas fa-book me-2"></i>Materias
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>

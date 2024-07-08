@@ -263,82 +263,85 @@ const Materias = () => {
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="mt-4">
-        <table className="table table-bordered table-hover mt-4 caption-top">
-          <caption>Seleccione una fila para ver sus opciones</caption>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Carrera</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentPageData.length === 0 ? (
+        <div className="mt-4">
+          <table className="table table-bordered table-hover mt-4 caption-top">
+            <caption>Seleccione una fila para ver sus opciones</caption>
+            <thead>
               <tr>
-                <td colSpan="2">No hay resultados</td>
+                <th>Nombre</th>
+                <th>Carrera</th>
               </tr>
-            ) : (
-              cargarMaterias()
-            )}
-          </tbody>
-        </table>
-        <ReactPaginate
-          previousLabel={"<"}
-          nextLabel={">"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          activeClassName={"active"}
-          pageClassName={"page-item"}
-          pageLinkClassName={"page-link"}
-          previousClassName={"page-item"}
-          previousLinkClassName={"page-link"}
-          nextClassName={"page-item"}
-          nextLinkClassName={"page-link"}
-          breakClassName={"page-item"}
-          breakLinkClassName={"page-link"}
-        />
-        <div
-          className="context-menu"
-          id="context-menu"
-          style={{
-            display: showContextMenu && selectedRow !== null ? "block" : "none",
-            top: contextMenuPosition.top,
-            left: contextMenuPosition.left,
-          }}
-        >
-          <Button
-            variant="custom"
-            id="editar-btn"
-            onClick={() => {
-              const selectedMateria = materias.find(m => m.id === selectedRow);
-              if (selectedMateria) {
-                setFormData({
-                  id: selectedMateria.id,
-                  nombre: selectedMateria.nombre,
-                  carrera: selectedMateria.carrera,
-                });
-                setSelectedCarrera(selectedMateria.carrera);
-                setShowContextMenu(false);
-                setIsEditing(true);
-                handleShowModal();
-              }
+            </thead>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="2">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarMaterias()
+              )}
+            </tbody>
+          </table>
+          <ReactPaginate
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+            breakClassName={"page-item"}
+            breakLinkClassName={"page-link"}
+          />
+          <div
+            className="context-menu"
+            id="context-menu"
+            style={{
+              display:
+                showContextMenu && selectedRow !== null ? "block" : "none",
+              top: contextMenuPosition.top,
+              left: contextMenuPosition.left,
             }}
           >
-            Editar
-          </Button>
-          <Button
-            variant="custom"
-            id="eliminar-btn"
-            onClick={() => eliminarMateria(selectedRow)}
-          >
-            Eliminar
-          </Button>
+            <Button
+              variant="custom"
+              id="editar-btn"
+              onClick={() => {
+                const selectedMateria = materias.find(
+                  m => m.id === selectedRow
+                );
+                if (selectedMateria) {
+                  setFormData({
+                    id: selectedMateria.id,
+                    nombre: selectedMateria.nombre,
+                    carrera: selectedMateria.carrera,
+                  });
+                  setSelectedCarrera(selectedMateria.carrera);
+                  setShowContextMenu(false);
+                  setIsEditing(true);
+                  handleShowModal();
+                }
+              }}
+            >
+              Editar
+            </Button>
+            <Button
+              variant="custom"
+              id="eliminar-btn"
+              onClick={() => eliminarMateria(selectedRow)}
+            >
+              Eliminar
+            </Button>
+          </div>
         </div>
       </div>
       <Modal show={showModal} onHide={handleCloseModal} centered>
