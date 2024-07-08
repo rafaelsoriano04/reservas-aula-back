@@ -44,13 +44,13 @@ const Feriados = () => {
   const getFeriados = async () => {
     let url;
     if (!filtroInicio && !filtroFin) {
-      url = `http://localhost:8080/feriado`;
+      url = `http://172.21.123.13:9070/feriado`;
     } else if (filtroInicio && !filtroFin) {
-      url = `http://localhost:8080/feriado/filter-inicio/${filtroInicio}`;
+      url = `http://172.21.123.13:9070/feriado/filter-inicio/${filtroInicio}`;
     } else if (!filtroInicio && filtroFin) {
-      url = `http://localhost:8080/feriado/filter-fin/${filtroFin}`;
+      url = `http://172.21.123.13:9070/feriado/filter-fin/${filtroFin}`;
     } else {
-      url = `http://localhost:8080/feriado/filter/${filtroInicio}/${filtroFin}`;
+      url = `http://172.21.123.13:9070/feriado/filter/${filtroInicio}/${filtroFin}`;
     }
 
     try {
@@ -62,7 +62,7 @@ const Feriados = () => {
   };
 
   const eliminarFeriado = async id => {
-    const url = `http://localhost:8080/feriado/${id}`;
+    const url = `http://172.21.123.13:9070/feriado/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
@@ -140,7 +140,7 @@ const Feriados = () => {
         inicio,
         fin,
       };
-      await axios.post("http://localhost:8080/feriado", feriado);
+      await axios.post("http://172.21.123.13:9070/feriado", feriado);
       ok("Registro guardado exitosamente.");
       getFeriados();
       handleCloseModal();
@@ -159,7 +159,7 @@ const Feriados = () => {
         fin: addOneDay(fin),
       };
       console.log(addOneDay(inicio), addOneDay(fin));
-      await axios.put(`http://localhost:8080/feriado/${idFeriado}`, feriado);
+      await axios.put(`http://172.21.123.13:9070/feriado/${idFeriado}`, feriado);
       getFeriados();
       ok("Registro actualizado exitosamente.");
       handleCloseModal();

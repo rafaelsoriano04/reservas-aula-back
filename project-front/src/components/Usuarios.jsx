@@ -46,13 +46,13 @@ const Usuarios = () => {
   const getUsuarios = async () => {
     let url;
     if (filtroUsername && filtroTipo) {
-      url = `http://localhost:8080/usuario/filter/${filtroTipo}/${filtroUsername}`;
+      url = `http://172.21.123.13:9070/usuario/filter/${filtroTipo}/${filtroUsername}`;
     } else if (!filtroUsername && filtroTipo) {
-      url = `http://localhost:8080/usuario/filter-tipo/${filtroTipo}`;
+      url = `http://172.21.123.13:9070/usuario/filter-tipo/${filtroTipo}`;
     } else if (filtroUsername && !filtroTipo) {
-      url = `http://localhost:8080/usuario/filter-username/${filtroUsername}`;
+      url = `http://172.21.123.13:9070/usuario/filter-username/${filtroUsername}`;
     } else {
-      url = `http://localhost:8080/usuario`;
+      url = `http://172.21.123.13:9070/usuario`;
     }
 
     try {
@@ -72,7 +72,7 @@ const Usuarios = () => {
   };
 
   const eliminarUsuario = async id => {
-    const url = `http://localhost:8080/usuario/${id}`;
+    const url = `http://172.21.123.13:9070/usuario/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
@@ -111,7 +111,7 @@ const Usuarios = () => {
   const saveUsuario = async () => {
     try {
       const usuario = { username, newPassword, tipo };
-      await axios.post("http://localhost:8080/usuario", usuario);
+      await axios.post("http://172.21.123.13:9070/usuario", usuario);
       ok("Registro guardado exitosamente.");
       getUsuarios();
       handleCloseModal();
@@ -133,7 +133,7 @@ const Usuarios = () => {
   const editUsuario = async () => {
     try {
       const usuario = { username, newPassword, tipo };
-      await axios.put(`http://localhost:8080/usuario/${idUsuario}`, usuario);
+      await axios.put(`http://172.21.123.13:9070/usuario/${idUsuario}`, usuario);
       getUsuarios();
       ok("Registro actualizado exitosamente.");
       handleCloseModal();

@@ -100,7 +100,7 @@ const LabReservations = () => {
   }, []);
 
   const getFeriados = async () => {
-    const url = `http://localhost:8080/feriado`;
+    const url = `http://172.21.123.13:9070/feriado`;
     try {
       const response = await axios.get(url);
       setFeriados(response.data);
@@ -113,11 +113,11 @@ const LabReservations = () => {
   const getHorarios = async () => {
     let url;
     if (selectedTipo === "Laboratorio") {
-      url = `http://localhost:8080/horario/lab/${selectedAulaLab}`;
+      url = `http://172.21.123.13:9070/horario/lab/${selectedAulaLab}`;
     } else if (selectedTipo === "Aula") {
-      url = `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+      url = `http://172.21.123.13:9070/horario/aula/${selectedAulaLab}`;
     } else if (selectedTipo === "Especial") {
-      url = `http://localhost:8080/horario/especial/${selectedAulaLab}`;
+      url = `http://172.21.123.13:9070/horario/especial/${selectedAulaLab}`;
     }
 
     try {
@@ -128,7 +128,7 @@ const LabReservations = () => {
     }
 
     const formattedDate = formatDate(monday); // Usa formatDate aquí
-    const url2 = `http://localhost:8080/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
+    const url2 = `http://172.21.123.13:9070/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
       const response = await axios.get(url2);
       setReservas(response.data);
@@ -140,7 +140,7 @@ const LabReservations = () => {
   //carga
   const getBloques = async () => {
     try {
-      const resp = await axios.get("http://localhost:8080/bloque");
+      const resp = await axios.get("http://172.21.123.13:9070/bloque");
       setBloques(resp.data);
     } catch (error) {
       const { message } = error.response.data;
@@ -149,7 +149,7 @@ const LabReservations = () => {
   };
 
   const fetchAulasLabs = async () => {
-    const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
+    const url = `http://172.21.123.13:9070/espacio/bloque/${selectedBloque}`;
 
     try {
       const response = await axios.get(url);
@@ -483,7 +483,7 @@ const LabReservations = () => {
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(`http://localhost:8080/reservas/${reservationId}`);
+        await axios.delete(`http://172.21.123.13:9070/reservas/${reservationId}`);
         // Actualiza el estado de reservas después de eliminar
         setReservas(prev =>
           prev.filter(reserva => reserva.id !== reservationId)
@@ -512,7 +512,7 @@ const LabReservations = () => {
 
     try {
       await axios.put(
-        `http://localhost:8080/reservas/${reservationDetails.id}`,
+        `http://172.21.123.13:9070/reservas/${reservationDetails.id}`,
         updatedReservation
       );
       ok("Registro actualizado exitosamente.");
@@ -590,7 +590,7 @@ const LabReservations = () => {
       if (!isExistingResponsible) {
         try {
           const response = await axios.post(
-            "http://localhost:8080/person",
+            "http://172.21.123.13:9070/person",
             responsible
           );
 
@@ -620,7 +620,7 @@ const LabReservations = () => {
       console.log(reserva);
 
       try {
-        await axios.post("http://localhost:8080/reservas", reserva);
+        await axios.post("http://172.21.123.13:9070/reservas", reserva);
         await getHorarios();
         const newHorarios = [
           ...horarios,
@@ -680,7 +680,7 @@ const LabReservations = () => {
   const searchResponsible = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/person/${responsible.cedula}`
+        `http://172.21.123.13:9070/person/${responsible.cedula}`
       );
       setResponsible(response.data);
       setNewReservation(prev => ({
