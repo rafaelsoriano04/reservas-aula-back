@@ -136,7 +136,7 @@ function Docentes() {
         return;
       }
       
-      await axios.post(`http://localhost:8080/person`, docente);
+      await axios.post(`http://172.21.123.13:9070/person`, docente);
       getDocentes();
       setFormData({
         id: "",
@@ -164,13 +164,13 @@ function Docentes() {
   const getDocentes = async () => {
     let url;
     if (!filtroNombre && !filtroCedula) {
-      url = `http://localhost:8080/person/docente`;
+      url = `http://172.21.123.13:9070/person/docente`;
     } else if (filtroNombre && !filtroCedula) {
-      url = `http://localhost:8080/person/docente-nombre/${filtroNombre}`;
+      url = `http://172.21.123.13:9070/person/docente-nombre/${filtroNombre}`;
     } else if (!filtroNombre && filtroCedula) {
-      url = `http://localhost:8080/person/docente-cedula/${filtroCedula}`;
+      url = `http://172.21.123.13:9070/person/docente-cedula/${filtroCedula}`;
     } else {
-      url = `http://localhost:8080/person/docente/${filtroCedula}/${filtroNombre}`;
+      url = `http://172.21.123.13:9070/person/docente/${filtroCedula}/${filtroNombre}`;
     }
 
     try {
@@ -191,7 +191,7 @@ function Docentes() {
   };
 
   const eliminarDocentes = async id => {
-    const url = `http://localhost:8080/person/${id}`;
+    const url = `http://172.21.123.13:9070/person/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
@@ -208,7 +208,7 @@ function Docentes() {
 
 
   const editarDocente = async () => {
-    const url = `http://localhost:8080/person`;
+    const url = `http://172.21.123.13:9070/person`;
     let docente = {
       id: formData.id,
       cedula: "editando",

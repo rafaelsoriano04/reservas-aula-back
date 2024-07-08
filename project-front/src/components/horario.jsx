@@ -126,7 +126,7 @@ function Horarios() {
     setShowModal(true);
   };
   const fetchAulasLabs = async () => {
-    const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
+    const url = `http://172.21.123.13:9070/espacio/bloque/${selectedBloque}`;
 
     try {
       const response = await axios.get(url);
@@ -165,8 +165,8 @@ function Horarios() {
   const getHorarios = async () => {
     const url =
       selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+        ? `http://172.21.123.13:9070/horario/lab/${selectedAulaLab}`
+        : `http://172.21.123.13:9070/horario/aula/${selectedAulaLab}`;
     try {
       const response = await axios.get(url);
       setHorarios(Array.isArray(response.data) ? response.data : []);
@@ -185,7 +185,7 @@ function Horarios() {
   };
 
   const getMaterias = async () => {
-    const url = "http://localhost:8080/materia";
+    const url = "http://172.21.123.13:9070/materia";
     try {
       const respuesta = await axios.get(url);
       const materiasopciones = respuesta.data.map(materia => ({
@@ -203,7 +203,7 @@ function Horarios() {
   };
 
   const eliminarHorario = async id => {
-    const url = `http://localhost:8080/horario/${id}`;
+    const url = `http://172.21.123.13:9070/horario/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
@@ -217,7 +217,7 @@ function Horarios() {
   };
 
   const getDocentes = async () => {
-    const url = `http://localhost:8080/person/docente`;
+    const url = `http://172.21.123.13:9070/person/docente`;
     try {
       const response = await axios.get(url);
       const docentesOptions = response.data.map(docente => ({
@@ -233,7 +233,7 @@ function Horarios() {
 
   const getBloques = async () => {
     try {
-      const resp = await axios.get("http://localhost:8080/bloque");
+      const resp = await axios.get("http://172.21.123.13:9070/bloque");
       setBloques(resp.data);
     } catch (error) {
       oops("Error al cargar bloques.");
@@ -312,7 +312,7 @@ function Horarios() {
     );
     const nada = selectedDocente.value;
 
-    const url = "http://localhost:8080/horario";
+    const url = "http://172.21.123.13:9070/horario";
     const nuevoHorario = {
       dia: selectedDia,
       hora: selectedHora.split("-")[0],
@@ -352,7 +352,7 @@ function Horarios() {
       return;
     }
 
-    const url = `http://localhost:8080/horario`;
+    const url = `http://172.21.123.13:9070/horario`;
 
     const nada = selectedDocente.value;
     const materia = selectedMateria.value;

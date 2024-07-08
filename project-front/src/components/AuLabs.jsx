@@ -66,7 +66,7 @@ function AuLabs() {
   // Funciones
   const getBloques = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/bloque");
+      const response = await axios.get("http://172.21.123.13:9070/bloque");
       setBloques(response.data);
     } catch (error) {
       oops("Error al cargar bloques.");
@@ -90,7 +90,7 @@ function AuLabs() {
         setCapacidadError("Ingrese la capacidad");
         return;
       }
-      await axios.post(`http://localhost:8080/espacio`, espacio);
+      await axios.post(`http://172.21.123.13:9070/espacio`, espacio);
       fetchAulasLabs();
       ok("Registro guardado exitosamente.");
       limpiar();
@@ -116,7 +116,7 @@ function AuLabs() {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/espacio/${formData.id}`,
+        `http://172.21.123.13:9070/espacio/${formData.id}`,
         espacio
       );
       if (response.status === 200) {
@@ -134,7 +134,7 @@ function AuLabs() {
   const eliminarEspacio = async () => {
     if (selectedRow) {
       // Asegúrate de que hay un ID seleccionado
-      const url = `http://localhost:8080/espacio/${selectedRow}`; // Uso correcto del ID seleccionado
+      const url = `http://172.21.123.13:9070/espacio/${selectedRow}`; // Uso correcto del ID seleccionado
 
       const isConfirmed = await deleteConfirmation();
       try {
@@ -154,21 +154,21 @@ function AuLabs() {
   const fetchAulasLabs = async () => {
     let url;
     if (!filtroNombre && !filtroBloque && !filtroTipo) {
-      url = "http://localhost:8080/espacio";
+      url = "http://172.21.123.13:9070/espacio";
     } else if (filtroNombre && !filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-nombre/${filtroNombre}`;
+      url = `http://172.21.123.13:9070/espacio/filter-nombre/${filtroNombre}`;
     } else if (!filtroNombre && filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/bloque/${filtroBloque}`;
+      url = `http://172.21.123.13:9070/espacio/bloque/${filtroBloque}`;
     } else if (!filtroNombre && !filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo/${filtroTipo}`;
+      url = `http://172.21.123.13:9070/espacio/filter-tipo/${filtroTipo}`;
     } else if (filtroNombre && filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
+      url = `http://172.21.123.13:9070/espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
     } else if (!filtroNombre && filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
+      url = `http://172.21.123.13:9070/espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
     } else if (filtroNombre && !filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
+      url = `http://172.21.123.13:9070/espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
     } else {
-      url = `http://localhost:8080/espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
+      url = `http://172.21.123.13:9070/espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
     }
 
     try {

@@ -55,13 +55,13 @@ function Materias() {
   const getMaterias = async () => {
     let url;
     if (!filtroNombre && !filtroCarrera) {
-      url = `http://localhost:8080/materia`;
+      url = `http://172.21.123.13:9070/materia`;
     } else if (filtroNombre && !filtroCarrera) {
-      url = `http://localhost:8080/materia/filter-nombre/${filtroNombre}`;
+      url = `http://172.21.123.13:9070/materia/filter-nombre/${filtroNombre}`;
     } else if (!filtroNombre && filtroCarrera) {
-      url = `http://localhost:8080/materia/filter-carrera/${filtroCarrera}`;
+      url = `http://172.21.123.13:9070/materia/filter-carrera/${filtroCarrera}`;
     } else {
-      url = `http://localhost:8080/materia/filter/${filtroNombre}/${filtroCarrera}`;
+      url = `http://172.21.123.13:9070/materia/filter/${filtroNombre}/${filtroCarrera}`;
     }
 
     try {
@@ -81,7 +81,7 @@ function Materias() {
   };
 
   const eliminarMateria = async id => {
-    const url = `http://localhost:8080/materia/${id}`;
+    const url = `http://172.21.123.13:9070/materia/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
@@ -116,7 +116,7 @@ function Materias() {
       return;
     }
 
-    const url = `http://localhost:8080/materia`;
+    const url = `http://172.21.123.13:9070/materia`;
     try {
       let materia = {
         nombre: formData.nombre,
@@ -133,7 +133,7 @@ function Materias() {
   };
 
   const editarMateria = async () => {
-    const url = `http://localhost:8080/materia`;
+    const url = `http://172.21.123.13:9070/materia`;
     if (selectedCarrera === "") {
       carreraRef.current.focus();
       return;

@@ -25,7 +25,7 @@ function Login() {
       };
       try {
         const resp = await axios.post(
-          "http://localhost:8080/usuario/login",
+          "http://172.21.123.13:9070/usuario/login",
           usuario
         );
         if (resp.data) {
