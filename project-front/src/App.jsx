@@ -8,8 +8,8 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import SidebarMenu from "./components/menu";
-import Login from "./components/login";
+import Menu from "./components/Menu";
+import Login from "./components/Login";
 import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
@@ -19,11 +19,11 @@ function App() {
         <Route>
           <Route path="/" element={<Navigate to="/login" />} />
         </Route>
-        <Route >
+        <Route>
           <Route path="/login" element={<Login />} />
         </Route>
         <Route element={<PrivateRoute />}>
-          <Route path="/menu" element={<SidebarMenu />} />
+          <Route path="/menu" element={<Menu />} />
         </Route>
       </Routes>
     </Router>

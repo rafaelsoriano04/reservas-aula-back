@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert, Modal } from "react-bootstrap";
 import "../styles/AulaLabs.css";
-import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
 import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
+import api from "../utils/const";
 
-function AuLabs() {
+const Espacios = () => {
   // Variables \
   const [selectedRow, setSelectedRow] = useState(null);
   const [bloques, setBloques] = useState([]);
@@ -66,7 +66,7 @@ function AuLabs() {
   // Funciones
   const getBloques = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/bloque");
+      const response = await api.get("bloque");
       setBloques(response.data);
     } catch (error) {
       oops("Error al cargar bloques.");
@@ -90,7 +90,7 @@ function AuLabs() {
         setCapacidadError("Ingrese la capacidad");
         return;
       }
-      await axios.post(`http://localhost:8080/espacio`, espacio);
+      await api.post("espacio", espacio);
       fetchAulasLabs();
       ok("Registro guardado exitosamente.");
       limpiar();
@@ -115,10 +115,7 @@ function AuLabs() {
     };
 
     try {
-      const response = await axios.put(
-        `http://localhost:8080/espacio/${formData.id}`,
-        espacio
-      );
+      const response = await api.put(`espacio/${formData.id}`, espacio);
       if (response.status === 200) {
         fetchAulasLabs();
         setIsEditing(false);
@@ -134,12 +131,12 @@ function AuLabs() {
   const eliminarEspacio = async () => {
     if (selectedRow) {
       // Asegúrate de que hay un ID seleccionado
-      const url = `http://localhost:8080/espacio/${selectedRow}`; // Uso correcto del ID seleccionado
+      const url = `espacio/${selectedRow}`; // Uso correcto del ID seleccionado
 
       const isConfirmed = await deleteConfirmation();
       try {
         if (isConfirmed) {
-          await axios.delete(url);
+          await api.delete(url);
           fetchAulasLabs();
           ok("Registro eliminado exitosamente.");
         }
@@ -154,25 +151,25 @@ function AuLabs() {
   const fetchAulasLabs = async () => {
     let url;
     if (!filtroNombre && !filtroBloque && !filtroTipo) {
-      url = "http://localhost:8080/espacio";
+      url = "espacio";
     } else if (filtroNombre && !filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-nombre/${filtroNombre}`;
+      url = `espacio/filter-nombre/${filtroNombre}`;
     } else if (!filtroNombre && filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/bloque/${filtroBloque}`;
+      url = `espacio/bloque/${filtroBloque}`;
     } else if (!filtroNombre && !filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo/${filtroTipo}`;
+      url = `espacio/filter-tipo/${filtroTipo}`;
     } else if (filtroNombre && filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
+      url = `espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
     } else if (!filtroNombre && filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
+      url = `espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
     } else if (filtroNombre && !filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
+      url = `espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
     } else {
-      url = `http://localhost:8080/espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
+      url = `espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       if (!response.data) {
         info("No hay coincidencias");
       } else {
@@ -536,6 +533,6 @@ function AuLabs() {
       </Modal>
     </div>
   );
-}
+};
 
-export default AuLabs;
+export default Espacios;

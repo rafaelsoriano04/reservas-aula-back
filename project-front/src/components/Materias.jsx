@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/materias.css";
-import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import api from "../utils/const";
 
-function Materias() {
+const Materias = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [materias, setMaterias] = useState([]);
@@ -55,17 +55,17 @@ function Materias() {
   const getMaterias = async () => {
     let url;
     if (!filtroNombre && !filtroCarrera) {
-      url = `http://localhost:8080/materia`;
+      url = `materia`;
     } else if (filtroNombre && !filtroCarrera) {
-      url = `http://localhost:8080/materia/filter-nombre/${filtroNombre}`;
+      url = `materia/filter-nombre/${filtroNombre}`;
     } else if (!filtroNombre && filtroCarrera) {
-      url = `http://localhost:8080/materia/filter-carrera/${filtroCarrera}`;
+      url = `materia/filter-carrera/${filtroCarrera}`;
     } else {
-      url = `http://localhost:8080/materia/filter/${filtroNombre}/${filtroCarrera}`;
+      url = `materia/filter/${filtroNombre}/${filtroCarrera}`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setMaterias(response.data);
     } catch (error) {
       if (error.response) {
@@ -81,11 +81,11 @@ function Materias() {
   };
 
   const eliminarMateria = async id => {
-    const url = `http://localhost:8080/materia/${id}`;
+    const url = `materia/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(url);
+        await api.delete(url);
         getMaterias();
         ok("Registro eliminado exitosamente.");
       }
@@ -116,13 +116,13 @@ function Materias() {
       return;
     }
 
-    const url = `http://localhost:8080/materia`;
+    const url = `materia`;
     try {
       let materia = {
         nombre: formData.nombre,
         carrera: selectedCarrera,
       };
-      await axios.post(url, materia);
+      await api.post(url, materia);
       getMaterias();
       setFormData({ id: "", nombre: "", carrera: "" });
       setSelectedCarrera(""); // Limpiar selección de carrera
@@ -133,7 +133,7 @@ function Materias() {
   };
 
   const editarMateria = async () => {
-    const url = `http://localhost:8080/materia`;
+    const url = `materia`;
     if (selectedCarrera === "") {
       carreraRef.current.focus();
       return;
@@ -144,7 +144,7 @@ function Materias() {
         nombre: formData.nombre,
         carrera: selectedCarrera,
       };
-      const response = await axios.post(url, materia);
+      const response = await api.post(url, materia);
       if (response.status === 200) {
         getMaterias();
         setIsEditing(false);
@@ -427,6 +427,6 @@ function Materias() {
       </Modal>
     </>
   );
-}
+};
 
 export default Materias;

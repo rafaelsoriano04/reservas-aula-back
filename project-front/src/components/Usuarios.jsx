@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import api from "../utils/const";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
-import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
@@ -46,17 +46,17 @@ const Usuarios = () => {
   const getUsuarios = async () => {
     let url;
     if (filtroUsername && filtroTipo) {
-      url = `http://localhost:8080/usuario/filter/${filtroTipo}/${filtroUsername}`;
+      url = `usuario/filter/${filtroTipo}/${filtroUsername}`;
     } else if (!filtroUsername && filtroTipo) {
-      url = `http://localhost:8080/usuario/filter-tipo/${filtroTipo}`;
+      url = `usuario/filter-tipo/${filtroTipo}`;
     } else if (filtroUsername && !filtroTipo) {
-      url = `http://localhost:8080/usuario/filter-username/${filtroUsername}`;
+      url = `usuario/filter-username/${filtroUsername}`;
     } else {
-      url = `http://localhost:8080/usuario`;
+      url = `usuario`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setUsuarios(response.data);
     } catch (error) {
       if (error.response) {
@@ -72,11 +72,11 @@ const Usuarios = () => {
   };
 
   const eliminarUsuario = async id => {
-    const url = `http://localhost:8080/usuario/${id}`;
+    const url = `usuario/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(url);
+        await api.delete(url);
         getUsuarios();
         ok("Registro eliminado exitosamente.");
       }
@@ -111,7 +111,7 @@ const Usuarios = () => {
   const saveUsuario = async () => {
     try {
       const usuario = { username, newPassword, tipo };
-      await axios.post("http://localhost:8080/usuario", usuario);
+      await api.post("usuario", usuario);
       ok("Registro guardado exitosamente.");
       getUsuarios();
       handleCloseModal();
@@ -133,7 +133,7 @@ const Usuarios = () => {
   const editUsuario = async () => {
     try {
       const usuario = { username, newPassword, tipo };
-      await axios.put(`http://localhost:8080/usuario/${idUsuario}`, usuario);
+      await api.put(`usuario/${idUsuario}`, usuario);
       getUsuarios();
       ok("Registro actualizado exitosamente.");
       handleCloseModal();
