@@ -305,7 +305,7 @@ const Docentes = () => {
   };
 
   return (
-    <>
+    <div className="mx-5">
       <div className="header">
         <h2>Docentes</h2>
       </div>
@@ -561,7 +561,7 @@ const Docentes = () => {
           </Form>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 };
 

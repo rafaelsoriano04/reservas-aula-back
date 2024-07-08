@@ -233,7 +233,7 @@ const Usuarios = () => {
   // Render
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header">
           <h2>Usuarios</h2>
         </div>

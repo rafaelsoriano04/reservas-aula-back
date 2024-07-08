@@ -45,7 +45,6 @@ const Menu = () => {
         return <Usuarios />;
       case "feriados":
         return <Feriados />;
-      case "reservas":
       default:
         return <Reservas />;
     }
@@ -82,7 +81,7 @@ const Menu = () => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("Espacios")}>
+              <Nav.Link onClick={() => setActiveComponent("espacios")}>
                 <i className="fas fa-chalkboard-teacher me-2"></i>Aulas-Labs
               </Nav.Link>
             </Nav.Item>
@@ -92,7 +91,7 @@ const Menu = () => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("materia")}>
+              <Nav.Link onClick={() => setActiveComponent("materias")}>
                 <i className="fas fa-book me-2"></i>Materia
               </Nav.Link>
             </Nav.Item>

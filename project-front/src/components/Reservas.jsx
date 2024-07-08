@@ -698,7 +698,7 @@ const LabReservations = () => {
   };
 
   return (
-    <div>
+    <div className="mx-5">
       <div className="header text-center">
         <h2>Reservas </h2>
       </div>

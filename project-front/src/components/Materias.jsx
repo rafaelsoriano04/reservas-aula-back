@@ -204,7 +204,7 @@ const Materias = () => {
 
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header">
           <h2>Materias</h2>
         </div>

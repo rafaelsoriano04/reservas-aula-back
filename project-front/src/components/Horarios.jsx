@@ -481,7 +481,7 @@ const Horarios = () => {
   // Render
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header text-center">
           <h2>Horarios</h2>
         </div>

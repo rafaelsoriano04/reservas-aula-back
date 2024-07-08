@@ -8,7 +8,7 @@ import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 import api from "../utils/const";
 
 const Espacios = () => {
-  // Variables \
+  // Variables
   const [selectedRow, setSelectedRow] = useState(null);
   const [bloques, setBloques] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState("1");
@@ -254,146 +254,143 @@ const Espacios = () => {
   };
 
   return (
-    <div className="container">
-      <div className="content">
-        <div className="header">
-          <h2>Aulas/Laboratorios</h2>
-        </div>
-        <div className="row mb-0 mt-1 justify-content-between">
-          <div className="col d-flex align-items-center">
-            <label className="d-flex align-items-center fw-bold me-4">
-              Filtros:
-            </label>
-            <div className="col-auto d-flex align-items-center">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nombre"
-                value={filtroNombre}
-                onChange={e => setFiltroNombre(e.target.value)}
-                maxLength={30}
-              />
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Tipo:</label>
-              <select
-                className="form-select"
-                value={filtroTipo}
-                onChange={e => setFiltroTipo(e.target.value)}
-              >
-                <option value="">Todos</option>
-                <option value="Laboratorio">Laboratorio</option>
-                <option value="Aula">Aula</option>
-                <option value="Especial">Especial</option>
-              </select>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Bloque:</label>
-              <select
-                className="form-select"
-                value={filtroBloque}
-                onChange={e => setFiltroBloque(e.target.value)}
-              >
-                <option value="">Todos</option>
-                {bloques.map(bloque => (
-                  <option key={bloque.id} value={bloque.id}>
-                    {bloque.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <button className="btn" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-1">
-              <button className="btn" onClick={handleRefresh}>
-                <i className="fas fa-refresh"></i>
-              </button>
-            </div>
+    <div className="mx-5">
+      <div className="header">
+        <h2>Espacios</h2>
+      </div>
+      <div className="row mb-0 mt-1 justify-content-between">
+        <div className="col d-flex align-items-center">
+          <label className="d-flex align-items-center fw-bold me-4">
+            Filtros:
+          </label>
+          <div className="col-auto d-flex align-items-center">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nombre"
+              value={filtroNombre}
+              onChange={e => setFiltroNombre(e.target.value)}
+              maxLength={30}
+            />
           </div>
-          <div className="col-auto">
-            <button
-              className="btn"
-              onClick={() => {
-                setIsEditing(false);
-                handleShowModal();
-              }}
+          <div className="col-auto d-flex align-items-center ms-4">
+            <label className="me-2">Tipo:</label>
+            <select
+              className="form-select"
+              value={filtroTipo}
+              onChange={e => setFiltroTipo(e.target.value)}
             >
-              <FaPlus style={{ marginRight: "5px" }} />
-              Nuevo Espacio
+              <option value="">Todos</option>
+              <option value="Laboratorio">Laboratorio</option>
+              <option value="Aula">Aula</option>
+              <option value="Especial">Especial</option>
+            </select>
+          </div>
+          <div className="col-auto d-flex align-items-center ms-4">
+            <label className="me-2">Bloque:</label>
+            <select
+              className="form-select"
+              value={filtroBloque}
+              onChange={e => setFiltroBloque(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {bloques.map(bloque => (
+                <option key={bloque.id} value={bloque.id}>
+                  {bloque.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-auto d-flex align-items-center ms-4">
+            <button className="btn" onClick={handleSearch}>
+              <i className="fas fa-search"></i>
+            </button>
+          </div>
+          <div className="col-auto d-flex align-items-center ms-1">
+            <button className="btn" onClick={handleRefresh}>
+              <i className="fas fa-refresh"></i>
             </button>
           </div>
         </div>
-        <div className="mt-1">
-          <table className="table table-bordered table-hover mt-4 caption-top">
-            <caption>Seleccione una fila para ver sus opciones</caption>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Piso</th>
-                <th>Capacidad</th>
-                <th>Bloque</th>
-                <th>Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPageData.length === 0 ? (
-                <tr>
-                  <td colSpan="5">No hay resultados</td>
-                </tr>
-              ) : (
-                cargarTabla()
-              )}
-            </tbody>
-          </table>
-          <ReactPaginate
-            previousLabel={"<"}
-            nextLabel={">"}
-            breakLabel={"..."}
-            pageCount={pageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
-            onPageChange={handlePageClick}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            pageClassName={"page-item"}
-            pageLinkClassName={"page-link"}
-            previousClassName={"page-item"}
-            previousLinkClassName={"page-link"}
-            nextClassName={"page-item"}
-            nextLinkClassName={"page-link"}
-            breakClassName={"page-item"}
-            breakLinkClassName={"page-link"}
-          />
-          <div
-            className="context-menu"
-            style={{
-              display:
-                showContextMenu && selectedRow !== null ? "block" : "none",
-              top: contextMenuPosition.top,
-              left: contextMenuPosition.left,
+        <div className="col-auto">
+          <button
+            className="btn"
+            onClick={() => {
+              setIsEditing(false);
+              handleShowModal();
             }}
           >
-            <Button
-              variant="custom"
-              id="editar-btn"
-              onClick={() => {
-                handleEditClick();
-                handleShowModal();
-              }}
-            >
-              Editar
-            </Button>
-            <Button
-              variant="custom"
-              id="eliminar-btn"
-              onClick={() => eliminarEspacio()}
-            >
-              Eliminar
-            </Button>
-          </div>
+            <FaPlus style={{ marginRight: "5px" }} />
+            Nuevo Espacio
+          </button>
+        </div>
+      </div>
+      <div className="mt-1">
+        <table className="table table-bordered table-hover mt-4 caption-top">
+          <caption>Seleccione una fila para ver sus opciones</caption>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Piso</th>
+              <th>Capacidad</th>
+              <th>Bloque</th>
+              <th>Tipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentPageData.length === 0 ? (
+              <tr>
+                <td colSpan="5">No hay resultados</td>
+              </tr>
+            ) : (
+              cargarTabla()
+            )}
+          </tbody>
+        </table>
+        <ReactPaginate
+          previousLabel={"<"}
+          nextLabel={">"}
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
+          breakClassName={"page-item"}
+          breakLinkClassName={"page-link"}
+        />
+        <div
+          className="context-menu"
+          style={{
+            display: showContextMenu && selectedRow !== null ? "block" : "none",
+            top: contextMenuPosition.top,
+            left: contextMenuPosition.left,
+          }}
+        >
+          <Button
+            variant="custom"
+            id="editar-btn"
+            onClick={() => {
+              handleEditClick();
+              handleShowModal();
+            }}
+          >
+            Editar
+          </Button>
+          <Button
+            variant="custom"
+            id="eliminar-btn"
+            onClick={() => eliminarEspacio()}
+          >
+            Eliminar
+          </Button>
         </div>
       </div>
       <Modal show={showModal} onHide={handleCloseModal} centered>

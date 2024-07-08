@@ -219,7 +219,7 @@ const Feriados = () => {
   // Render
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header">
           <h2>Feriados</h2>
         </div>
