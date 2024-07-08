@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { Nav, Row, Col } from "react-bootstrap";
 import "../styles/menu.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Horarios from "./horario";
+import Horarios from "./Horarios";
 import Reservas from "./Reservas";
-import AuLabs from "./AuLabs";
-import Docentes from "./docentes";
+import Espacios from "./Espacios";
 import Usuarios from "./Usuarios";
-import Materia from "./materia";
+import Materias from "./Materias";
 import Feriados from "./Feriados";
+import Docentes from "./Docentes";
 
-const SidebarMenu = () => {
+const Menu = () => {
   const navigate = useNavigate();
   const [activeComponent, setActiveComponent] = useState("reservas");
   const [tipoUsuario, setTipoUsuario] = useState("");
@@ -35,17 +35,16 @@ const SidebarMenu = () => {
     switch (activeComponent) {
       case "horarios":
         return <Horarios />;
-      case "aulabs":
-        return <AuLabs />;
+      case "espacios":
+        return <Espacios />;
       case "docentes":
         return <Docentes />;
-      case "materia":
-        return <Materia />;
+      case "materias":
+        return <Materias />;
       case "usuarios":
         return <Usuarios />;
       case "feriados":
         return <Feriados />;
-      case "reservas":
       default:
         return <Reservas />;
     }
@@ -64,9 +63,9 @@ const SidebarMenu = () => {
   };
 
   return (
-    <Row>
-      <Col lg={3} className="p-0">
-        <Nav className="col-md-12 d-none d-md-block bg-light sidebar">
+    <Row className="vh-100">
+      <Col xs={2} className="sidebar">
+        <Nav className="flex-column sticky-top bg-light h-100">
           <div className="sidebar-sticky d-flex flex-column h-100">
             <div className="header-logo">
               <img src="src/img/1.png" alt="Logo uta" className="mb-4" />
@@ -82,7 +81,7 @@ const SidebarMenu = () => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("aulabs")}>
+              <Nav.Link onClick={() => setActiveComponent("espacios")}>
                 <i className="fas fa-chalkboard-teacher me-2"></i>Aulas-Labs
               </Nav.Link>
             </Nav.Item>
@@ -92,8 +91,8 @@ const SidebarMenu = () => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("materia")}>
-                <i className="fas fa-book me-2"></i>Materia
+              <Nav.Link onClick={() => setActiveComponent("materias")}>
+                <i className="fas fa-book me-2"></i>Materias
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
@@ -112,11 +111,11 @@ const SidebarMenu = () => {
           </div>
         </Nav>
       </Col>
-      <Col md={10} className="col-10 main-content">
+      <Col xs={10} className="main-content">
         {renderActiveComponent()}
       </Col>
     </Row>
   );
 };
 
-export default SidebarMenu;
+export default Menu;

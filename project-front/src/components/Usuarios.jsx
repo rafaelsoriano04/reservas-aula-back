@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import api from "../utils/const";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
-import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
@@ -46,17 +46,17 @@ const Usuarios = () => {
   const getUsuarios = async () => {
     let url;
     if (filtroUsername && filtroTipo) {
-      url = `http://172.21.123.13:9070/usuario/filter/${filtroTipo}/${filtroUsername}`;
+      url = `usuario/filter/${filtroTipo}/${filtroUsername}`;
     } else if (!filtroUsername && filtroTipo) {
-      url = `http://172.21.123.13:9070/usuario/filter-tipo/${filtroTipo}`;
+      url = `usuario/filter-tipo/${filtroTipo}`;
     } else if (filtroUsername && !filtroTipo) {
-      url = `http://172.21.123.13:9070/usuario/filter-username/${filtroUsername}`;
+      url = `usuario/filter-username/${filtroUsername}`;
     } else {
-      url = `http://172.21.123.13:9070/usuario`;
+      url = `usuario`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setUsuarios(response.data);
     } catch (error) {
       if (error.response) {
@@ -72,11 +72,11 @@ const Usuarios = () => {
   };
 
   const eliminarUsuario = async id => {
-    const url = `http://172.21.123.13:9070/usuario/${id}`;
+    const url = `usuario/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(url);
+        await api.delete(url);
         getUsuarios();
         ok("Registro eliminado exitosamente.");
       }
@@ -111,7 +111,7 @@ const Usuarios = () => {
   const saveUsuario = async () => {
     try {
       const usuario = { username, newPassword, tipo };
-      await axios.post("http://172.21.123.13:9070/usuario", usuario);
+      await api.post("usuario", usuario);
       ok("Registro guardado exitosamente.");
       getUsuarios();
       handleCloseModal();
@@ -133,7 +133,7 @@ const Usuarios = () => {
   const editUsuario = async () => {
     try {
       const usuario = { username, newPassword, tipo };
-      await axios.put(`http://172.21.123.13:9070/usuario/${idUsuario}`, usuario);
+      await api.put(`usuario/${idUsuario}`, usuario);
       getUsuarios();
       ok("Registro actualizado exitosamente.");
       handleCloseModal();
@@ -233,137 +233,139 @@ const Usuarios = () => {
   // Render
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header">
           <h2>Usuarios</h2>
         </div>
-        <div className="row mb-0 mt-3 justify-content-between">
-          <div className="col d-flex align-items-center">
-            <label className="d-flex align-items-center fw-bold me-4">
-              Filtros:
-            </label>
-            <div className="col-auto d-flex align-items-center">
-              <label className="me-2">Nombre:</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Username"
-                value={filtroUsername}
-                onChange={handleFiltroUsername}
-                maxLength={30}
-              />
+        <div className="container-sm pe-5 ps-5">
+          <div className="row mb-0 mt-3 justify-content-between">
+            <div className="col d-flex align-items-center">
+              <label className="d-flex align-items-center fw-bold me-4">
+                Filtros:
+              </label>
+              <div className="col-auto d-flex align-items-center">
+                <label className="me-2">Nombre:</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Username"
+                  value={filtroUsername}
+                  onChange={handleFiltroUsername}
+                  maxLength={30}
+                />
+              </div>
+              <div className="col-auto d-flex align-items-center ms-4">
+                <label className="me-2">Tipo:</label>
+                <select
+                  className="form-select"
+                  value={filtroTipo}
+                  onChange={handleFiltroTipo}
+                >
+                  <option value="">Todos</option>
+                  <option value="Administrador">Administrador</option>
+                  <option value="Usuario">Usuario</option>
+                </select>
+              </div>
+              <div className="col-auto d-flex align-items-center ms-4">
+                <button className="btn" onClick={handleSearch}>
+                  <i className="fas fa-search"></i>
+                </button>
+              </div>
+              <div className="col-auto d-flex align-items-center ms-1">
+                <button className="btn" onClick={handleRefresh}>
+                  <i className="fas fa-refresh"></i>
+                </button>
+              </div>
             </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Tipo:</label>
-              <select
-                className="form-select"
-                value={filtroTipo}
-                onChange={handleFiltroTipo}
-              >
-                <option value="">Todos</option>
-                <option value="Administrador">Administrador</option>
-                <option value="Usuario">Usuario</option>
-              </select>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <button className="btn" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-1">
-              <button className="btn" onClick={handleRefresh}>
-                <i className="fas fa-refresh"></i>
-              </button>
-            </div>
-          </div>
-          <div className="col-auto">
-            <button
-              className="btn"
-              onClick={() => {
-                setIsEditing(false);
-                handleShowModal();
-              }}
-            >
-              <FaPlus style={{ marginRight: "5px" }} />
-              Nuevo usuario
-            </button>
-          </div>
-        </div>
-        <div className="mt-0">
-          <table className="table table-bordered table-hover mt-3 caption-top">
-            <caption>Seleccione una fila para ver sus opciones</caption>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPageData.length === 0 ? (
-                <tr>
-                  <td colSpan="2">No hay resultados</td>
-                </tr>
-              ) : (
-                cargarUsuarios()
-              )}
-            </tbody>
-          </table>
-          <ReactPaginate
-            previousLabel={"<"}
-            nextLabel={">"}
-            breakLabel={"..."}
-            pageCount={pageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={3}
-            onPageChange={handlePageClick}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            pageClassName={"page-item"}
-            pageLinkClassName={"page-link"}
-            previousClassName={"page-item"}
-            previousLinkClassName={"page-link"}
-            nextClassName={"page-item"}
-            nextLinkClassName={"page-link"}
-            breakClassName={"page-item"}
-            breakLinkClassName={"page-link"}
-          />
-
-          <div
-            className="context-menu"
-            id="context-menu"
-            style={{
-              display:
-                showContextMenu && selectedRow !== null ? "block" : "none",
-              top: contextMenuPosition.top,
-              left: contextMenuPosition.left,
-            }}
-          >
-            <Button
-              variant="custom"
-              id="editar-btn"
-              onClick={() => {
-                const selectedUsuario = usuarios.find(
-                  usuario => usuario.id === selectedRow
-                );
-                if (selectedUsuario) {
-                  setIdUsuario(selectedUsuario.id);
-                  setUsername(selectedUsuario.username);
-                  setTipo(selectedUsuario.tipo);
-                  setShowContextMenu(false); // Cierra el menú contextual
-                  setIsEditing(true);
+            <div className="col-auto">
+              <button
+                className="btn"
+                onClick={() => {
+                  setIsEditing(false);
                   handleShowModal();
-                }
+                }}
+              >
+                <FaPlus style={{ marginRight: "5px" }} />
+                Nuevo usuario
+              </button>
+            </div>
+          </div>
+          <div className="mt-0">
+            <table className="table table-bordered table-hover mt-3 caption-top">
+              <caption>Seleccione una fila para ver sus opciones</caption>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentPageData.length === 0 ? (
+                  <tr>
+                    <td colSpan="2">No hay resultados</td>
+                  </tr>
+                ) : (
+                  cargarUsuarios()
+                )}
+              </tbody>
+            </table>
+            <ReactPaginate
+              previousLabel={"<"}
+              nextLabel={">"}
+              breakLabel={"..."}
+              pageCount={pageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={3}
+              onPageChange={handlePageClick}
+              containerClassName={"pagination"}
+              activeClassName={"active"}
+              pageClassName={"page-item"}
+              pageLinkClassName={"page-link"}
+              previousClassName={"page-item"}
+              previousLinkClassName={"page-link"}
+              nextClassName={"page-item"}
+              nextLinkClassName={"page-link"}
+              breakClassName={"page-item"}
+              breakLinkClassName={"page-link"}
+            />
+
+            <div
+              className="context-menu"
+              id="context-menu"
+              style={{
+                display:
+                  showContextMenu && selectedRow !== null ? "block" : "none",
+                top: contextMenuPosition.top,
+                left: contextMenuPosition.left,
               }}
             >
-              Editar
-            </Button>
-            <Button
-              variant="custom"
-              id="eliminar-btn"
-              onClick={() => eliminarUsuario(selectedRow)}
-            >
-              Eliminar
-            </Button>
+              <Button
+                variant="custom"
+                id="editar-btn"
+                onClick={() => {
+                  const selectedUsuario = usuarios.find(
+                    usuario => usuario.id === selectedRow
+                  );
+                  if (selectedUsuario) {
+                    setIdUsuario(selectedUsuario.id);
+                    setUsername(selectedUsuario.username);
+                    setTipo(selectedUsuario.tipo);
+                    setShowContextMenu(false); // Cierra el menú contextual
+                    setIsEditing(true);
+                    handleShowModal();
+                  }
+                }}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="custom"
+                id="eliminar-btn"
+                onClick={() => eliminarUsuario(selectedRow)}
+              >
+                Eliminar
+              </Button>
+            </div>
           </div>
         </div>
       </div>

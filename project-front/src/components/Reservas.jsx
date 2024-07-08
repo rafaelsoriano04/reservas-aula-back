@@ -1,8 +1,8 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Reserva.css";
+import api from "../utils/const";
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import axios from "axios";
 import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
 
 const LabReservations = () => {
@@ -100,9 +100,9 @@ const LabReservations = () => {
   }, []);
 
   const getFeriados = async () => {
-    const url = `http://172.21.123.13:9070/feriado`;
+    const url = `feriado`;
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setFeriados(response.data);
     } catch (error) {
       setFeriados([]); // Limpia los datos si la petición falla
@@ -113,24 +113,24 @@ const LabReservations = () => {
   const getHorarios = async () => {
     let url;
     if (selectedTipo === "Laboratorio") {
-      url = `http://172.21.123.13:9070/horario/lab/${selectedAulaLab}`;
+      url = `horario/lab/${selectedAulaLab}`;
     } else if (selectedTipo === "Aula") {
-      url = `http://172.21.123.13:9070/horario/aula/${selectedAulaLab}`;
+      url = `horario/aula/${selectedAulaLab}`;
     } else if (selectedTipo === "Especial") {
-      url = `http://172.21.123.13:9070/horario/especial/${selectedAulaLab}`;
+      url = `horario/especial/${selectedAulaLab}`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       setHorarios([]); // Limpia los datos si la petición falla
     }
 
     const formattedDate = formatDate(monday); // Usa formatDate aquí
-    const url2 = `http://172.21.123.13:9070/reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
+    const url2 = `reservas?fecha=${formattedDate}&id_espacio=${selectedAulaLab}`;
     try {
-      const response = await axios.get(url2);
+      const response = await api.get(url2);
       setReservas(response.data);
     } catch (error) {
       setHorarios([]); // Limpia los datos si la petición falla
@@ -140,7 +140,7 @@ const LabReservations = () => {
   //carga
   const getBloques = async () => {
     try {
-      const resp = await axios.get("http://172.21.123.13:9070/bloque");
+      const resp = await api.get("bloque");
       setBloques(resp.data);
     } catch (error) {
       const { message } = error.response.data;
@@ -149,10 +149,10 @@ const LabReservations = () => {
   };
 
   const fetchAulasLabs = async () => {
-    const url = `http://172.21.123.13:9070/espacio/bloque/${selectedBloque}`;
+    const url = `espacio/bloque/${selectedBloque}`;
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       let filteredData = [];
       if (selectedTipo == "Aula") {
         filteredData = response.data.filter(item => item.tipo === "Aula");
@@ -483,7 +483,7 @@ const LabReservations = () => {
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(`http://172.21.123.13:9070/reservas/${reservationId}`);
+        await api.delete(`reservas/${reservationId}`);
         // Actualiza el estado de reservas después de eliminar
         setReservas(prev =>
           prev.filter(reserva => reserva.id !== reservationId)
@@ -511,10 +511,7 @@ const LabReservations = () => {
     };
 
     try {
-      await axios.put(
-        `http://172.21.123.13:9070/reservas/${reservationDetails.id}`,
-        updatedReservation
-      );
+      await api.put(`reservas/${reservationDetails.id}`, updatedReservation);
       ok("Registro actualizado exitosamente.");
 
       // Actualiza la lista de reservas localmente
@@ -589,10 +586,7 @@ const LabReservations = () => {
 
       if (!isExistingResponsible) {
         try {
-          const response = await axios.post(
-            "http://172.21.123.13:9070/person",
-            responsible
-          );
+          const response = await api.post("person", responsible);
 
           savedResponsible = response.data;
           setResponsible(savedResponsible);
@@ -620,7 +614,7 @@ const LabReservations = () => {
       console.log(reserva);
 
       try {
-        await axios.post("http://172.21.123.13:9070/reservas", reserva);
+        await api.post("reservas", reserva);
         await getHorarios();
         const newHorarios = [
           ...horarios,
@@ -679,9 +673,7 @@ const LabReservations = () => {
   //BUSCAR  EL RESPONSABLE PARA EL MODAL DE AGREGAR RESERVA
   const searchResponsible = async () => {
     try {
-      const response = await axios.get(
-        `http://172.21.123.13:9070/person/${responsible.cedula}`
-      );
+      const response = await api.get(`person/${responsible.cedula}`);
       setResponsible(response.data);
       setNewReservation(prev => ({
         ...prev,
@@ -706,7 +698,7 @@ const LabReservations = () => {
   };
 
   return (
-    <div className="container mt-3">
+    <div className="mx-5">
       <div className="header text-center">
         <h2>Reservas </h2>
       </div>
@@ -740,12 +732,19 @@ const LabReservations = () => {
           </Form.Select>
         </div>
         <div className="col-md-4">
-          <label>Aula/Laboratorio</label>
+          <label>
+            Espacio{" "}
+            {aulasLabs.length === 0 && (
+              <label>(No hay espacios disponibles)</label>
+            )}
+          </label>
+
           <Form.Select
             className="form-control"
             id="aulaLabSelect"
             value={selectedAulaLab}
             onChange={handleAulaLabChange}
+            disabled={aulasLabs.length === 0}
           >
             {aulasLabs.map(aulaLab => (
               <option key={aulaLab.id} value={aulaLab.id}>

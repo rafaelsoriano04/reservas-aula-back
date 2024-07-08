@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/materias.css";
-import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import api from "../utils/const";
 
-function Materias() {
+const Materias = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [materias, setMaterias] = useState([]);
@@ -55,17 +55,17 @@ function Materias() {
   const getMaterias = async () => {
     let url;
     if (!filtroNombre && !filtroCarrera) {
-      url = `http://172.21.123.13:9070/materia`;
+      url = `materia`;
     } else if (filtroNombre && !filtroCarrera) {
-      url = `http://172.21.123.13:9070/materia/filter-nombre/${filtroNombre}`;
+      url = `materia/filter-nombre/${filtroNombre}`;
     } else if (!filtroNombre && filtroCarrera) {
-      url = `http://172.21.123.13:9070/materia/filter-carrera/${filtroCarrera}`;
+      url = `materia/filter-carrera/${filtroCarrera}`;
     } else {
-      url = `http://172.21.123.13:9070/materia/filter/${filtroNombre}/${filtroCarrera}`;
+      url = `materia/filter/${filtroNombre}/${filtroCarrera}`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setMaterias(response.data);
     } catch (error) {
       if (error.response) {
@@ -81,11 +81,11 @@ function Materias() {
   };
 
   const eliminarMateria = async id => {
-    const url = `http://172.21.123.13:9070/materia/${id}`;
+    const url = `materia/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(url);
+        await api.delete(url);
         getMaterias();
         ok("Registro eliminado exitosamente.");
       }
@@ -116,13 +116,13 @@ function Materias() {
       return;
     }
 
-    const url = `http://172.21.123.13:9070/materia`;
+    const url = `materia`;
     try {
       let materia = {
         nombre: formData.nombre,
         carrera: selectedCarrera,
       };
-      await axios.post(url, materia);
+      await api.post(url, materia);
       getMaterias();
       setFormData({ id: "", nombre: "", carrera: "" });
       setSelectedCarrera(""); // Limpiar selección de carrera
@@ -133,7 +133,7 @@ function Materias() {
   };
 
   const editarMateria = async () => {
-    const url = `http://172.21.123.13:9070/materia`;
+    const url = `materia`;
     if (selectedCarrera === "") {
       carreraRef.current.focus();
       return;
@@ -144,7 +144,7 @@ function Materias() {
         nombre: formData.nombre,
         carrera: selectedCarrera,
       };
-      const response = await axios.post(url, materia);
+      const response = await api.post(url, materia);
       if (response.status === 200) {
         getMaterias();
         setIsEditing(false);
@@ -204,7 +204,7 @@ function Materias() {
 
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header">
           <h2>Materias</h2>
         </div>
@@ -263,82 +263,85 @@ function Materias() {
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="mt-4">
-        <table className="table table-bordered table-hover mt-4 caption-top">
-          <caption>Seleccione una fila para ver sus opciones</caption>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Carrera</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentPageData.length === 0 ? (
+        <div className="mt-4">
+          <table className="table table-bordered table-hover mt-4 caption-top">
+            <caption>Seleccione una fila para ver sus opciones</caption>
+            <thead>
               <tr>
-                <td colSpan="2">No hay resultados</td>
+                <th>Nombre</th>
+                <th>Carrera</th>
               </tr>
-            ) : (
-              cargarMaterias()
-            )}
-          </tbody>
-        </table>
-        <ReactPaginate
-          previousLabel={"<"}
-          nextLabel={">"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          activeClassName={"active"}
-          pageClassName={"page-item"}
-          pageLinkClassName={"page-link"}
-          previousClassName={"page-item"}
-          previousLinkClassName={"page-link"}
-          nextClassName={"page-item"}
-          nextLinkClassName={"page-link"}
-          breakClassName={"page-item"}
-          breakLinkClassName={"page-link"}
-        />
-        <div
-          className="context-menu"
-          id="context-menu"
-          style={{
-            display: showContextMenu && selectedRow !== null ? "block" : "none",
-            top: contextMenuPosition.top,
-            left: contextMenuPosition.left,
-          }}
-        >
-          <Button
-            variant="custom"
-            id="editar-btn"
-            onClick={() => {
-              const selectedMateria = materias.find(m => m.id === selectedRow);
-              if (selectedMateria) {
-                setFormData({
-                  id: selectedMateria.id,
-                  nombre: selectedMateria.nombre,
-                  carrera: selectedMateria.carrera,
-                });
-                setSelectedCarrera(selectedMateria.carrera);
-                setShowContextMenu(false);
-                setIsEditing(true);
-                handleShowModal();
-              }
+            </thead>
+            <tbody>
+              {currentPageData.length === 0 ? (
+                <tr>
+                  <td colSpan="2">No hay resultados</td>
+                </tr>
+              ) : (
+                cargarMaterias()
+              )}
+            </tbody>
+          </table>
+          <ReactPaginate
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+            pageClassName={"page-item"}
+            pageLinkClassName={"page-link"}
+            previousClassName={"page-item"}
+            previousLinkClassName={"page-link"}
+            nextClassName={"page-item"}
+            nextLinkClassName={"page-link"}
+            breakClassName={"page-item"}
+            breakLinkClassName={"page-link"}
+          />
+          <div
+            className="context-menu"
+            id="context-menu"
+            style={{
+              display:
+                showContextMenu && selectedRow !== null ? "block" : "none",
+              top: contextMenuPosition.top,
+              left: contextMenuPosition.left,
             }}
           >
-            Editar
-          </Button>
-          <Button
-            variant="custom"
-            id="eliminar-btn"
-            onClick={() => eliminarMateria(selectedRow)}
-          >
-            Eliminar
-          </Button>
+            <Button
+              variant="custom"
+              id="editar-btn"
+              onClick={() => {
+                const selectedMateria = materias.find(
+                  m => m.id === selectedRow
+                );
+                if (selectedMateria) {
+                  setFormData({
+                    id: selectedMateria.id,
+                    nombre: selectedMateria.nombre,
+                    carrera: selectedMateria.carrera,
+                  });
+                  setSelectedCarrera(selectedMateria.carrera);
+                  setShowContextMenu(false);
+                  setIsEditing(true);
+                  handleShowModal();
+                }
+              }}
+            >
+              Editar
+            </Button>
+            <Button
+              variant="custom"
+              id="eliminar-btn"
+              onClick={() => eliminarMateria(selectedRow)}
+            >
+              Eliminar
+            </Button>
+          </div>
         </div>
       </div>
       <Modal show={showModal} onHide={handleCloseModal} centered>
@@ -427,6 +430,6 @@ function Materias() {
       </Modal>
     </>
   );
-}
+};
 
 export default Materias;

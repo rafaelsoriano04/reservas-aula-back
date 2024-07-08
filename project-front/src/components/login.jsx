@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/login.css";
-import axios from "axios";
+import api from "../utils/const";
 import { useNavigate } from "react-router-dom";
 import { oops } from "../utils/Alerts";
 
-function Login() {
+const Login = () => {
   // Variables
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,10 +24,7 @@ function Login() {
         password,
       };
       try {
-        const resp = await axios.post(
-          "http://172.21.123.13:9070/usuario/login",
-          usuario
-        );
+        const resp = await api.post("usuario/login", usuario);
         if (resp.data) {
           setMensajeError("");
           localStorage.setItem("tipoUsuario", resp.data.tipo);
@@ -107,6 +104,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

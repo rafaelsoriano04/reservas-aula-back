@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
-import axios from "axios";
 import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
+import api from "../utils/const";
 
 const Feriados = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -44,17 +44,17 @@ const Feriados = () => {
   const getFeriados = async () => {
     let url;
     if (!filtroInicio && !filtroFin) {
-      url = `http://172.21.123.13:9070/feriado`;
+      url = `feriado`;
     } else if (filtroInicio && !filtroFin) {
-      url = `http://172.21.123.13:9070/feriado/filter-inicio/${filtroInicio}`;
+      url = `feriado/filter-inicio/${filtroInicio}`;
     } else if (!filtroInicio && filtroFin) {
-      url = `http://172.21.123.13:9070/feriado/filter-fin/${filtroFin}`;
+      url = `feriado/filter-fin/${filtroFin}`;
     } else {
-      url = `http://172.21.123.13:9070/feriado/filter/${filtroInicio}/${filtroFin}`;
+      url = `feriado/filter/${filtroInicio}/${filtroFin}`;
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setFeriados(response.data);
     } catch (error) {
       setFeriados([]); // Limpia los datos si la petición falla
@@ -62,11 +62,11 @@ const Feriados = () => {
   };
 
   const eliminarFeriado = async id => {
-    const url = `http://172.21.123.13:9070/feriado/${id}`;
+    const url = `feriado/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(url);
+        await api.delete(url);
         getFeriados();
         ok("Registro eliminado exitosamente.");
       }
@@ -140,7 +140,7 @@ const Feriados = () => {
         inicio,
         fin,
       };
-      await axios.post("http://172.21.123.13:9070/feriado", feriado);
+      await api.post("feriado", feriado);
       ok("Registro guardado exitosamente.");
       getFeriados();
       handleCloseModal();
@@ -159,7 +159,7 @@ const Feriados = () => {
         fin: addOneDay(fin),
       };
       console.log(addOneDay(inicio), addOneDay(fin));
-      await axios.put(`http://172.21.123.13:9070/feriado/${idFeriado}`, feriado);
+      await api.put(`feriado/${idFeriado}`, feriado);
       getFeriados();
       ok("Registro actualizado exitosamente.");
       handleCloseModal();
@@ -219,7 +219,7 @@ const Feriados = () => {
   // Render
   return (
     <>
-      <div>
+      <div className="mx-5">
         <div className="header">
           <h2>Feriados</h2>
         </div>
