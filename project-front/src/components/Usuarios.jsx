@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import api from "../utils/const";
+import api from "../utils/api";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/usuarios.css";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation } from "../utils/swal-alerts";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
 

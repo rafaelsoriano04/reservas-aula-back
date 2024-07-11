@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/login.css";
-import api from "../utils/const";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { oops } from "../utils/Alerts";
+import { oops } from "../utils/swal-alerts";
 
 const Login = () => {
   // Variables

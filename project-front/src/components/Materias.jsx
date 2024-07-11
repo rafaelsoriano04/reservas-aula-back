@@ -4,8 +4,8 @@ import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/materias.css";
 import { FaPlus } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
-import api from "../utils/const";
+import { ok, oops, deleteConfirmation } from "../utils/swal-alerts";
+import api from "../utils/api";
 
 const Materias = () => {
   const [selectedRow, setSelectedRow] = useState(null);

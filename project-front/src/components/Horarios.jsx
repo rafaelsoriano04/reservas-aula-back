@@ -3,8 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Modal } from "react-bootstrap";
 import Select from "react-select";
 import "../styles/horario.css";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
-import api from "../utils/const";
+import { ok, oops, deleteConfirmation } from "../utils/swal-alerts";
+import api from "../utils/api";
 
 const Horarios = () => {
   // Variables

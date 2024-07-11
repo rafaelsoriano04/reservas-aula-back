@@ -4,8 +4,8 @@ import { Form, Button, Alert, Modal } from "react-bootstrap";
 import "../styles/AulaLabs.css";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
-import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
-import api from "../utils/const";
+import { ok, oops, deleteConfirmation, info } from "../utils/swal-alerts";
+import api from "../utils/api";
 
 const Espacios = () => {
   // Variables
