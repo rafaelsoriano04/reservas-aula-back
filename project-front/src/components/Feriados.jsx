@@ -36,9 +36,7 @@ const Feriados = () => {
   }, []);
 
   useEffect(() => {
-    if (filtroInicio === "" && filtroFin === "") {
-      getFeriados();
-    }
+    getFeriados();
   }, [filtroInicio, filtroFin]);
 
   const getFeriados = async () => {
@@ -207,10 +205,6 @@ const Feriados = () => {
     }
   };
 
-  const handleSearch = () => {
-    getFeriados();
-  };
-
   const handleRefresh = () => {
     setFiltroInicio("");
     setFiltroFin("");
@@ -258,11 +252,6 @@ const Feriados = () => {
               />
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
-              <button className="btn" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-1">
               <button className="btn" onClick={handleRefresh}>
                 <i className="fas fa-refresh"></i>
               </button>

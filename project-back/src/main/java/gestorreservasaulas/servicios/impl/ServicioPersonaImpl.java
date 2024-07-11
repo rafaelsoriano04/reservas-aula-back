@@ -41,7 +41,7 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
     @Override
     public PersonaDto guardar(PersonaDto nuevaPersona) throws NotFoundException {
-        if (nuevaPersona.getCedula().equals("editando")){
+        if (nuevaPersona.getCedula().equals("editando")) {
             Persona p = findById(nuevaPersona.getId());
             Persona nueva = dtoToPerson(nuevaPersona);
             nueva.setCedula(p.getCedula());
@@ -53,7 +53,7 @@ public class ServicioPersonaImpl implements ServicioPersona {
             throw new NotFoundException("cedula existe");
 
         } else {
-                //nueva persona
+            //nueva persona
             Persona nueva = dtoToPerson(nuevaPersona);
             Persona personaGuardada = repositorioPersona.save(nueva);
             return personToDto(personaGuardada);
@@ -72,7 +72,7 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
     @Override
     public List<PersonaDto> getByNombreApellido(String nombre) {
-        return repositorioPersona
+         return repositorioPersona
                 .findAllByTipoAndNombreContainsOrApellidoContains("Docente", nombre, nombre, Sort.by("apellido"))
                 .stream().map(this::personToDto).collect(Collectors.toList());
     }

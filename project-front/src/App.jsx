@@ -1,4 +1,5 @@
 import React from "react";
+import { PrimeReactProvider } from "primereact/api";
 import "bootstrap/dist/js/bootstrap.min.js";
 import {
   BrowserRouter as Router,
@@ -14,19 +15,21 @@ import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route>
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Route>
-        <Route>
-          <Route path="/login" element={<Login />} />
-        </Route>
-        <Route element={<PrivateRoute />}>
-          <Route path="/menu" element={<Menu />} />
-        </Route>
-      </Routes>
-    </Router>
+    <PrimeReactProvider>
+      <Router>
+        <Routes>
+          <Route>
+            <Route path="/" element={<Navigate to="/login" />} />
+          </Route>
+          <Route>
+            <Route path="/login" element={<Login />} />
+          </Route>
+          <Route element={<PrivateRoute />}>
+            <Route path="/menu" element={<Menu />} />
+          </Route>
+        </Routes>
+      </Router>
+    </PrimeReactProvider>
   );
 }
 
