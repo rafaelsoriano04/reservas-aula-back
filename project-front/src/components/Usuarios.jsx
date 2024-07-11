@@ -38,9 +38,7 @@ const Usuarios = () => {
   }, []);
 
   useEffect(() => {
-    if (filtroUsername === "" && filtroTipo === "") {
-      getUsuarios();
-    }
+    getUsuarios();
   }, [filtroUsername, filtroTipo]);
 
   const getUsuarios = async () => {
@@ -221,10 +219,6 @@ const Usuarios = () => {
     }
   };
 
-  const handleSearch = () => {
-    getUsuarios();
-  };
-
   const handleRefresh = () => {
     setFiltroUsername("");
     setFiltroTipo("");
@@ -244,7 +238,7 @@ const Usuarios = () => {
                 Filtros:
               </label>
               <div className="col-auto d-flex align-items-center">
-                <label className="me-2">Nombre:</label>
+                <label className="me-2">Username:</label>
                 <input
                   type="text"
                   className="form-control"
@@ -267,11 +261,6 @@ const Usuarios = () => {
                 </select>
               </div>
               <div className="col-auto d-flex align-items-center ms-4">
-                <button className="btn" onClick={handleSearch}>
-                  <i className="fas fa-search"></i>
-                </button>
-              </div>
-              <div className="col-auto d-flex align-items-center ms-1">
                 <button className="btn" onClick={handleRefresh}>
                   <i className="fas fa-refresh"></i>
                 </button>

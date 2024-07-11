@@ -48,9 +48,7 @@ const Espacios = () => {
   }, []);
 
   useEffect(() => {
-    if (filtroBloque === "" && filtroNombre === "" && filtroTipo === "") {
-      fetchAulasLabs();
-    }
+    fetchAulasLabs();
   }, [filtroBloque, filtroNombre, filtroTipo]);
 
   useEffect(() => {
@@ -59,6 +57,7 @@ const Espacios = () => {
       document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
+
   useEffect(() => {
     setAulasLabsToShow([...aulas]);
   }, [aulas]);
@@ -198,7 +197,6 @@ const Espacios = () => {
 
   const handleEditClick = () => {
     const selectedAulaLab = aulasLabsToShow.find(d => d.id === selectedRow);
-    console.log(selectedRow);
 
     if (selectedAulaLab) {
       setFormData({
@@ -235,10 +233,6 @@ const Espacios = () => {
     ));
   };
 
-  const handleSearch = () => {
-    fetchAulasLabs();
-  };
-
   const handleRefresh = () => {
     setFiltroNombre("");
     setFiltroBloque("");
@@ -249,6 +243,7 @@ const Espacios = () => {
     limpiar();
     setShowModal(false);
   };
+
   const handleShowModal = () => {
     setShowModal(true);
   };
@@ -302,11 +297,6 @@ const Espacios = () => {
             </select>
           </div>
           <div className="col-auto d-flex align-items-center ms-4">
-            <button className="btn" onClick={handleSearch}>
-              <i className="fas fa-search"></i>
-            </button>
-          </div>
-          <div className="col-auto d-flex align-items-center ms-1">
             <button className="btn" onClick={handleRefresh}>
               <i className="fas fa-refresh"></i>
             </button>

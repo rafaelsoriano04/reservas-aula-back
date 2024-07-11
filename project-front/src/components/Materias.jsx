@@ -47,9 +47,7 @@ const Materias = () => {
   }, []);
 
   useEffect(() => {
-    if (filtroNombre === "" && filtroCarrera === "") {
-      getMaterias();
-    }
+    getMaterias();
   }, [filtroNombre, filtroCarrera]);
 
   const getMaterias = async () => {
@@ -193,10 +191,6 @@ const Materias = () => {
     ));
   };
 
-  const handleSearch = () => {
-    getMaterias();
-  };
-
   const handleRefresh = () => {
     setFiltroNombre("");
     setFiltroCarrera("");
@@ -240,11 +234,6 @@ const Materias = () => {
               </select>
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
-              <button className="btn" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-1">
               <button className="btn" onClick={handleRefresh}>
                 <i className="fas fa-refresh"></i>
               </button>

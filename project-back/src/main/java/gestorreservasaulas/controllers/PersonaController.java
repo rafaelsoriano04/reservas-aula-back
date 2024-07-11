@@ -48,7 +48,7 @@ public class PersonaController {
     }
 
     @GetMapping("/docente-cedula/{cedula}")
-    public List<PersonaDto> getByTipoOrUsernameStartingWith(@PathVariable String cedula) {
+    public List<PersonaDto> getAllByCedula(@PathVariable String cedula) {
         return servicioPersona.getByCedula(cedula);
     }
 

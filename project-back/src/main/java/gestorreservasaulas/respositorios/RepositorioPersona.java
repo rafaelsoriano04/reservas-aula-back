@@ -12,9 +12,8 @@ import java.util.Optional;
 public interface RepositorioPersona extends JpaRepository<Persona, Long> {
     List<Persona> findAllByTipo(String tipo, Sort sort);
 
-    List<Persona> findAllByTipoAndCedulaStartsWith(String tipo,
-                                                   String cedula,
-                                                   Sort sort);
+    List<Persona> findAllByTipoAndCedulaStartsWith(String tipo, String cedula, Sort sort);
+
 
     List<Persona> findAllByTipoAndNombreContainsOrApellidoContains(String tipo,
                                                                    String nombre,
