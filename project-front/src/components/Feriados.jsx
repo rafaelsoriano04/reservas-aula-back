@@ -1,11 +1,13 @@
+import "../styles/feriados.css";
 import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Modal } from "react-bootstrap";
-import "../styles/usuarios.css";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
-import api from "../utils/const";
+import moment from "moment";
+import { Calendar } from "primereact/calendar";
+import { FloatLabel } from "primereact/floatlabel";
+import api from "../utils/api";
+import { ok, oops, deleteConfirmation } from "../utils/swal-alerts";
 
 const Feriados = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -44,11 +46,11 @@ const Feriados = () => {
     if (!filtroInicio && !filtroFin) {
       url = `feriado`;
     } else if (filtroInicio && !filtroFin) {
-      url = `feriado/filter-inicio/${filtroInicio}`;
+      url = `feriado/filter-inicio/${moment(filtroInicio).format("YYYY-MM-DD")}`;
     } else if (!filtroInicio && filtroFin) {
-      url = `feriado/filter-fin/${filtroFin}`;
+      url = `feriado/filter-fin/${moment(filtroFin).format("YYYY-MM-DD")}`;
     } else {
-      url = `feriado/filter/${filtroInicio}/${filtroFin}`;
+      url = `feriado/filter/${moment(filtroInicio).format("YYYY-MM-DD")}/${moment(filtroFin).format("YYYY-MM-DD")}`;
     }
 
     try {
@@ -212,7 +214,7 @@ const Feriados = () => {
 
   // Render
   return (
-    <>
+    <div className="feriados">
       <div className="mx-5">
         <div className="header">
           <h2>Feriados</h2>
@@ -224,32 +226,32 @@ const Feriados = () => {
             </label>
             <div className="d-flex align-items-center">
               <label className="me-2">Desde:</label>
-              <input
-                className="form-control"
-                type="date"
-                value={filtroInicio}
-                onChange={handleFiltroInicio}
-                style={{
-                  padding: "8px",
-                  width: "100%",
-                  boxSizing: "border-box",
-                }}
-              />
+              <FloatLabel>
+                <Calendar
+                  inputId="filtroInicio"
+                  value={filtroInicio}
+                  onChange={handleFiltroInicio}
+                  dateFormat="yy/mm/dd"
+                  showButtonBar
+                  showIcon
+                />
+                <label htmlFor="filtroInicio">yyyy/mm/dd</label>
+              </FloatLabel>
             </div>
             <div className="d-flex align-items-center ms-4">
               <label className="me-2">Hasta:</label>
-              <input
-                type="date"
-                className="form-control"
-                value={filtroFin}
-                onChange={handleFiltroFin}
-                style={{
-                  padding: "8px",
-                  width: "100%",
-                  boxSizing: "border-box",
-                }}
-                min={filtroInicio}
-              />
+              <FloatLabel>
+                <Calendar
+                  inputId="filtroInicio"
+                  value={filtroFin}
+                  onChange={handleFiltroFin}
+                  dateFormat="yy/mm/dd"
+                  showButtonBar
+                  showIcon
+                  min={filtroInicio}
+                />
+                <label htmlFor="filtroInicio">yyyy/mm/dd</label>
+              </FloatLabel>
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
               <button className="btn" onClick={handleRefresh}>
@@ -399,7 +401,7 @@ const Feriados = () => {
           </Form>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 };
 

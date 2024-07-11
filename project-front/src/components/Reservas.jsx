@@ -1,9 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Reserva.css";
-import api from "../utils/const";
+import api from "../utils/api";
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation, info } from "../utils/swal-alerts";
 
 const LabReservations = () => {
   const [currentWeek, setCurrentWeek] = useState(0);

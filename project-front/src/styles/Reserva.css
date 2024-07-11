@@ -64,18 +64,18 @@ tbody tr:nth-child(odd) {
   background: #701c1c;
 }
 .context-menu {
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    display: none;
-    z-index: 1000;
-    width: 110px;
-  }
-  .context-menu .btn-link {
-    text-align: left;
-  }
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  display: none;
+  z-index: 1000;
+  width: 110px;
+}
+.context-menu .btn-link {
+  text-align: left;
+}
 
 label[for="asunto"],
 label[for="descripcion"],
@@ -93,13 +93,12 @@ label[for="descripcion"],
 }
 
 .col-md-4.expand {
-    flex: 3;
-  }
-  
-  /* Reserva.css */
+  flex: 3;
+}
+
+/* Reserva.css */
 .no-horarios-message {
-    background-color: rgb(218, 213, 213); 
-    color: rgb(43, 42, 42);
-    border: gray; /* Opcional: hace que el texto sea negrita */
-  }
-  
+  background-color: rgb(218, 213, 213);
+  color: rgb(43, 42, 42);
+  border: gray; /* Opcional: hace que el texto sea negrita */
+}

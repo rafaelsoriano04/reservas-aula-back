@@ -1,8 +1,10 @@
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/menu.css";
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Nav, Row, Col } from "react-bootstrap";
-import "../styles/menu.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+
 import Horarios from "./Horarios";
 import Reservas from "./Reservas";
 import Espacios from "./Espacios";
