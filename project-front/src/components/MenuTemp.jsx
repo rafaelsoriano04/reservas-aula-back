@@ -82,7 +82,7 @@ const Menu = () => {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link onClick={() => setActiveComponent("espacios")}>
-                <i className="fas fa-chalkboard-teacher me-2"></i>Aulas-Labs
+                <i className="fas fa-chalkboard-teacher me-2"></i>Espacios
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>

@@ -44,9 +44,7 @@ const Docentes = () => {
   }, []);
 
   useEffect(() => {
-    if (filtroNombre === "" && filtroCedula === "") {
-      getDocentes();
-    }
+    getDocentes();
   }, [filtroNombre, filtroCedula]);
 
   // Funciones
@@ -280,7 +278,7 @@ const Docentes = () => {
   const pageCount = Math.ceil(docentes.length / itemsPorPagina);
 
   const cargarDocentes = () => {
-    return docentes.slice(offset, offset + itemsPorPagina).map(docente => (
+    return currentPageData.map(docente => (
       <tr
         key={docente.id}
         className={docente.id === selectedRow ? "table-active" : ""}
@@ -295,13 +293,15 @@ const Docentes = () => {
     ));
   };
 
-  const handleSearch = () => {
-    getDocentes();
-  };
-
   const handleRefresh = () => {
     setFiltroCedula("");
     setFiltroNombre("");
+  };
+
+  const handleFiltroCedulaChange = e => {
+    const value = e.target.value;
+    const filteredValue = value.replace(/\D/g, "");
+    setFiltroCedula(filteredValue);
   };
 
   return (
@@ -318,31 +318,26 @@ const Docentes = () => {
             <div className="col-auto d-flex align-items-center">
               <label className="me-2">Cédula:</label>
               <input
-                type="text"
+                type="tel"
                 className="form-control"
                 placeholder="Cédula"
                 value={filtroCedula}
-                onChange={e => setFiltroCedula(e.target.value)}
+                onChange={handleFiltroCedulaChange}
                 maxLength={10}
               />
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Nombres:</label>
+              <label className="me-2">Nombre:</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Nombre o Apellido"
+                placeholder="Nombre o apellido"
                 value={filtroNombre}
                 onChange={e => setFiltroNombre(e.target.value)}
                 maxLength={30}
               />
             </div>
             <div className="col-auto d-flex align-items-center ms-4">
-              <button className="btn" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-1">
               <button className="btn" onClick={handleRefresh}>
                 <i className="fas fa-refresh"></i>
               </button>
