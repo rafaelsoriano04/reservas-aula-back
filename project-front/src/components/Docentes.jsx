@@ -71,7 +71,7 @@ const Docentes = () => {
         return;
       }
 
-      await api.post(`person`, docente);
+      await api.post(`persona`, docente);
       getDocentes();
       setFormData({
         id: "",
@@ -95,19 +95,12 @@ const Docentes = () => {
   };
 
   const getDocentes = async () => {
-    let url;
-    if (!filtroNombre && !filtroCedula) {
-      url = `person/docente`;
-    } else if (filtroNombre && !filtroCedula) {
-      url = `person/docente-nombre/${filtroNombre}`;
-    } else if (!filtroNombre && filtroCedula) {
-      url = `person/docente-cedula/${filtroCedula}`;
-    } else {
-      url = `person/docente/${filtroCedula}/${filtroNombre}`;
-    }
-
+    const params = {
+      cedula: filtroCedula,
+      nombre: filtroNombre,
+    };
     try {
-      const response = await api.get(url);
+      const response = await api.get("persona/docente/filtered", { params });
       setDocentes(response.data);
       if (!docentes) {
         info("No hay docentes");
@@ -124,7 +117,7 @@ const Docentes = () => {
   };
 
   const eliminarDocentes = async id => {
-    const url = `person/${id}`;
+    const url = `persona/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
@@ -140,7 +133,7 @@ const Docentes = () => {
   };
 
   const editarDocente = async () => {
-    const url = `person`;
+    const url = `persona`;
     let docente = {
       id: formData.id,
       cedula: "editando",

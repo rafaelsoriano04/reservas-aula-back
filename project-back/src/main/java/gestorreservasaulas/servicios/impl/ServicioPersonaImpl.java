@@ -51,36 +51,12 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
         if (this.existePorCedula(nuevaPersona.getCedula())) {
             throw new NotFoundException("cedula existe");
-
         } else {
             //nueva persona
             Persona nueva = dtoToPerson(nuevaPersona);
             Persona personaGuardada = repositorioPersona.save(nueva);
             return personToDto(personaGuardada);
         }
-    }
-
-    @Override
-    public List<PersonaDto> listarDocentes() {
-        return repositorioPersona.findAllByTipo("Docente", Sort.by("apellido")).stream().map(this::personToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<PersonaDto> getByCedula(String cedula) {
-        return repositorioPersona.findAllByTipoAndCedulaStartsWith("Docente", cedula, Sort.by("apellido")).stream().map(this::personToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<PersonaDto> getByNombreApellido(String nombre) {
-         return repositorioPersona
-                .findAllByTipoAndNombreContainsOrApellidoContains("Docente", nombre, nombre, Sort.by("apellido"))
-                .stream().map(this::personToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<PersonaDto> getByCedulaNombreApellido(String cedula, String nombre) {
-        return repositorioPersona.findAllByTipoAndCedulaStartsWithAndNombreContainsOrApellidoContains("Docente", cedula, nombre, nombre, Sort.by("apellido"))
-                .stream().map(this::personToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -93,10 +69,18 @@ public class ServicioPersonaImpl implements ServicioPersona {
 
     }
 
-
     @Override
     public boolean existePorCedula(String cedula) {
         return repositorioPersona.existsByCedula(cedula);
+    }
+
+    @Override
+    public List<PersonaDto> findAllDocentesWithParams(String cedula, String nombre) {
+        cedula = cedula != null ? "%".concat(cedula).concat("%") : null;
+        nombre = nombre != null ? "%".concat(nombre).concat("%") : null;
+
+        return repositorioPersona.findAllDocentesWithParams(cedula, nombre, Sort.by("apellido"))
+                .stream().map(this::personToDto).collect(Collectors.toList());
     }
 
     private Persona dtoToPerson(PersonaDto personaDto) throws NotFoundException {
