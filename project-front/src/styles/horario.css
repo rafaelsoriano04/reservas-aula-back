@@ -72,9 +72,14 @@ html,
   gap: 20px;
 }
 
-.form-container .form-group {
-  flex: 1 1 30%;
-  min-width: 200px;
+.horario {
+  .form-container {
+    .form-group {
+      flex: 1 1 30%;
+      min-width: 200px;
+      margin-bottom: auto;
+    }
+  }
 }
 
 .nuevo-horario {

@@ -148,27 +148,18 @@ const Espacios = () => {
   };
 
   const fetchAulasLabs = async () => {
-    let url;
-    if (!filtroNombre && !filtroBloque && !filtroTipo) {
-      url = "espacio";
-    } else if (filtroNombre && !filtroBloque && !filtroTipo) {
-      url = `espacio/filter-nombre/${filtroNombre}`;
-    } else if (!filtroNombre && filtroBloque && !filtroTipo) {
-      url = `espacio/bloque/${filtroBloque}`;
-    } else if (!filtroNombre && !filtroBloque && filtroTipo) {
-      url = `espacio/filter-tipo/${filtroTipo}`;
-    } else if (filtroNombre && filtroBloque && !filtroTipo) {
-      url = `espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
-    } else if (!filtroNombre && filtroBloque && filtroTipo) {
-      url = `espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
-    } else if (filtroNombre && !filtroBloque && filtroTipo) {
-      url = `espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
-    } else {
-      url = `espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
+    if (!filtroTipo) {
+      setFiltroTipo(undefined);
     }
 
+    const params = {
+      nombre: filtroNombre.trim(),
+      tipo: filtroTipo,
+      id_bloque: filtroBloque,
+    };
+
     try {
-      const response = await api.get(url);
+      const response = await api.get("espacio/filtered", { params });
       if (!response.data) {
         info("No hay coincidencias");
       } else {
