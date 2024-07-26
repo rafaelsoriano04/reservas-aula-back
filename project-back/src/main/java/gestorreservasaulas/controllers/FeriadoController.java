@@ -39,9 +39,9 @@ public class FeriadoController {
     }
 
     @GetMapping("/filtered")
-    public List<FeriadoDto> getAllFiltered(@RequestParam(required = false) Date inicio,
+    public List<FeriadoDto> findAllWithParams(@RequestParam(required = false) Date inicio,
                                            @RequestParam(required = false) Date fin) {
-        return servicioFeriado.findAllByParams(inicio, fin);
+        return servicioFeriado.findAllWithParams(inicio, fin);
     }
 
 }

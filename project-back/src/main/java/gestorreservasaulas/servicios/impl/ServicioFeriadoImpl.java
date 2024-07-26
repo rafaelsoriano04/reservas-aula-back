@@ -77,7 +77,7 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
     }
 
     @Override
-    public List<FeriadoDto> findAllByParams(Date inicio, Date fin) {
+    public List<FeriadoDto> findAllWithParams(Date inicio, Date fin) {
         List<Feriado> feriados = repositorioFeriado.findAllByParams(inicio, fin, Sort.by("inicio"));
         return feriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
     }

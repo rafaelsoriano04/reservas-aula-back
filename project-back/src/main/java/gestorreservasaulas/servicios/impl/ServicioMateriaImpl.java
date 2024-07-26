@@ -21,7 +21,7 @@ public class ServicioMateriaImpl implements ServicioMateria {
     private RespositorioMateria repositorioMateria;
 
     private final ModelMapper modelMapper;
-    
+
     @Autowired
     public ServicioMateriaImpl() {
         this.modelMapper = new ModelMapper();
@@ -43,9 +43,9 @@ public class ServicioMateriaImpl implements ServicioMateria {
 
     @Override
     public void eliminarMateria(Long id) throws ConflictException {
-        try{
+        try {
             repositorioMateria.deleteById(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ConflictException("Materia Asociada a Horario");
         }
 
@@ -57,30 +57,11 @@ public class ServicioMateriaImpl implements ServicioMateria {
     }
 
     @Override
-    public List<MateriaDto> getByNombreAndCarrera(String nombre, String carrera) throws NotFoundException {
-        List<Materia> listaMateria = repositorioMateria.findByNombreContainingAndCarrera(nombre, carrera, Sort.by(Sort.Direction.ASC, "nombre"));
-        if (listaMateria.isEmpty()) {
-            throw new NotFoundException("No hay materias");
-        }
-        return listaMateria.stream().map(this::materiaToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MateriaDto> getByNombre(String nombre) throws NotFoundException {
-        List<Materia> listaMateria = repositorioMateria.findByNombreContaining(nombre, Sort.by(Sort.Direction.ASC, "nombre"));
-        if (listaMateria.isEmpty()) {
-            throw new NotFoundException("No hay materias");
-        }
-        return listaMateria.stream().map(this::materiaToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MateriaDto> getByCarrera(String carrera) throws NotFoundException {
-        List<Materia> listaMateria = repositorioMateria.findByCarrera(carrera, Sort.by(Sort.Direction.ASC, "nombre"));
-        if (listaMateria.isEmpty()) {
-            throw new NotFoundException("No hay materias");
-        }
-        return listaMateria.stream().map(this::materiaToDto).collect(Collectors.toList());
+    public List<MateriaDto> findAllWithParams(String nombre, String carrera) {
+        nombre = nombre != null ? "%".concat(nombre).concat("%") : null;
+        carrera = carrera != null ? "%".concat(carrera).concat("%") : null;
+        List<Materia> materias = repositorioMateria.findAllWithParams(nombre, carrera, Sort.by("nombre"));
+        return materias.stream().map(this::materiaToDto).collect(Collectors.toList());
     }
 
     private MateriaDto materiaToDto(Materia materia) {

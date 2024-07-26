@@ -16,6 +16,6 @@ public interface ServicioFeriado {
 
     void deleteById(Long id) throws NotFoundException, ConflictException;
 
-    List<FeriadoDto> findAllByParams(Date inicio, Date fin);
+    List<FeriadoDto> findAllWithParams(Date inicio, Date fin);
 
 }
