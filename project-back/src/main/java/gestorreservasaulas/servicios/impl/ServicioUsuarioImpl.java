@@ -89,30 +89,10 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     }
 
     @Override
-    public List<UsuarioDto> getByTipoOrUsernameStartingWith(String tipo, String username) throws NotFoundException {
-        List<Usuario> listaUsuarios = repositorioUsuario.findByTipoAndUsernameContains(tipo, username, Sort.by(Sort.Direction.ASC, "username"));
-        if (listaUsuarios.isEmpty()) {
-            throw new NotFoundException("No hay usuarios");
-        }
-        return listaUsuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<UsuarioDto> getByTipo(String tipo) throws NotFoundException {
-        List<Usuario> listaUsuarios = repositorioUsuario.findByTipo(tipo, Sort.by(Sort.Direction.ASC, "username"));
-        if (listaUsuarios.isEmpty()) {
-            throw new NotFoundException("No hay usuarios");
-        }
-        return listaUsuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<UsuarioDto> getByUsername(String username) throws NotFoundException {
-        List<Usuario> listaUsuarios = repositorioUsuario.findByUsernameContains(username, Sort.by(Sort.Direction.ASC, "username"));
-        if (listaUsuarios.isEmpty()) {
-            throw new NotFoundException("No hay usuarios");
-        }
-        return listaUsuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
+    public List<UsuarioDto> findAllWithParams(String username, String tipo) {
+        username = username != null ? "%".concat(username).concat("%") : null;
+        List<Usuario> usuarios = repositorioUsuario.findAllWithParams(username, tipo, Sort.by("username"));
+        return usuarios.stream().map(this::usuarioToDto).collect(Collectors.toList());
     }
 
     private UsuarioDto usuarioToDto(Usuario usuario) {

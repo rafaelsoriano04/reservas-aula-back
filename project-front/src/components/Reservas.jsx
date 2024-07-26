@@ -586,7 +586,7 @@ const LabReservations = () => {
 
       if (!isExistingResponsible) {
         try {
-          const response = await api.post("person", responsible);
+          const response = await api.post("persona", responsible);
 
           savedResponsible = response.data;
           setResponsible(savedResponsible);
@@ -611,7 +611,6 @@ const LabReservations = () => {
         id_persona: savedResponsible.id,
         id_espacio: selectedAulaLab,
       };
-      console.log(reserva);
 
       try {
         await api.post("reservas", reserva);
@@ -673,7 +672,7 @@ const LabReservations = () => {
   //BUSCAR  EL RESPONSABLE PARA EL MODAL DE AGREGAR RESERVA
   const searchResponsible = async () => {
     try {
-      const response = await api.get(`person/${responsible.cedula}`);
+      const response = await api.get(`persona/${responsible.cedula}`);
       setResponsible(response.data);
       setNewReservation(prev => ({
         ...prev,

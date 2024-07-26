@@ -42,19 +42,13 @@ const Usuarios = () => {
   }, [filtroUsername, filtroTipo]);
 
   const getUsuarios = async () => {
-    let url;
-    if (filtroUsername && filtroTipo) {
-      url = `usuario/filter/${filtroTipo}/${filtroUsername}`;
-    } else if (!filtroUsername && filtroTipo) {
-      url = `usuario/filter-tipo/${filtroTipo}`;
-    } else if (filtroUsername && !filtroTipo) {
-      url = `usuario/filter-username/${filtroUsername}`;
-    } else {
-      url = `usuario`;
-    }
-
+    const url = "usuario/filtered";
+    const params = {
+      username: !filtroUsername ? undefined : filtroUsername,
+      tipo: !filtroTipo ? undefined : filtroTipo,
+    };
     try {
-      const response = await api.get(url);
+      const response = await api.get(url, { params });
       setUsuarios(response.data);
     } catch (error) {
       if (error.response) {

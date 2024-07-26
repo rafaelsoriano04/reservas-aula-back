@@ -21,9 +21,5 @@ public interface ServicioUsuario {
 
     void deleteById(Long id) throws NotFoundException;
 
-    List<UsuarioDto> getByTipoOrUsernameStartingWith(String tipo, String username) throws NotFoundException;
-
-    List<UsuarioDto> getByTipo(String tipo) throws NotFoundException;
-
-    List<UsuarioDto> getByUsername(String username) throws NotFoundException;
+    List<UsuarioDto> findAllWithParams(String username, String tipo);
 }

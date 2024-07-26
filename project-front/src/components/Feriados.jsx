@@ -19,8 +19,8 @@ const Feriados = () => {
     left: 0,
   });
   const [nombre, setNombre] = useState("");
-  const [inicio, setInicio] = useState();
-  const [fin, setFin] = useState();
+  const [inicio, setInicio] = useState(new Date()); // Esto garantiza que inicio siempre es una fecha válida
+  const [fin, setFin] = useState(new Date());
   const [idFeriado, setIdFeriado] = useState("");
   const [feriados, setFeriados] = useState([]);
   const [filtroInicio, setFiltroInicio] = useState("");
@@ -42,19 +42,21 @@ const Feriados = () => {
   }, [filtroInicio, filtroFin]);
 
   const getFeriados = async () => {
-    let url;
-    if (!filtroInicio && !filtroFin) {
-      url = `feriado`;
-    } else if (filtroInicio && !filtroFin) {
-      url = `feriado/filter-inicio/${moment(filtroInicio).format("YYYY-MM-DD")}`;
-    } else if (!filtroInicio && filtroFin) {
-      url = `feriado/filter-fin/${moment(filtroFin).format("YYYY-MM-DD")}`;
-    } else {
-      url = `feriado/filter/${moment(filtroInicio).format("YYYY-MM-DD")}/${moment(filtroFin).format("YYYY-MM-DD")}`;
-    }
+    const url = "feriado/filtered";
+
+    const params = {
+      inicio:
+        moment(filtroInicio).format("YYYY-MM-DD") === "Invalid date"
+          ? undefined
+          : moment(filtroInicio).format("YYYY-MM-DD"),
+      fin:
+        moment(filtroFin).format("YYYY-MM-DD") === "Invalid date"
+          ? undefined
+          : moment(filtroFin).format("YYYY-MM-DD"),
+    };
 
     try {
-      const response = await api.get(url);
+      const response = await api.get(url, { params });
       setFeriados(response.data);
     } catch (error) {
       setFeriados([]); // Limpia los datos si la petición falla
@@ -137,8 +139,8 @@ const Feriados = () => {
     try {
       const feriado = {
         nombre,
-        inicio,
-        fin,
+        inicio: moment(inicio).format("YYYY-MM-DD"),
+        fin: moment(fin).format("YYYY-MM-DD"),
       };
       await api.post("feriado", feriado);
       ok("Registro guardado exitosamente.");
@@ -152,13 +154,11 @@ const Feriados = () => {
 
   const editFeriado = async () => {
     try {
-      console.log(inicio, fin);
       const feriado = {
         nombre,
         inicio: addOneDay(inicio),
         fin: addOneDay(fin),
       };
-      console.log(addOneDay(inicio), addOneDay(fin));
       await api.put(`feriado/${idFeriado}`, feriado);
       getFeriados();
       ok("Registro actualizado exitosamente.");
@@ -248,7 +248,7 @@ const Feriados = () => {
                   dateFormat="yy/mm/dd"
                   showButtonBar
                   showIcon
-                  min={filtroInicio}
+                  minDate={filtroInicio}
                 />
                 <label htmlFor="filtroInicio">yyyy/mm/dd</label>
               </FloatLabel>
@@ -353,7 +353,12 @@ const Feriados = () => {
         </div>
       </div>
 
-      <Modal show={showModal} onHide={handleCloseModal} centered>
+      <Modal
+        show={showModal}
+        onHide={handleCloseModal}
+        centered
+        className="feriados-modal"
+      >
         <Modal.Header closeButton>
           <Modal.Title>
             {!isEditing ? "Crear Feriado" : "Editar Feriado"}
@@ -361,34 +366,44 @@ const Feriados = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Ingrese el nombre del feriado"
-                maxLength="40"
-                value={nombre}
-                onChange={nombreChange}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Fecha de inicio</Form.Label>
-              <Form.Control
-                type="date"
-                value={inicio}
-                onChange={inicioChange}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Fecha de fin</Form.Label>
-              <Form.Control
-                type="date"
-                value={fin}
-                onChange={finChange}
-                min={inicio}
-              />
-            </Form.Group>
+            <div className="row m-0 p-0">
+              <Form.Group className="mb-3 col-12">
+                <Form.Label className="fw-bold">Nombre:</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Ingrese el nombre del feriado"
+                  maxLength="40"
+                  value={nombre}
+                  onChange={nombreChange}
+                  required
+                />
+              </Form.Group>
+              <div className="form-group mb-3 col-6">
+                <label className="me-3 mt-3">Fecha de inicio:</label>
+                <div className="mt-2 mx-0">
+                  <Calendar
+                    value={inicio}
+                    onChange={inicioChange}
+                    dateFormat="yy/mm/dd"
+                    showButtonBar
+                    showIcon
+                  />
+                </div>
+              </div>
+              <div className="form-group mb-3 col-6">
+                <label className="me-3 mt-3">Fecha de fin:</label>
+                <div className="mt-2 mx-0">
+                  <Calendar
+                    value={fin}
+                    onChange={finChange}
+                    minDate={inicio instanceof Date ? inicio : null}
+                    dateFormat="yy/mm/dd"
+                    showButtonBar
+                    showIcon
+                  />
+                </div>
+              </div>
+            </div>
             <div className="container d-flex justify-content-center">
               <Button
                 className="align-items-center"

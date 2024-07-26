@@ -51,19 +51,13 @@ const Materias = () => {
   }, [filtroNombre, filtroCarrera]);
 
   const getMaterias = async () => {
-    let url;
-    if (!filtroNombre && !filtroCarrera) {
-      url = `materia`;
-    } else if (filtroNombre && !filtroCarrera) {
-      url = `materia/filter-nombre/${filtroNombre}`;
-    } else if (!filtroNombre && filtroCarrera) {
-      url = `materia/filter-carrera/${filtroCarrera}`;
-    } else {
-      url = `materia/filter/${filtroNombre}/${filtroCarrera}`;
-    }
-
+    const url = "materia/filtered";
+    const params = {
+      nombre: filtroNombre,
+      carrera: filtroCarrera,
+    };
     try {
-      const response = await api.get(url);
+      const response = await api.get(url, { params });
       setMaterias(response.data);
     } catch (error) {
       if (error.response) {

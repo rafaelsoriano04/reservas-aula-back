@@ -217,7 +217,7 @@ const Horarios = () => {
   };
 
   const getDocentes = async () => {
-    const url = `person/docente`;
+    const url = `persona/docente/filtered`;
     try {
       const response = await api.get(url);
       const docentesOptions = response.data.map(docente => ({
@@ -480,7 +480,7 @@ const Horarios = () => {
 
   // Render
   return (
-    <>
+    <div className="horario">
       <div className="mx-5">
         <div className="header text-center">
           <h2>Horarios</h2>
@@ -553,7 +553,7 @@ const Horarios = () => {
                 {noHorariosMessage}
               </div>
             ) : (
-              <table className="table table-bordered  mt-4 table-centered caption-top">
+              <table className="table table-bordered mt-3 table-centered caption-top">
                 <caption>Seleccione una celda para realizar una acción</caption>
                 <thead>
                   <tr>
@@ -779,7 +779,7 @@ const Horarios = () => {
           </Form>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 };
 

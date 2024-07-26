@@ -36,21 +36,6 @@ public class UsuarioController {
         return servicioUsuario.getAll();
     }
 
-    @GetMapping("/filter/{tipo}/{username}")
-    public List<UsuarioDto> getByTipoOrUsernameStartingWith(@PathVariable String tipo, @PathVariable String username) throws NotFoundException {
-        return servicioUsuario.getByTipoOrUsernameStartingWith(tipo, username);
-    }
-
-    @GetMapping("/filter-tipo/{tipo}")
-    public List<UsuarioDto> getByTipo(@PathVariable String tipo) throws NotFoundException {
-        return servicioUsuario.getByTipo(tipo);
-    }
-
-    @GetMapping("/filter-username/{username}")
-    public List<UsuarioDto> getByUsernameStartingWith(@PathVariable String username) throws NotFoundException {
-        return servicioUsuario.getByUsername(username);
-    }
-
     @PutMapping("/{id}")
     public UsuarioDto updateById(@PathVariable Long id, @RequestBody UsuarioDto request) throws NotFoundException, ConflictException {
         return servicioUsuario.updateById(id, request);
@@ -59,5 +44,11 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public void updateById(@PathVariable Long id) throws NotFoundException {
         servicioUsuario.deleteById(id);
+    }
+
+    @GetMapping("/filtered")
+    public List<UsuarioDto> findAllWithParams(@RequestParam(required = false) String username,
+                                              @RequestParam(required = false) String tipo) {
+        return servicioUsuario.findAllWithParams(username, tipo);
     }
 }
