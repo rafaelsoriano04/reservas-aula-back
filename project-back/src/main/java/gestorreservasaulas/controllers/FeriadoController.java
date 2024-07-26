@@ -38,19 +38,10 @@ public class FeriadoController {
         return servicioFeriado.getAllFeriados();
     }
 
-    @GetMapping("/filter-inicio/{inicio}")
-    public List<FeriadoDto> getAfterInicio(@PathVariable Date inicio) throws NotFoundException {
-        return servicioFeriado.getAfterInicio(inicio);
-    }
-
-    @GetMapping("/filter-fin/{fin}")
-    public List<FeriadoDto> getBeforeFin(@PathVariable Date fin) throws NotFoundException {
-        return servicioFeriado.getBeforeFin(fin);
-    }
-
-    @GetMapping("/filter/{inicio}/{fin}")
-    public List<FeriadoDto> getBetween(@PathVariable Date inicio, @PathVariable Date fin) throws NotFoundException {
-        return servicioFeriado.getBetweenDates(inicio, fin);
+    @GetMapping("/filtered")
+    public List<FeriadoDto> getAllFiltered(@RequestParam(required = false) Date inicio,
+                                           @RequestParam(required = false) Date fin) {
+        return servicioFeriado.findAllByParams(inicio, fin);
     }
 
 }
