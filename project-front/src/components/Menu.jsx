@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/menu.css";
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { Nav, Row, Col } from "react-bootstrap";
 
 import Horarios from "./Horarios";
@@ -15,7 +15,6 @@ import Docentes from "./Docentes";
 
 const Menu = () => {
   const navigate = useNavigate();
-  const [activeComponent, setActiveComponent] = useState("reservas");
   const [tipoUsuario, setTipoUsuario] = useState("");
 
   useEffect(() => {
@@ -29,34 +28,14 @@ const Menu = () => {
     event.preventDefault();
     localStorage.removeItem("tipoUsuario");
     localStorage.removeItem("jwtToken");
-
     navigate("/");
-  };
-
-  const renderActiveComponent = () => {
-    switch (activeComponent) {
-      case "horarios":
-        return <Horarios />;
-      case "espacios":
-        return <Espacios />;
-      case "docentes":
-        return <Docentes />;
-      case "materias":
-        return <Materias />;
-      case "usuarios":
-        return <Usuarios />;
-      case "feriados":
-        return <Feriados />;
-      default:
-        return <Reservas />;
-    }
   };
 
   const showUsersOption = () => {
     if (tipoUsuario === "Administrador") {
       return (
         <Nav.Item>
-          <Nav.Link onClick={() => setActiveComponent("usuarios")}>
+          <Nav.Link onClick={() => navigate("usuarios")}>
             <i className="fas fa-users me-2"></i>Usuarios
           </Nav.Link>
         </Nav.Item>
@@ -70,35 +49,35 @@ const Menu = () => {
         <Nav className="flex-column sticky-top bg-light h-100">
           <div className="sidebar-sticky d-flex flex-column h-100">
             <div className="header-logo">
-              <img src="src/img/1.png" alt="Logo uta" className="mb-4" />
+              <img src="/src/img/1.png" alt="Logo uta" className="mb-4" />
             </div>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("reservas")}>
+              <Nav.Link onClick={() => navigate("reservas")}>
                 <i className="fas fa-calendar-alt me-2"></i>Reservas
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("horarios")}>
+              <Nav.Link onClick={() => navigate("horarios")}>
                 <i className="fas fa-clock me-2"></i>Horarios
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("espacios")}>
+              <Nav.Link onClick={() => navigate("espacios")}>
                 <i className="fas fa-chalkboard-teacher me-2"></i>Espacios
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("docentes")}>
+              <Nav.Link onClick={() => navigate("docentes")}>
                 <i className="fas fa-user me-2"></i>Docentes
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("materias")}>
+              <Nav.Link onClick={() => navigate("materias")}>
                 <i className="fas fa-book me-2"></i>Materias
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("feriados")}>
+              <Nav.Link onClick={() => navigate("feriados")}>
                 <i className="fas fa-umbrella-beach me-2"></i>Feriados
               </Nav.Link>
             </Nav.Item>
@@ -114,7 +93,25 @@ const Menu = () => {
         </Nav>
       </Col>
       <Col xs={10} className="main-content">
-        {renderActiveComponent()}
+        <Routes>
+          <Route path="reservas" element={<Reservas />} />
+          <Route path="horarios" element={<Horarios />} />
+          <Route path="espacios" element={<Espacios />} />
+          <Route path="docentes" element={<Docentes />} />
+          <Route path="materias" element={<Materias />} />
+          <Route path="feriados" element={<Feriados />} />
+          <Route
+            path="usuarios"
+            element={
+              tipoUsuario === "Administrador" ? (
+                <Usuarios />
+              ) : (
+                <Navigate to="/reservas" />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/fisei/reservas" />} />
+        </Routes>
       </Col>
     </Row>
   );
