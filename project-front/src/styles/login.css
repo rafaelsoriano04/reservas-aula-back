@@ -78,7 +78,7 @@ html,
   flex-direction: column;
   padding: 20px;
   background: linear-gradient(90deg, #6d1010, #743629, #6d1010),
-    url("src/img/estudiante.jpg");
+    url("/src/img/estudiante.jpg");
   background-size: cover;
   background-blend-mode: multiply;
 }

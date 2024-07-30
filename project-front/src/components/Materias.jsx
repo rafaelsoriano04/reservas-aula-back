@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Modal } from "react-bootstrap";
 import "../styles/materias.css";
 import { FaPlus } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import { ok, oops, deleteConfirmation } from "../utils/swal-alerts";
-import api from "../utils/api";
+import materiaService from "../services/materias.service";
 
 const Materias = () => {
   const [selectedRow, setSelectedRow] = useState(null);
@@ -31,9 +30,11 @@ const Materias = () => {
 
   const [selectedCarrera, setSelectedCarrera] = useState("");
 
-  // Paginación
   const [paginaActual, setPaginaActual] = useState(0);
   const [itemsPorPagina] = useState(10);
+  const offset = paginaActual * itemsPorPagina;
+  const currentPageData = materias.slice(offset, offset + itemsPorPagina);
+  const pageCount = Math.ceil(materias.length / itemsPorPagina);
 
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
@@ -51,41 +52,100 @@ const Materias = () => {
   }, [filtroNombre, filtroCarrera]);
 
   const getMaterias = async () => {
-    const url = "materia/filtered";
     const params = {
-      nombre: filtroNombre,
-      carrera: filtroCarrera,
+      nombre: filtroNombre ? filtroNombre : undefined,
+      carrera: filtroCarrera ? filtroCarrera : undefined,
     };
-    try {
-      const response = await api.get(url, { params });
-      setMaterias(response.data);
-    } catch (error) {
-      if (error.response) {
-        const { message } = error.response.data;
-        if (message !== "No hay materias") {
-          oops("Error al conectar con el servidor.");
-        }
-      } else {
-        oops("Error al conectar con el servidor.");
-      }
-      setMaterias([]); // Limpia los datos si la petición falla
+    await materiaService
+      .getMateriasWithParams(params)
+      .then(result => setMaterias(result))
+      .catch(error => {
+        oops(error);
+        setMaterias([]);
+      });
+  };
+
+  const guardarMateria = async () => {
+    if (selectedCarrera === "") {
+      carreraRef.current.focus();
+      return;
     }
+
+    const materia = {
+      nombre: formData.nombre,
+      carrera: selectedCarrera,
+    };
+
+    await materiaService
+      .guardarMateria(materia)
+      .then(() => {
+        getMaterias();
+        setFormData({ id: "", nombre: "", carrera: "" });
+        setSelectedCarrera("");
+        ok("Registro guardado exitosamente.");
+      })
+      .catch(error => {
+        oops(error);
+      });
+  };
+
+  const editarMateria = async () => {
+    if (selectedCarrera === "") {
+      carreraRef.current.focus();
+      return;
+    }
+    const materia = {
+      id: formData.id,
+      nombre: formData.nombre,
+      carrera: selectedCarrera,
+    };
+
+    await materiaService
+      .editarMateria(materia)
+      .then(() => {
+        getMaterias();
+        setIsEditing(false);
+        setFormData({ id: "", nombre: "", carrera: "" });
+        setSelectedCarrera("");
+        ok("Registro actualizado exitosamente.");
+      })
+      .catch(error => {
+        oops(error);
+      });
   };
 
   const eliminarMateria = async id => {
-    const url = `materia/${id}`;
-    const isConfirmed = await deleteConfirmation();
-    try {
-      if (isConfirmed) {
-        await api.delete(url);
-        getMaterias();
-        ok("Registro eliminado exitosamente.");
-      }
-    } catch (error) {
-      oops(
-        "No se pudo eliminar el registro. Es posible que este asociado a un horario."
-      );
+    const confirmed = await deleteConfirmation();
+    if (confirmed) {
+      await materiaService
+        .eliminarMateria(id)
+        .then(() => {
+          getMaterias();
+          ok("Registro eliminado exitosamente.");
+          setShowContextMenu(false);
+        })
+        .catch(error => oops(error));
     }
+  };
+
+  const cargarMaterias = () => {
+    return currentPageData.map(materia => (
+      <tr
+        key={materia.id}
+        className={materia.id === selectedRow ? "table-active" : ""}
+        onClick={e => handleRowClick(e, materia)}
+        style={{ cursor: "pointer" }}
+      >
+        <td>{materia.nombre}</td>
+        <td>{materia.carrera}</td>
+      </tr>
+    ));
+  };
+
+  const limpiar = () => {
+    setIsEditing(false);
+    setFormData({ id: "", nombre: "", carrera: "" });
+    setSelectedCarrera("");
   };
 
   const handleCloseModal = () => {
@@ -95,58 +155,6 @@ const Materias = () => {
 
   const handleShowModal = () => {
     setShowModal(true);
-  };
-  const limpiar = () => {
-    setIsEditing(false);
-    setFormData({ id: "", nombre: "", carrera: "" });
-    setSelectedCarrera(""); // Limpiar selección de carrera
-  };
-
-  const guardarMateria = async () => {
-    if (selectedCarrera === "") {
-      carreraRef.current.focus();
-      return;
-    }
-
-    const url = `materia`;
-    try {
-      let materia = {
-        nombre: formData.nombre,
-        carrera: selectedCarrera,
-      };
-      await api.post(url, materia);
-      getMaterias();
-      setFormData({ id: "", nombre: "", carrera: "" });
-      setSelectedCarrera(""); // Limpiar selección de carrera
-      ok("Registro guardado exitosamente.");
-    } catch (error) {
-      oops("No se pudo guardar el registro. Por favor, inténtelo de nuevo.");
-    }
-  };
-
-  const editarMateria = async () => {
-    const url = `materia`;
-    if (selectedCarrera === "") {
-      carreraRef.current.focus();
-      return;
-    }
-    try {
-      let materia = {
-        id: formData.id,
-        nombre: formData.nombre,
-        carrera: selectedCarrera,
-      };
-      const response = await api.post(url, materia);
-      if (response.status === 200) {
-        getMaterias();
-        setIsEditing(false);
-        setFormData({ id: "", nombre: "", carrera: "" });
-        setSelectedCarrera(""); // Limpiar selección de carrera
-        ok("Registro actualizado exitosamente.");
-      }
-    } catch (error) {
-      oops("No se pudo actualizar el registro. Por favor, inténtelo de nuevo.");
-    }
   };
 
   const handleRowClick = (e, materia) => {
@@ -167,27 +175,10 @@ const Materias = () => {
     setPaginaActual(data.selected);
   };
 
-  const offset = paginaActual * itemsPorPagina;
-  const currentPageData = materias.slice(offset, offset + itemsPorPagina);
-  const pageCount = Math.ceil(materias.length / itemsPorPagina);
-
-  const cargarMaterias = () => {
-    return currentPageData.map(materia => (
-      <tr
-        key={materia.id}
-        className={materia.id === selectedRow ? "table-active" : ""}
-        onClick={e => handleRowClick(e, materia)}
-        style={{ cursor: "pointer" }}
-      >
-        <td>{materia.nombre}</td>
-        <td>{materia.carrera}</td>
-      </tr>
-    ));
-  };
-
   const handleRefresh = () => {
     setFiltroNombre("");
     setFiltroCarrera("");
+    getMaterias();
   };
 
   return (

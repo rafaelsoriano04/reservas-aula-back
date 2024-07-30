@@ -29,7 +29,7 @@ const Login = () => {
           setMensajeError("");
           localStorage.setItem("tipoUsuario", resp.data.tipo);
           localStorage.setItem("jwtToken", "tokenizado");
-          navigate(`/menu`);
+          navigate(`/fisei`);
         }
       } catch (error) {
         if (error.response) {
@@ -61,7 +61,7 @@ const Login = () => {
       <div className="login-container">
         <div className="login-form">
           <img
-            src="src/img/logo.png"
+            src="/src/img/logo.png"
             alt="Logo de la Universidad Técnica de Ambato"
           />
           <h1>Bienvenido!</h1>

@@ -16,22 +16,20 @@ import Menu from "./components/Menu";
 import Login from "./components/Login";
 import PrivateRoute from "./routes/PrivateRoute";
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route>
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Route>
-        <Route>
-          <Route path="/login" element={<Login />} />
-        </Route>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
         <Route element={<PrivateRoute />}>
-          <Route path="/menu" element={<Menu />} />
+          <Route path="/fisei" element={<Navigate to="/fisei/reservas" />} />
+          <Route path="/fisei/*" element={<Menu />} />
+          <Route path="*" element={<Navigate to="/fisei/reservas" />} />
         </Route>
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;
