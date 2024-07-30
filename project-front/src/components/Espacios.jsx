@@ -148,14 +148,10 @@ const Espacios = () => {
   };
 
   const fetchAulasLabs = async () => {
-    if (!filtroTipo) {
-      setFiltroTipo(undefined);
-    }
-
     const params = {
-      nombre: filtroNombre.trim(),
-      tipo: filtroTipo,
-      id_bloque: filtroBloque,
+      nombre: filtroNombre.trim() ? filtroNombre.trim() : undefined,
+      tipo: filtroTipo ? filtroTipo : undefined,
+      id_bloque: filtroBloque ? filtroBloque : undefined,
     };
 
     try {

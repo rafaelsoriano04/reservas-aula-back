@@ -96,8 +96,8 @@ const Docentes = () => {
 
   const getDocentes = async () => {
     const params = {
-      cedula: filtroCedula,
-      nombre: filtroNombre,
+      cedula: filtroCedula ? filtroCedula : undefined,
+      nombre: filtroNombre ? filtroNombre : undefined,
     };
     try {
       const response = await api.get("persona/docente/filtered", { params });
