@@ -1,0 +1,37 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/gestor-reservas
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:db.changelog.xml
+    contexts: ${spring.profiles.active}
+  jpa:
+    hibernate:
+      ddl-auto: update
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://172.21.123.13/gestor-reservas
+    username: reservas
+    password: Servicios.Fisei@2024
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:db.changelog.xml
+    contexts: ${spring.profiles.active}
+  jpa:
+    hibernate:
+      ddl-auto: update
