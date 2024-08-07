@@ -77,30 +77,9 @@ public class ServicioFeriadoImpl implements ServicioFeriado {
     }
 
     @Override
-    public List<FeriadoDto> getAfterInicio(java.util.Date inicio) throws NotFoundException {
-        List<Feriado> listaFeriados = repositorioFeriado.findByInicioAfter(inicio, Sort.by(Sort.Direction.ASC, "inicio"));
-        if (listaFeriados.isEmpty()) {
-            throw new NotFoundException("No hay feriados");
-        }
-        return listaFeriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<FeriadoDto> getBeforeFin(java.util.Date fin) throws NotFoundException {
-        List<Feriado> listaFeriados = repositorioFeriado.findByFinBefore(fin, Sort.by(Sort.Direction.ASC, "inicio"));
-        if (listaFeriados.isEmpty()) {
-            throw new NotFoundException("No hay feriados");
-        }
-        return listaFeriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<FeriadoDto> getBetweenDates(java.util.Date inicio, java.util.Date fin) throws NotFoundException {
-        List<Feriado> listaFeriados = repositorioFeriado.findByInicioAfterAndFinBefore(inicio, fin, Sort.by(Sort.Direction.ASC, "inicio"));
-        if (listaFeriados.isEmpty()) {
-            throw new NotFoundException("No hay feriados");
-        }
-        return listaFeriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
+    public List<FeriadoDto> findAllWithParams(Date inicio, Date fin) {
+        List<Feriado> feriados = repositorioFeriado.findAllByParams(inicio, fin, Sort.by("inicio"));
+        return feriados.stream().map(this::feriadoToDto).collect(Collectors.toList());
     }
 
     private Feriado dtoToFeriado(FeriadoDto feriadoDto) {

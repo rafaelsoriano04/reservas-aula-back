@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Form, Button, Alert, Modal } from "react-bootstrap";
 import "../styles/AulaLabs.css";
-import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { FaPlus } from "react-icons/fa";
-import { ok, oops, deleteConfirmation, info } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation, info } from "../utils/swal-alerts";
+import api from "../utils/api";
 
-function AuLabs() {
-  // Variables \
+const Espacios = () => {
+  // Variables
   const [selectedRow, setSelectedRow] = useState(null);
   const [bloques, setBloques] = useState([]);
   const [selectedBloque, setSelectedBloque] = useState("1");
@@ -48,9 +48,7 @@ function AuLabs() {
   }, []);
 
   useEffect(() => {
-    if (filtroBloque === "" && filtroNombre === "" && filtroTipo === "") {
-      fetchAulasLabs();
-    }
+    fetchAulasLabs();
   }, [filtroBloque, filtroNombre, filtroTipo]);
 
   useEffect(() => {
@@ -59,6 +57,7 @@ function AuLabs() {
       document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
+
   useEffect(() => {
     setAulasLabsToShow([...aulas]);
   }, [aulas]);
@@ -66,7 +65,7 @@ function AuLabs() {
   // Funciones
   const getBloques = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/bloque");
+      const response = await api.get("bloque");
       setBloques(response.data);
     } catch (error) {
       oops("Error al cargar bloques.");
@@ -90,7 +89,7 @@ function AuLabs() {
         setCapacidadError("Ingrese la capacidad");
         return;
       }
-      await axios.post(`http://localhost:8080/espacio`, espacio);
+      await api.post("espacio", espacio);
       fetchAulasLabs();
       ok("Registro guardado exitosamente.");
       limpiar();
@@ -115,10 +114,7 @@ function AuLabs() {
     };
 
     try {
-      const response = await axios.put(
-        `http://localhost:8080/espacio/${formData.id}`,
-        espacio
-      );
+      const response = await api.put(`espacio/${formData.id}`, espacio);
       if (response.status === 200) {
         fetchAulasLabs();
         setIsEditing(false);
@@ -134,12 +130,12 @@ function AuLabs() {
   const eliminarEspacio = async () => {
     if (selectedRow) {
       // Asegúrate de que hay un ID seleccionado
-      const url = `http://localhost:8080/espacio/${selectedRow}`; // Uso correcto del ID seleccionado
+      const url = `espacio/${selectedRow}`; // Uso correcto del ID seleccionado
 
       const isConfirmed = await deleteConfirmation();
       try {
         if (isConfirmed) {
-          await axios.delete(url);
+          await api.delete(url);
           fetchAulasLabs();
           ok("Registro eliminado exitosamente.");
         }
@@ -152,27 +148,14 @@ function AuLabs() {
   };
 
   const fetchAulasLabs = async () => {
-    let url;
-    if (!filtroNombre && !filtroBloque && !filtroTipo) {
-      url = "http://localhost:8080/espacio";
-    } else if (filtroNombre && !filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-nombre/${filtroNombre}`;
-    } else if (!filtroNombre && filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/bloque/${filtroBloque}`;
-    } else if (!filtroNombre && !filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo/${filtroTipo}`;
-    } else if (filtroNombre && filtroBloque && !filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-bloque-nombre/${filtroBloque}/${filtroNombre}`;
-    } else if (!filtroNombre && filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo-bloque/${filtroTipo}/${filtroBloque}`;
-    } else if (filtroNombre && !filtroBloque && filtroTipo) {
-      url = `http://localhost:8080/espacio/filter-tipo-nombre/${filtroTipo}/${filtroNombre}`;
-    } else {
-      url = `http://localhost:8080/espacio/filter-bloque-nombre-tipo/${filtroBloque}/${filtroNombre}/${filtroTipo}`;
-    }
+    const params = {
+      nombre: filtroNombre.trim() ? filtroNombre.trim() : undefined,
+      tipo: filtroTipo ? filtroTipo : undefined,
+      id_bloque: filtroBloque ? filtroBloque : undefined,
+    };
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get("espacio/filtered", { params });
       if (!response.data) {
         info("No hay coincidencias");
       } else {
@@ -201,7 +184,6 @@ function AuLabs() {
 
   const handleEditClick = () => {
     const selectedAulaLab = aulasLabsToShow.find(d => d.id === selectedRow);
-    console.log(selectedRow);
 
     if (selectedAulaLab) {
       setFormData({
@@ -238,10 +220,6 @@ function AuLabs() {
     ));
   };
 
-  const handleSearch = () => {
-    fetchAulasLabs();
-  };
-
   const handleRefresh = () => {
     setFiltroNombre("");
     setFiltroBloque("");
@@ -252,151 +230,144 @@ function AuLabs() {
     limpiar();
     setShowModal(false);
   };
+
   const handleShowModal = () => {
     setShowModal(true);
   };
 
   return (
-    <div className="container">
-      <div className="content">
-        <div className="header">
-          <h2>Aulas/Laboratorios</h2>
-        </div>
-        <div className="row mb-0 mt-1 justify-content-between">
-          <div className="col d-flex align-items-center">
-            <label className="d-flex align-items-center fw-bold me-4">
-              Filtros:
-            </label>
-            <div className="col-auto d-flex align-items-center">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nombre"
-                value={filtroNombre}
-                onChange={e => setFiltroNombre(e.target.value)}
-                maxLength={30}
-              />
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Tipo:</label>
-              <select
-                className="form-select"
-                value={filtroTipo}
-                onChange={e => setFiltroTipo(e.target.value)}
-              >
-                <option value="">Todos</option>
-                <option value="Laboratorio">Laboratorio</option>
-                <option value="Aula">Aula</option>
-                <option value="Especial">Especial</option>
-              </select>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <label className="me-2">Bloque:</label>
-              <select
-                className="form-select"
-                value={filtroBloque}
-                onChange={e => setFiltroBloque(e.target.value)}
-              >
-                <option value="">Todos</option>
-                {bloques.map(bloque => (
-                  <option key={bloque.id} value={bloque.id}>
-                    {bloque.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-4">
-              <button className="btn" onClick={handleSearch}>
-                <i className="fas fa-search"></i>
-              </button>
-            </div>
-            <div className="col-auto d-flex align-items-center ms-1">
-              <button className="btn" onClick={handleRefresh}>
-                <i className="fas fa-refresh"></i>
-              </button>
-            </div>
+    <div className="mx-5">
+      <div className="header">
+        <h2>Espacios</h2>
+      </div>
+      <div className="row mb-0 mt-1 justify-content-between">
+        <div className="col d-flex align-items-center">
+          <label className="d-flex align-items-center fw-bold me-4">
+            Filtros:
+          </label>
+          <div className="col-auto d-flex align-items-center">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nombre"
+              value={filtroNombre}
+              onChange={e => setFiltroNombre(e.target.value)}
+              maxLength={30}
+            />
           </div>
-          <div className="col-auto">
-            <button
-              className="btn"
-              onClick={() => {
-                setIsEditing(false);
-                handleShowModal();
-              }}
+          <div className="col-auto d-flex align-items-center ms-4">
+            <label className="me-2">Tipo:</label>
+            <select
+              className="form-select"
+              value={filtroTipo}
+              onChange={e => setFiltroTipo(e.target.value)}
             >
-              <FaPlus style={{ marginRight: "5px" }} />
-              Nuevo Espacio
+              <option value="">Todos</option>
+              <option value="Laboratorio">Laboratorio</option>
+              <option value="Aula">Aula</option>
+              <option value="Especial">Especial</option>
+            </select>
+          </div>
+          <div className="col-auto d-flex align-items-center ms-4">
+            <label className="me-2">Bloque:</label>
+            <select
+              className="form-select"
+              value={filtroBloque}
+              onChange={e => setFiltroBloque(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {bloques.map(bloque => (
+                <option key={bloque.id} value={bloque.id}>
+                  {bloque.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-auto d-flex align-items-center ms-4">
+            <button className="btn" onClick={handleRefresh}>
+              <i className="fas fa-refresh"></i>
             </button>
           </div>
         </div>
-        <div className="mt-1">
-          <table className="table table-bordered table-hover mt-4 caption-top">
-            <caption>Seleccione una fila para ver sus opciones</caption>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Piso</th>
-                <th>Capacidad</th>
-                <th>Bloque</th>
-                <th>Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPageData.length === 0 ? (
-                <tr>
-                  <td colSpan="5">No hay resultados</td>
-                </tr>
-              ) : (
-                cargarTabla()
-              )}
-            </tbody>
-          </table>
-          <ReactPaginate
-            previousLabel={"<"}
-            nextLabel={">"}
-            breakLabel={"..."}
-            pageCount={pageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
-            onPageChange={handlePageClick}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            pageClassName={"page-item"}
-            pageLinkClassName={"page-link"}
-            previousClassName={"page-item"}
-            previousLinkClassName={"page-link"}
-            nextClassName={"page-item"}
-            nextLinkClassName={"page-link"}
-            breakClassName={"page-item"}
-            breakLinkClassName={"page-link"}
-          />
-          <div
-            className="context-menu"
-            style={{
-              display:
-                showContextMenu && selectedRow !== null ? "block" : "none",
-              top: contextMenuPosition.top,
-              left: contextMenuPosition.left,
+        <div className="col-auto">
+          <button
+            className="btn"
+            onClick={() => {
+              setIsEditing(false);
+              handleShowModal();
             }}
           >
-            <Button
-              variant="custom"
-              id="editar-btn"
-              onClick={() => {
-                handleEditClick();
-                handleShowModal();
-              }}
-            >
-              Editar
-            </Button>
-            <Button
-              variant="custom"
-              id="eliminar-btn"
-              onClick={() => eliminarEspacio()}
-            >
-              Eliminar
-            </Button>
-          </div>
+            <FaPlus style={{ marginRight: "5px" }} />
+            Nuevo Espacio
+          </button>
+        </div>
+      </div>
+      <div className="mt-1">
+        <table className="table table-bordered table-hover mt-4 caption-top">
+          <caption>Seleccione una fila para ver sus opciones</caption>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Piso</th>
+              <th>Capacidad</th>
+              <th>Bloque</th>
+              <th>Tipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentPageData.length === 0 ? (
+              <tr>
+                <td colSpan="5">No hay resultados</td>
+              </tr>
+            ) : (
+              cargarTabla()
+            )}
+          </tbody>
+        </table>
+        <ReactPaginate
+          previousLabel={"<"}
+          nextLabel={">"}
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
+          breakClassName={"page-item"}
+          breakLinkClassName={"page-link"}
+        />
+        <div
+          className="context-menu"
+          style={{
+            display: showContextMenu && selectedRow !== null ? "block" : "none",
+            top: contextMenuPosition.top,
+            left: contextMenuPosition.left,
+          }}
+        >
+          <Button
+            variant="custom"
+            id="editar-btn"
+            onClick={() => {
+              handleEditClick();
+              handleShowModal();
+            }}
+          >
+            Editar
+          </Button>
+          <Button
+            variant="custom"
+            id="eliminar-btn"
+            onClick={() => eliminarEspacio()}
+          >
+            Eliminar
+          </Button>
         </div>
       </div>
       <Modal show={showModal} onHide={handleCloseModal} centered>
@@ -536,6 +507,6 @@ function AuLabs() {
       </Modal>
     </div>
   );
-}
+};
 
-export default AuLabs;
+export default Espacios;

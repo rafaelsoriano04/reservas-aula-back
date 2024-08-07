@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/login.css";
-import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { oops } from "../utils/Alerts";
+import { oops } from "../utils/swal-alerts";
 
-function Login() {
+const Login = () => {
   // Variables
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,15 +24,12 @@ function Login() {
         password,
       };
       try {
-        const resp = await axios.post(
-          "http://localhost:8080/usuario/login",
-          usuario
-        );
+        const resp = await api.post("usuario/login", usuario);
         if (resp.data) {
           setMensajeError("");
           localStorage.setItem("tipoUsuario", resp.data.tipo);
           localStorage.setItem("jwtToken", "tokenizado");
-          navigate(`/menu`);
+          navigate(`/fisei`);
         }
       } catch (error) {
         if (error.response) {
@@ -64,7 +61,7 @@ function Login() {
       <div className="login-container">
         <div className="login-form">
           <img
-            src="src/img/logo.png"
+            src="/src/img/logo.png"
             alt="Logo de la Universidad Técnica de Ambato"
           />
           <h1>Bienvenido!</h1>
@@ -107,6 +104,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

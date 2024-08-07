@@ -3,7 +3,6 @@ package gestorreservasaulas.servicios.impl;
 import gestorreservasaulas.dtos.EspacioDto;
 import gestorreservasaulas.entidades.Bloque;
 import gestorreservasaulas.entidades.Espacio;
-import gestorreservasaulas.entidades.Usuario;
 import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RepositorioEspacio;
@@ -45,38 +44,15 @@ public class ServicioEspacioImpl implements ServicioEspacio {
     }
 
     @Override
-    public List<EspacioDto> getByNombre(String nombre) throws NotFoundException {
-        return repositorioEspacio.findAllByNombreContains(nombre, Sort.by(Sort.Direction.ASC, "nombre"))
-                .stream().map(this::espacioToDto).collect(Collectors.toList());
-    }
+    public List<EspacioDto> findAllWithParams(String nombre, String tipo, Long id_bloque) {
+        nombre = nombre != null ? "%".concat(nombre).concat("%") : null;
+        Bloque bloque = null;
+        try {
+            bloque = id_bloque != null ? servicioBloque.obtenerBloque(id_bloque) : null;
+        } catch (NotFoundException ignored) {
+        }
 
-    @Override
-    public List<EspacioDto> getByTipo(String tipo) throws NotFoundException {
-        return repositorioEspacio.findAllByTipo(tipo, Sort.by(Sort.Direction.ASC, "nombre"))
-                .stream().map(this::espacioToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EspacioDto> getByTipoNombre(String tipo, String nombre) throws NotFoundException {
-        return repositorioEspacio.findAllByTipoAndNombreContains(tipo, nombre, Sort.by(Sort.Direction.ASC, "nombre"))
-                .stream().map(this::espacioToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EspacioDto> getByTipoBloque(String tipo, Long id_bloque) throws NotFoundException {
-        return repositorioEspacio.findAllByTipoAndBloque(tipo, servicioBloque.obtenerBloque(id_bloque), Sort.by(Sort.Direction.ASC, "nombre"))
-                .stream().map(this::espacioToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EspacioDto> getByBloqueNombre(Long id_bloque, String nombre) throws NotFoundException {
-        return repositorioEspacio.findAllByBloqueAndNombreContains(servicioBloque.obtenerBloque(id_bloque), nombre, Sort.by(Sort.Direction.ASC, "nombre"))
-                .stream().map(this::espacioToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EspacioDto> getByBloqueNombreTipo(Long id_bloque, String nombre, String tipo) throws NotFoundException {
-        return repositorioEspacio.findAllByBloqueAndNombreContainsAndTipo(servicioBloque.obtenerBloque(id_bloque), nombre, tipo, Sort.by(Sort.Direction.ASC, "nombre"))
+        return repositorioEspacio.findAllByParams(nombre, tipo, bloque, Sort.by("bloque"))
                 .stream().map(this::espacioToDto).collect(Collectors.toList());
     }
 

@@ -3,10 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Modal } from "react-bootstrap";
 import Select from "react-select";
 import "../styles/horario.css";
-import axios from "axios";
-import { ok, oops, deleteConfirmation } from "../utils/Alerts";
+import { ok, oops, deleteConfirmation } from "../utils/swal-alerts";
+import api from "../utils/api";
 
-function Horarios() {
+const Horarios = () => {
   // Variables
   const [bloques, setBloques] = useState([]);
   const [docentes, setDocente] = useState([]);
@@ -126,10 +126,10 @@ function Horarios() {
     setShowModal(true);
   };
   const fetchAulasLabs = async () => {
-    const url = `http://localhost:8080/espacio/bloque/${selectedBloque}`;
+    const url = `espacio/bloque/${selectedBloque}`;
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       let filteredData = [];
       if (selectedTipo == "Aula") {
         filteredData = response.data.filter(item => item.tipo === "Aula");
@@ -165,10 +165,10 @@ function Horarios() {
   const getHorarios = async () => {
     const url =
       selectedTipo === "Laboratorio"
-        ? `http://localhost:8080/horario/lab/${selectedAulaLab}`
-        : `http://localhost:8080/horario/aula/${selectedAulaLab}`;
+        ? `horario/lab/${selectedAulaLab}`
+        : `horario/aula/${selectedAulaLab}`;
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       setHorarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       oops("Error al cargar horarios.");
@@ -185,9 +185,9 @@ function Horarios() {
   };
 
   const getMaterias = async () => {
-    const url = "http://localhost:8080/materia";
+    const url = "materia";
     try {
-      const respuesta = await axios.get(url);
+      const respuesta = await api.get(url);
       const materiasopciones = respuesta.data.map(materia => ({
         value: materia.id,
         label: carreras[materia.carrera]
@@ -203,11 +203,11 @@ function Horarios() {
   };
 
   const eliminarHorario = async id => {
-    const url = `http://localhost:8080/horario/${id}`;
+    const url = `horario/${id}`;
     const isConfirmed = await deleteConfirmation();
     try {
       if (isConfirmed) {
-        await axios.delete(url);
+        await api.delete(url);
         getHorarios();
         ok("Registro eliminado exitosamente.");
       }
@@ -217,9 +217,9 @@ function Horarios() {
   };
 
   const getDocentes = async () => {
-    const url = `http://localhost:8080/person/docente`;
+    const url = `persona/docente/filtered`;
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       const docentesOptions = response.data.map(docente => ({
         value: docente.id,
         label: `${docente.nombre} ${docente.apellido}`,
@@ -233,7 +233,7 @@ function Horarios() {
 
   const getBloques = async () => {
     try {
-      const resp = await axios.get("http://localhost:8080/bloque");
+      const resp = await api.get("bloque");
       setBloques(resp.data);
     } catch (error) {
       oops("Error al cargar bloques.");
@@ -312,7 +312,7 @@ function Horarios() {
     );
     const nada = selectedDocente.value;
 
-    const url = "http://localhost:8080/horario";
+    const url = "horario";
     const nuevoHorario = {
       dia: selectedDia,
       hora: selectedHora.split("-")[0],
@@ -327,7 +327,7 @@ function Horarios() {
         return;
       }
 
-      await axios.post(url, nuevoHorario);
+      await api.post(url, nuevoHorario);
 
       ok("Registro guardado exitosamente.");
 
@@ -352,7 +352,7 @@ function Horarios() {
       return;
     }
 
-    const url = `http://localhost:8080/horario`;
+    const url = `horario`;
 
     const nada = selectedDocente.value;
     const materia = selectedMateria.value;
@@ -367,7 +367,7 @@ function Horarios() {
     console.log(horarioActualizado);
 
     try {
-      const response = await axios.post(url, horarioActualizado, {
+      const response = await api.post(url, horarioActualizado, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -480,8 +480,8 @@ function Horarios() {
 
   // Render
   return (
-    <div className="container">
-      <div className="container mt-4">
+    <div className="horario">
+      <div className="mx-5">
         <div className="header text-center">
           <h2>Horarios</h2>
         </div>
@@ -521,12 +521,18 @@ function Horarios() {
                 </Form.Group>
 
                 <Form.Group className="form-group">
-                  <Form.Label htmlFor="aula-lab">Aula/Laboratorio:</Form.Label>
+                  <Form.Label>
+                    Espacio:{" "}
+                    {aulasLabs.length === 0 && (
+                      <label>(No hay espacios disponibles)</label>
+                    )}
+                  </Form.Label>
                   <Form.Select
                     id="aula-lab"
                     className="form-control"
                     value={selectedAulaLab}
                     onChange={handleAulaLabChange}
+                    disabled={aulasLabs.length === 0}
                     name="aulaLab"
                   >
                     {aulasLabs.map(aulaLab => (
@@ -547,7 +553,7 @@ function Horarios() {
                 {noHorariosMessage}
               </div>
             ) : (
-              <table className="table table-bordered  mt-4 table-centered caption-top">
+              <table className="table table-bordered mt-3 table-centered caption-top">
                 <caption>Seleccione una celda para realizar una acción</caption>
                 <thead>
                   <tr>
@@ -775,6 +781,6 @@ function Horarios() {
       </Modal>
     </div>
   );
-}
+};
 
 export default Horarios;

@@ -14,8 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/bloque")
 @CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "http://serviciosfisei.uta.edu.ec:5173")
 public class BloqueController {
-
     @Autowired
     private ServicioBloque servicioBloque;
 
@@ -23,5 +23,4 @@ public class BloqueController {
     public List<BloqueDto> getAll() throws NotFoundException {
         return servicioBloque.getAll();
     }
-
 }

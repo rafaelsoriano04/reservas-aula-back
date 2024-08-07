@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Nav, Row, Col } from "react-bootstrap";
-import "../styles/menu.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Horarios from "./horario";
-import Reservas from "./Reservas";
-import AuLabs from "./AuLabs";
-import Docentes from "./docentes";
-import Usuarios from "./Usuarios";
-import Materia from "./materia";
-import Feriados from "./Feriados";
+import "../styles/menu.css";
 
-const SidebarMenu = () => {
+import React, { useEffect, useState } from "react";
+import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
+import { Nav, Row, Col } from "react-bootstrap";
+
+import Horarios from "./Horarios";
+import Reservas from "./Reservas";
+import Espacios from "./Espacios";
+import Usuarios from "./Usuarios";
+import Materias from "./Materias";
+import Feriados from "./Feriados";
+import Docentes from "./Docentes";
+
+const Menu = () => {
   const navigate = useNavigate();
-  const [activeComponent, setActiveComponent] = useState("reservas");
   const [tipoUsuario, setTipoUsuario] = useState("");
 
   useEffect(() => {
@@ -27,35 +28,14 @@ const SidebarMenu = () => {
     event.preventDefault();
     localStorage.removeItem("tipoUsuario");
     localStorage.removeItem("jwtToken");
-
     navigate("/");
-  };
-
-  const renderActiveComponent = () => {
-    switch (activeComponent) {
-      case "horarios":
-        return <Horarios />;
-      case "aulabs":
-        return <AuLabs />;
-      case "docentes":
-        return <Docentes />;
-      case "materia":
-        return <Materia />;
-      case "usuarios":
-        return <Usuarios />;
-      case "feriados":
-        return <Feriados />;
-      case "reservas":
-      default:
-        return <Reservas />;
-    }
   };
 
   const showUsersOption = () => {
     if (tipoUsuario === "Administrador") {
       return (
         <Nav.Item>
-          <Nav.Link onClick={() => setActiveComponent("usuarios")}>
+          <Nav.Link onClick={() => navigate("usuarios")}>
             <i className="fas fa-users me-2"></i>Usuarios
           </Nav.Link>
         </Nav.Item>
@@ -64,40 +44,40 @@ const SidebarMenu = () => {
   };
 
   return (
-    <Row>
-      <Col lg={3} className="p-0">
-        <Nav className="col-md-12 d-none d-md-block bg-light sidebar">
+    <Row className="vh-100">
+      <Col xs={2} className="sidebar">
+        <Nav className="flex-column sticky-top bg-light h-100">
           <div className="sidebar-sticky d-flex flex-column h-100">
             <div className="header-logo">
-              <img src="src/img/1.png" alt="Logo uta" className="mb-4" />
+              <img src="/src/img/1.png" alt="Logo uta" className="mb-4" />
             </div>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("reservas")}>
+              <Nav.Link onClick={() => navigate("reservas")}>
                 <i className="fas fa-calendar-alt me-2"></i>Reservas
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("horarios")}>
+              <Nav.Link onClick={() => navigate("horarios")}>
                 <i className="fas fa-clock me-2"></i>Horarios
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("aulabs")}>
-                <i className="fas fa-chalkboard-teacher me-2"></i>Aulas-Labs
+              <Nav.Link onClick={() => navigate("espacios")}>
+                <i className="fas fa-chalkboard-teacher me-2"></i>Espacios
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("docentes")}>
+              <Nav.Link onClick={() => navigate("docentes")}>
                 <i className="fas fa-user me-2"></i>Docentes
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("materia")}>
-                <i className="fas fa-book me-2"></i>Materia
+              <Nav.Link onClick={() => navigate("materias")}>
+                <i className="fas fa-book me-2"></i>Materias
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link onClick={() => setActiveComponent("feriados")}>
+              <Nav.Link onClick={() => navigate("feriados")}>
                 <i className="fas fa-umbrella-beach me-2"></i>Feriados
               </Nav.Link>
             </Nav.Item>
@@ -112,11 +92,29 @@ const SidebarMenu = () => {
           </div>
         </Nav>
       </Col>
-      <Col md={10} className="col-10 main-content">
-        {renderActiveComponent()}
+      <Col xs={10} className="main-content">
+        <Routes>
+          <Route path="reservas" element={<Reservas />} />
+          <Route path="horarios" element={<Horarios />} />
+          <Route path="espacios" element={<Espacios />} />
+          <Route path="docentes" element={<Docentes />} />
+          <Route path="materias" element={<Materias />} />
+          <Route path="feriados" element={<Feriados />} />
+          <Route
+            path="usuarios"
+            element={
+              tipoUsuario === "Administrador" ? (
+                <Usuarios />
+              ) : (
+                <Navigate to="/reservas" />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/fisei/reservas" />} />
+        </Routes>
       </Col>
     </Row>
   );
 };
 
-export default SidebarMenu;
+export default Menu;

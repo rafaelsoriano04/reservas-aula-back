@@ -20,15 +20,7 @@ public interface ServicioEspacio {
 
     List<EspacioDto> getByBloque(Long id_bloque) throws NotFoundException;
 
-    List<EspacioDto> getByNombre(String nombre) throws NotFoundException;
+    List<EspacioDto> findAllWithParams(String nombre, String tipo, Long id_bloque);
 
-    List<EspacioDto> getByTipo(String tipo) throws NotFoundException;
 
-    List<EspacioDto> getByTipoNombre(String tipo, String nombre) throws NotFoundException;
-
-    List<EspacioDto> getByTipoBloque(String tipo, Long id_bloque) throws NotFoundException;
-
-    List<EspacioDto> getByBloqueNombre(Long id_bloque, String nombre) throws NotFoundException;
-
-    List<EspacioDto> getByBloqueNombreTipo(Long id_bloque, String nombre, String tipo) throws NotFoundException;
 }

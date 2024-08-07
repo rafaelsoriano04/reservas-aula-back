@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface RepositorioEspacio extends JpaRepository<Espacio, Long> {
-
     List<Espacio> findAllByTipo(String tipo, Sort sort);
 
     List<Espacio> findAllByNombreContains(String nombre, Sort sort);
@@ -29,11 +28,12 @@ public interface RepositorioEspacio extends JpaRepository<Espacio, Long> {
 
     List<Espacio> findAllByBloqueAndNombreContainsAndTipo(Bloque bloque, String nombre, String tipo, Sort sort);
 
-
-
-    @Query("SELECT e FROM Espacio e WHERE e.bloque.id = :id_bloque")
-    List<Espacio> findByBloque(@Param("id_bloque") Long id_bloque);
-
     Optional<Espacio> findByNombre(String nombre);
 
+    @Query("SELECT e " +
+            "FROM Espacio e " +
+            "WHERE (:nombre IS NULL OR e.nombre LIKE :nombre) " +
+            "AND (:tipo IS NULL OR e.tipo = :tipo) " +
+            "AND (:bloque IS NULL OR e.bloque = :bloque)")
+    List<Espacio> findAllByParams(String nombre, String tipo, Bloque bloque, Sort sort);
 }
