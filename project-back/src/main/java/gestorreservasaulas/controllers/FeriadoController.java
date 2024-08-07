@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/feriado")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:9060")
 public class FeriadoController {
 
     @Autowired

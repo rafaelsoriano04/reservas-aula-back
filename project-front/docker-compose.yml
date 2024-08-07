@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: reservas-front
+    image: reservas-front
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9060:5173"

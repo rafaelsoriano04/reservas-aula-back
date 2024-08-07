@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/bloque")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:9060")
 //@CrossOrigin(origins = "http://serviciosfisei.uta.edu.ec:5173")
 public class BloqueController {
     @Autowired

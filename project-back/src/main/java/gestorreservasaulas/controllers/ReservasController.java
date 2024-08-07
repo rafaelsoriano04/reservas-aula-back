@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reservas")
-@CrossOrigin(origins = "http://localhost:5173") // Asegúrate que el origen sea correcto
+@CrossOrigin(origins = "http://localhost:9060")
 public class ReservasController {
 
     @Autowired
@@ -21,10 +21,12 @@ public class ReservasController {
     public ReservaDto save(@RequestBody ReservaDto reservaDto) throws NotFoundException {
         return servicioReservas.crearReserva(reservaDto);
     }
+
     @PutMapping("/{id}")
     public ReservaDto update(@PathVariable Long id, @RequestBody ReservaDto reservaDto) throws NotFoundException {
         return servicioReservas.actualizarReserva(id, reservaDto);
     }
+
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) throws NotFoundException {
         servicioReservas.eliminarReserva(id);

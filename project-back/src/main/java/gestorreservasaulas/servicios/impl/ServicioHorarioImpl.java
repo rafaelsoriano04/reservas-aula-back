@@ -4,10 +4,8 @@ import gestorreservasaulas.dtos.HorarioDto;
 import gestorreservasaulas.entidades.Horario;
 import gestorreservasaulas.entidades.Materia;
 import gestorreservasaulas.entidades.Persona;
-import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 import gestorreservasaulas.respositorios.RepositorioHorario;
-import gestorreservasaulas.respositorios.RepositorioPersona;
 import gestorreservasaulas.servicios.ServicioEspacio;
 import gestorreservasaulas.servicios.ServicioHorario;
 import gestorreservasaulas.servicios.ServicioPersona;
@@ -84,8 +82,7 @@ public class ServicioHorarioImpl implements ServicioHorario {
         // stream().map() es como un for, que simplifica y se llama directo al metodo por cada item de la lista
         return listaHorarios.stream().map(this::horarioToDto).collect(Collectors.toList());
     }
-    
-    
+
 
     @Override
     @Transactional
@@ -122,8 +119,5 @@ public class ServicioHorarioImpl implements ServicioHorario {
         Materia materia = servicioMateria.buscarMateria(horarioDTO.getId_materia());
         horario.setMateria(materia);
         return horario;
-
     }
-
-
 }

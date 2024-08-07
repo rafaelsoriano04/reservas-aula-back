@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/espacio")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:9060")
 public class EspacioController {
     @Autowired
     ServicioEspacio servicioEspacio;

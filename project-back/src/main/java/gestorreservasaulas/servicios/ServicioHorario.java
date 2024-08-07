@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gestorreservasaulas.servicios;
 
 import gestorreservasaulas.dtos.HorarioDto;
@@ -10,7 +6,6 @@ import gestorreservasaulas.exceptions.ConflictException;
 import gestorreservasaulas.exceptions.NotFoundException;
 
 import java.util.List;
-
 
 public interface ServicioHorario {
     Horario obtenerHorario(Long id);
@@ -23,8 +18,5 @@ public interface ServicioHorario {
 
     List<HorarioDto> obtenerHorariosPorEspecial(Long id);
 
-
-
     boolean eliminarHorario(Long id);
-   
 }

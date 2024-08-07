@@ -21,6 +21,4 @@ public interface ServicioEspacio {
     List<EspacioDto> getByBloque(Long id_bloque) throws NotFoundException;
 
     List<EspacioDto> findAllWithParams(String nombre, String tipo, Long id_bloque);
-
-
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/horario")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:9060")
 public class HorarioController {
     @Autowired
     private ServicioHorario servicioHorario;
@@ -40,5 +40,4 @@ public class HorarioController {
     public boolean delete(@PathVariable Long id) {
         return servicioHorario.eliminarHorario(id);
     }
-
 }
