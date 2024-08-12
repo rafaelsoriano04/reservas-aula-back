@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/horario")
-@CrossOrigin(origins = "http://serviciosfisei.uta.edu.ec:9060")
+@CrossOrigin(origins = {"http://localhost:5173", "http://serviciosfisei.uta.edu.ec:9060"})
 public class HorarioController {
     @Autowired
     private ServicioHorario servicioHorario;
