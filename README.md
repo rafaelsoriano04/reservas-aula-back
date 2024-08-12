@@ -16,7 +16,7 @@ Este comando generará un JAR ejecutable en el directorio build/libs.
 ### 2. Construir la imagen Docker
 Crea una imagen Docker para el proyecto usando el siguiente comando:
 ```sh
-docker build -t reservas-back:latest .
+docker build -t reservas-aulas-back:latest .
 ```
 Este comando utiliza el Dockerfile presente en la raíz del proyecto para construir una imagen con la etiqueta reservas-back:latest.
 
