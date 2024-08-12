@@ -22,7 +22,10 @@ Este comando utiliza el Dockerfile presente en la raíz del proyecto para constr
 
 Configuración del Entorno de Desarrollo
 
-### 3. Ejecutar el contenedor con Docker Compose
+### 3. Crear la base de datos MySQL
+Asegúrate de que la base de datos MySQL llamada ``gestor-reservas`` esté creada y disponible para el proyecto.
+
+### 4. Ejecutar el contenedor con Docker Compose
 Finalmente, usa Docker Compose para iniciar los contenedores definidos en el archivo docker-compose.yml:
 ```sh
 docker-compose up
