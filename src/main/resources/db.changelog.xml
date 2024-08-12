@@ -7,8 +7,193 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="1" author="rafael">
-        <addColumn tableName="horarios">
-            <column name="curso" type="varchar(30)"></column>
-        </addColumn>
+        <createTable tableName="materias">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nombre" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="carrera" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="reservas">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="hora" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="asunto" type="varchar(30)"/>
+            <column name="descripcion" type="varchar(150)"/>
+            <column name="id_persona" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_espacio" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="horarios">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="dia" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hora" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="curso" type="varchar(30)"/>
+            <column name="id_persona" type="bigint"/>
+            <column name="id_materia" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_espacio" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="usuarios">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(30)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="contrasenia" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tipo" type="varchar(13)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="bloques">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nombre" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="descripcion" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="personas">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cedula" type="varchar(15)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="nombre" type="varchar(100)"/>
+            <column name="apellido" type="varchar(100)"/>
+            <column name="telefono" type="varchar(10)"/>
+            <column name="tipo" type="varchar(20)"/>
+        </createTable>
+        <createTable tableName="feriados">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="inicio" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fin" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nombre" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="espacios">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nombre" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="piso" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="capacidad" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tipo" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id_bloque" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="rafael">
+        <addForeignKeyConstraint
+                baseTableName="reservas"
+                baseColumnNames="id_persona"
+                referencedTableName="personas"
+                referencedColumnNames="id"
+                constraintName="fk_reservas_personas"/>
+
+        <addForeignKeyConstraint
+                baseTableName="reservas"
+                baseColumnNames="id_espacio"
+                referencedTableName="espacios"
+                referencedColumnNames="id"
+                constraintName="reservas_ibfk_1"/>
+
+        <addForeignKeyConstraint
+                baseTableName="horarios"
+                baseColumnNames="id_materia"
+                referencedTableName="materias"
+                referencedColumnNames="id"
+                constraintName="horarios_ibfk_1"/>
+
+        <addForeignKeyConstraint
+                baseTableName="horarios"
+                baseColumnNames="id_espacio"
+                referencedTableName="espacios"
+                referencedColumnNames="id"
+                constraintName="horarios_ibfk_2"/>
+
+        <addForeignKeyConstraint
+                baseTableName="horarios"
+                baseColumnNames="id_persona"
+                referencedTableName="personas"
+                referencedColumnNames="id"
+                constraintName="horarios_personas_FK"/>
+
+        <addForeignKeyConstraint
+                baseTableName="espacios"
+                baseColumnNames="id_bloque"
+                referencedTableName="bloques"
+                referencedColumnNames="id"
+                constraintName="espacios_bloques_FK"/>
+    </changeSet>
+
+    <changeSet id="3" author="rafael">
+        <insert tableName="usuarios">
+            <column name="username" value="admin"/>
+            <column name="contrasenia" value="$2a$10$uoz9PROUblCwbeLQlz.Ymut6vi/ysHVgsLsbr2WBleZc.vO65.aE2"/>
+            <column name="tipo" value="Administrador"/>
+        </insert>
+        <insert tableName="bloques">
+            <column name="nombre" value="Bloque 1"/>
+            <column name="descripcion" value="Bloque principal de la facultad"/>
+        </insert>
+        <insert tableName="bloques">
+            <column name="nombre" value="Bloque 2"/>
+            <column name="descripcion" value="Bloque secundario"/>
+        </insert>
+        <insert tableName="bloques">
+            <column name="nombre" value="Ciencias Aplicadas"/>
+            <column name="descripcion" value="Edificio de Ciencias Aplicadas"/>
+        </insert>
+        <insert tableName="bloques">
+            <column name="nombre" value="Talleres Tecnológicos"/>
+            <column name="descripcion" value=""/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

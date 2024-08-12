@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
 ---
 spring:
   config:
@@ -14,9 +14,13 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db.changelog.xml
+    contexts: ${spring.profiles.active}
   jpa:
     hibernate:
       ddl-auto: update
+  cors:
+    allowed-origins:
+      - http://localhost:5173
 ---
 spring:
   config:
@@ -30,6 +34,10 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db.changelog.xml
+    contexts: ${spring.profiles.active}
   jpa:
     hibernate:
       ddl-auto: update
+  cors:
+    allowed-origins:
+      - http://serviciosfisei.uta.edu.ec:9060
