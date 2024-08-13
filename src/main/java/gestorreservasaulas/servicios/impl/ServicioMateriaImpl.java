@@ -57,10 +57,9 @@ public class ServicioMateriaImpl implements ServicioMateria {
     }
 
     @Override
-    public List<MateriaDto> findAllWithParams(String nombre, String carrera) {
+    public List<MateriaDto> findAllWithParams(String nombre, String carrera, String curso) {
         nombre = nombre != null ? "%".concat(nombre).concat("%") : null;
-        carrera = carrera != null ? "%".concat(carrera).concat("%") : null;
-        List<Materia> materias = repositorioMateria.findAllWithParams(nombre, carrera, Sort.by("nombre"));
+        List<Materia> materias = repositorioMateria.findAllWithParams(nombre, carrera, curso, Sort.by("nombre"));
         return materias.stream().map(this::materiaToDto).collect(Collectors.toList());
     }
 

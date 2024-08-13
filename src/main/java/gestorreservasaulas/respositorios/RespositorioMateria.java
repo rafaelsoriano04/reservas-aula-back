@@ -15,6 +15,7 @@ public interface RespositorioMateria extends JpaRepository<Materia, Long> {
     @Query("SELECT m " +
             "FROM Materia m " +
             "WHERE (:nombre IS NULL OR m.nombre LIKE :nombre) " +
-            "AND (:carrera IS NULL OR m.carrera LIKE :carrera)")
-    List<Materia> findAllWithParams(String nombre, String carrera, Sort sort);
+            "AND (:carrera IS NULL OR m.carrera = :carrera) " +
+            "AND (:curso IS NULL OR m.curso = :curso)")
+    List<Materia> findAllWithParams(String nombre, String carrera, String curso, Sort sort);
 }
