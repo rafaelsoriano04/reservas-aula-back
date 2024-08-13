@@ -23,7 +23,9 @@ public class Materia {
     private String nombre;
     @Column()
     private String carrera;
+    @Column()
+    private String curso;
 
-    @OneToMany( mappedBy = "materia")
+    @OneToMany(mappedBy = "materia")
     List<Horario> listaHorario;
 }
