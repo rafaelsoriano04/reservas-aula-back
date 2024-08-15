@@ -16,5 +16,5 @@ public interface ServicioMateria {
 
     Materia buscarMateria(Long id) throws NotFoundException;
 
-    List<MateriaDto> findAllWithParams(String nombre, String carrera);
+    List<MateriaDto> findAllWithParams(String nombre, String carrera, String curso);
 }

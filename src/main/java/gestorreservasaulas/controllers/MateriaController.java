@@ -34,7 +34,8 @@ public class MateriaController {
 
     @GetMapping("/filtered")
     public List<MateriaDto> findAllWithParams(@RequestParam(required = false) String nombre,
-                                              @RequestParam(required = false) String carrera) {
-        return servicioMateria.findAllWithParams(nombre, carrera);
+                                              @RequestParam(required = false) String carrera,
+                                              @RequestParam(required = false) String curso) {
+        return servicioMateria.findAllWithParams(nombre, carrera, curso);
     }
 }
