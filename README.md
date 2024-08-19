@@ -5,17 +5,7 @@ los pasos a continuación para configurar y ejecutar el proyecto.
 
 ## Desplegar a Producción
 
-### 1. Construir el JAR ejecutable
-
-Ejecuta el siguiente comando dentro de la carpeta del proyecto para construir el archivo JAR ejecutable usando Gradle:
-
-```sh
-./gradlew bootJar
-```
-
-Este comando generará un JAR ejecutable en el directorio build/libs.
-
-### 2. Construir la imagen Docker
+### 1. Construir la imagen Docker
 
 Crea una imagen Docker para el proyecto usando el siguiente comando:
 
@@ -28,11 +18,11 @@ reservas-aulas-back:latest.
 
 Configuración del Entorno de Desarrollo
 
-### 3. Crear la base de datos MySQL
+### 2. Crear la base de datos MySQL
 
 Asegúrate de que la base de datos MySQL llamada `gestor-reservas` esté creada y disponible para el proyecto.
 
-### 4. Ejecutar el contenedor con Docker Compose
+### 3. Ejecutar el contenedor con Docker Compose
 
 Finalmente, usa Docker Compose para iniciar los contenedores definidos en el archivo docker-compose.yml:
 
