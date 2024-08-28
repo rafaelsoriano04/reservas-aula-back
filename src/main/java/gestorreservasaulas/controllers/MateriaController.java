@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/materia")
-@CrossOrigin(origins = {"http://localhost:5173", "http://serviciosfisei.uta.edu.ec:9060"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://serviciosfisei.uta.edu.ec:9060", "http://172.21.123.13:9060"})
 public class MateriaController {
     @Autowired
     private ServicioMateria servicioMateria;
