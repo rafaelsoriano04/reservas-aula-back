@@ -3,6 +3,6 @@ version: '3.7'
 services:
   reservas-aulas-back:
     image: reservas-aulas-back:latest
-    container_name: reservas-aulas-back
+    container_name: reservas_aulas_back_v2
     ports:
       - 9070:8080
