@@ -1,11 +1,11 @@
 spring:
   profiles:
-    active: dev
+    active: prod
 ---
 spring:
   config:
     activate:
-      on-profile: prod
+      on-profile: dev
   datasource:
     url: jdbc:mysql://localhost:3306/gestor-reservas
     username: root
